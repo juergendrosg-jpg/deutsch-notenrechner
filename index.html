@@ -668,6 +668,13 @@
             </div>
             <div id="class-list-o"></div>
         </div>
+        <div>
+            <div class="sidebar-group-head">
+                <span class="sidebar-group-label">Spanisch</span>
+                <button class="btn btn-xs btn-outline-secondary" id="btn-add-class-s" title="Neue Spanisch-Klasse"><i class="bi bi-plus-lg"></i></button>
+            </div>
+            <div id="class-list-s"></div>
+        </div>
         <div id="sidebar-footer">
             <button type="button" class="btn btn-xs btn-outline-secondary w-50" onclick="exportData()" title="Daten als JSON-Datei herunterladen">
                 <i class="bi bi-download"></i> Exportieren
@@ -1069,12 +1076,12 @@ function migrateData() {
 
         // ── Ensure semester2 exists ──────────────────────────────────
         if (!cls.semester2) {
-            cls.semester2 = {
-                schularbeiten: [{id: genId(), name: '1. Schularbeit'}, {id: genId(), name: '2. Schularbeit'}],
-                wiederholungen: [], praesentationen: [], hausaufgaben: [],
-                gewichtung: {schularbeiten:40, wiederholung:20, praesentation:20, hausaufgaben:20},
-                studentData: {}
-            };
+            cls.semester2 = cls.type === 'spanisch'
+                ? { wiederholungen: [], praesentationen: [], hausaufgaben: [], gewichtung: {}, studentData: {} }
+                : { schularbeiten: [{id: genId(), name: '1. Schularbeit'}, {id: genId(), name: '2. Schularbeit'}],
+                    wiederholungen: [], praesentationen: [], hausaufgaben: [],
+                    gewichtung: {schularbeiten:40, wiederholung:20, praesentation:20, hausaufgaben:20},
+                    studentData: {} };
         }
 
         // ── Ensure type exists (all legacy classes are Unterstufe) ─────
@@ -1259,6 +1266,11 @@ function calcSATeilnote(sem, sid) {
 
 // Gesamtnote (gewichteter Durchschnitt)
 function calcGesamtnote(cls, sem, s) {
+    if (cls.type === 'spanisch') {
+        const parts = [calcWdhTeilnote(sem, s.id), calcPraesTeilnote(sem, s.id), calcMMTeilnote(sem, s.id)].filter(v => v !== null);
+        if (parts.length === 0) return null;
+        return parts.reduce((a, b) => a + b, 0) / parts.length;
+    }
     const g = sem.gewichtung || {};
     const saWeight = +(g.schularbeiten || 0);
     const wdhNote   = calcWdhTeilnote(sem, s.id);
@@ -1295,7 +1307,7 @@ function effectiveSemesterNote(cls, sem, s) {
     const sas = sem.schularbeiten || [];
     const sd  = sem.studentData?.[s.id] || {};
     const hasSAData = sas.some(sa => sd.schularbeiten?.[sa.id]);
-    if (cls.type !== 'oberstufe' && hasSAData && !hasPositiveSA(sem, s)) return 5;
+    if (cls.type !== 'oberstufe' && cls.type !== 'spanisch' && hasSAData && !hasPositiveSA(sem, s)) return 5;
     return calcGesamtnoteAdjusted(cls, sem, s);
 }
 
@@ -1401,6 +1413,7 @@ function addClass(name, type) {
     const c=newClass(name, type); activeClasses().push(c);
     activeClassId=c.id; activeSemester='semester1';
     activeSaId=c.semester1.schularbeiten?.[0]?.id ?? null;
+    activeTab=type==='spanisch'?'wdh':'sa';
     saveData(); render();
 }
 function editClass(id, name)     { const c=activeClasses().find(c=>c.id===id); if(c){c.name=name.trim(); saveData(); render();} }
@@ -1799,10 +1812,13 @@ function renderSidebar() {
             </div>
         </div>`;
     const empty = '<p class="text-muted small" style="padding:4px 6px">Keine Klassen.</p>';
-    const uClasses = activeClasses().filter(c => c.type !== 'oberstufe');
+    const listS = document.getElementById('class-list-s');
+    const uClasses = activeClasses().filter(c => c.type === 'unterstufe');
     const oClasses = activeClasses().filter(c => c.type === 'oberstufe');
+    const sClasses = activeClasses().filter(c => c.type === 'spanisch');
     listU.innerHTML = uClasses.length ? uClasses.map(classItem).join('') : empty;
     listO.innerHTML = oClasses.length ? oClasses.map(classItem).join('') : empty;
+    if (listS) listS.innerHTML = sClasses.length ? sClasses.map(classItem).join('') : empty;
 }
 
 function renderContent() {
@@ -1826,10 +1842,10 @@ function renderContent() {
             <div class="semester-tab schueler-tab ${activeTab==='schueler'?'active':''}" onclick="selectTab('schueler');return false;">Schüler:innen</div>
         </div>
         ${activeTab!=='jahr'&&activeTab!=='schueler' ? `<ul class="nav class-tabs" id="class-tabs">
-            <li class="nav-item"><a class="nav-link ${activeTab==='sa'?'active':''}" href="#" onclick="selectTab('sa');return false;"><i class="bi bi-pencil-square me-1"></i>Schularbeiten</a></li>
+            ${cls.type !== 'spanisch' ? `<li class="nav-item"><a class="nav-link ${activeTab==='sa'?'active':''}" href="#" onclick="selectTab('sa');return false;"><i class="bi bi-pencil-square me-1"></i>Schularbeiten</a></li>` : ''}
             <li class="nav-item"><a class="nav-link ${activeTab==='wdh'?'active':''}" href="#" onclick="selectTab('wdh');return false;"><i class="bi bi-journal-check me-1"></i>Wiederholungen</a></li>
             <li class="nav-item"><a class="nav-link ${activeTab==='praes'?'active':''}" href="#" onclick="selectTab('praes');return false;"><i class="bi bi-mic me-1"></i>Präsentationen</a></li>
-            <li class="nav-item"><a class="nav-link ${activeTab==='ha'?'active':''}" href="#" onclick="selectTab('ha');return false;"><i class="bi bi-house me-1"></i>Hausübungen</a></li>
+            ${cls.type !== 'spanisch' ? `<li class="nav-item"><a class="nav-link ${activeTab==='ha'?'active':''}" href="#" onclick="selectTab('ha');return false;"><i class="bi bi-house me-1"></i>Hausübungen</a></li>` : ''}
             <li class="nav-item"><a class="nav-link ${activeTab==='mm'?'active':''}" href="#" onclick="selectTab('mm');return false;"><i class="bi bi-chat-dots me-1"></i>Mündl. Mitarbeit</a></li>
             <li class="nav-item"><a class="nav-link ${activeTab==='gesamt'?'active':''}" href="#" onclick="selectTab('gesamt');return false;"><i class="bi bi-calculator me-1"></i>Gesamtnote</a></li>
         </ul>` : ''}
@@ -1842,14 +1858,18 @@ function selectClass(id) {
     activeClassId=id;
     const _selCls = activeClasses().find(c=>c.id===id);
     activeSaId = _selCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
-    activeTab='sa'; renderSidebar(); renderContent();
+    activeTab=_selCls?.type==='spanisch'?'wdh':'sa';
+    renderSidebar(); renderContent();
 }
 function selectTab(tab)  { activeTab=tab; if (tab==='jahr'||tab==='schueler') { renderContent(); } else { renderTabContent(); updateTabLinks(); } }
 function selectSemester(sem) {
     activeSemester = sem;
     const cls = activeClasses().find(c=>c.id===activeClassId);
     activeSaId = cls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
-    if (activeTab === 'jahr' || activeTab === 'schueler') activeTab = 'sa';
+    const _semCls = activeClasses().find(c=>c.id===activeClassId);
+    const _isSpanisch = _semCls?.type === 'spanisch';
+    if (activeTab === 'jahr' || activeTab === 'schueler') activeTab = _isSpanisch ? 'wdh' : 'sa';
+    else if (_isSpanisch && (activeTab === 'sa' || activeTab === 'ha')) activeTab = 'wdh';
     renderContent();
 }
 
@@ -2401,6 +2421,7 @@ function attachMMListeners() {
 // RENDER – Tab Gesamtnote
 // ================================================================
 function renderTabGesamt(cls, sem) {
+    const isSpanisch = cls.type === 'spanisch';
     const g = sem.gewichtung;
     const saWeight = +(g.schularbeiten || 0);
     const sas = sem.schularbeiten || [];
@@ -2412,16 +2433,24 @@ function renderTabGesamt(cls, sem) {
         <div class="weight-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <strong>Gewichtung der Teilnoten</strong>
-                <span class="${warnClass}" id="weight-sum-display">${warnTxt}</span>
+                ${isSpanisch
+                    ? '<span class="weight-sum-ok">je ⅓ (fix)</span>'
+                    : `<span class="${warnClass}" id="weight-sum-display">${warnTxt}</span>`}
             </div>
-            <div class="d-flex flex-wrap gap-3 align-items-end">
-                ${weightInput('schularbeiten', 'Schularbeiten', g.schularbeiten)}
-                ${weightInput('wiederholung','Wiederholung',   g.wiederholung)}
-                ${weightInput('praesentation','Präsentation',  g.praesentation)}
-                ${weightInput('hausaufgaben','Hausübungen',    g.hausaufgaben)}
-                ${weightInput('muendlich','Mündl. Mitarbeit', g.muendlich)}
-                ${activeSemester === 'semester2' ? `<button class="btn btn-sm" id="btn-copy-weights" style="align-self:flex-end;background:#e8f0fe;color:#1a56db;border-color:#a4c2f7;font-weight:500">↩ Gewichtungen aus 1. Sem. übernehmen</button>` : ''}
-            </div>
+            ${isSpanisch
+                ? `<div class="d-flex flex-wrap gap-3">
+                       <div class="weight-item"><label class="form-label form-label-sm mb-1">Wiederholung</label><div><span class="form-control form-control-sm" style="width:70px;text-align:center;display:inline-block">⅓</span></div></div>
+                       <div class="weight-item"><label class="form-label form-label-sm mb-1">Präsentation</label><div><span class="form-control form-control-sm" style="width:70px;text-align:center;display:inline-block">⅓</span></div></div>
+                       <div class="weight-item"><label class="form-label form-label-sm mb-1">Mündl. Mitarbeit</label><div><span class="form-control form-control-sm" style="width:70px;text-align:center;display:inline-block">⅓</span></div></div>
+                   </div>`
+                : `<div class="d-flex flex-wrap gap-3 align-items-end">
+                       ${weightInput('schularbeiten', 'Schularbeiten', g.schularbeiten)}
+                       ${weightInput('wiederholung','Wiederholung',   g.wiederholung)}
+                       ${weightInput('praesentation','Präsentation',  g.praesentation)}
+                       ${weightInput('hausaufgaben','Hausübungen',    g.hausaufgaben)}
+                       ${weightInput('muendlich','Mündl. Mitarbeit', g.muendlich)}
+                       ${activeSemester === 'semester2' ? `<button class="btn btn-sm" id="btn-copy-weights" style="align-self:flex-end;background:#e8f0fe;color:#1a56db;border-color:#a4c2f7;font-weight:500">↩ Gewichtungen aus 1. Sem. übernehmen</button>` : ''}
+                   </div>`}
         </div>
         ${!cls.students.length ? emptyStudents() : `
         <div class="table-wrapper">
@@ -2429,12 +2458,12 @@ function renderTabGesamt(cls, sem) {
                 <thead>
                     <tr>
                         <th class="sticky-col" style="">Name</th>
-                        ${sas.map(sa => `<th class="text-center th-sa1">${esc(sa.name)}</th>`).join('')}
-                        <th class="text-center th-sa1" style="border-left:2px solid #90a4ae">SA gesamt<br><small>${saWeight} %</small></th>
-                        <th class="text-center th-wdh">Wdh.<br><small>${g.wiederholung||0} %</small></th>
-                        <th class="text-center th-praes">Präs.<br><small>${g.praesentation||0} %</small></th>
-                        <th class="text-center th-ha">HÜ<br><small>${g.hausaufgaben||0} %</small></th>
-                        <th class="text-center th-praes">Mündl.<br><small>${g.muendlich||0} %</small></th>
+                        ${!isSpanisch ? sas.map(sa => `<th class="text-center th-sa1">${esc(sa.name)}</th>`).join('') : ''}
+                        ${!isSpanisch ? `<th class="text-center th-sa1" style="border-left:2px solid #90a4ae">SA gesamt<br><small>${saWeight} %</small></th>` : ''}
+                        <th class="text-center th-wdh">Wdh.${!isSpanisch ? `<br><small>${g.wiederholung||0} %</small>` : ''}</th>
+                        <th class="text-center th-praes">Präs.${!isSpanisch ? `<br><small>${g.praesentation||0} %</small>` : ''}</th>
+                        ${!isSpanisch ? `<th class="text-center th-ha">HÜ<br><small>${g.hausaufgaben||0} %</small></th>` : ''}
+                        <th class="text-center th-praes">Mündl.${!isSpanisch ? `<br><small>${g.muendlich||0} %</small>` : ''}</th>
                         <th class="text-center th-zp">Wunschpr.</th>
                         <th class="text-center" style="min-width:80px">Gesamtnote</th>
                         <th class="text-center" style="min-width:70px" title="Berechnete Dezimalnote (auch bei erzwungener 5)">Dezimal</th>
@@ -2453,7 +2482,7 @@ function renderTabGesamt(cls, sem) {
                         const zpAdj = sd.zwischenpruefung ?? null;
                         const gesAdj = (ges !== null && zpAdj !== null) ? ges + zpAdj : ges;
 
-                        const forced    = cls.type !== 'oberstufe' && hasSAData && !hasPositiveSA(sem, s);
+                        const forced    = cls.type !== 'oberstufe' && cls.type !== 'spanisch' && hasSAData && !hasPositiveSA(sem, s);
                         const intNote   = forced ? 5 : (gesAdj !== null ? noteInt(gesAdj) : null);
                         const intBadge  = intNote === null
                             ? '<span class="note-badge note-empty">—</span>'
@@ -2470,7 +2499,7 @@ function renderTabGesamt(cls, sem) {
 
                         return `<tr data-sid="${s.id}">
                             <td class="sticky-col">${studentNameCell(s)}</td>
-                            ${sas.map(sa => {
+                            ${!isSpanisch ? sas.map(sa => {
                                 const saData = sd.schularbeiten?.[sa.id];
                                 const saId2 = 'gsn-'+sa.id+'-'+s.id;
                                 if (cls.type === 'oberstufe') {
@@ -2483,11 +2512,11 @@ function renderTabGesamt(cls, sem) {
                                 return n
                                     ? `<td class="td-sa1 text-center"><span class="note-badge note-${n.note}" id="${saId2}">${fmtNoteModifier(n.decimal)}</span></td>`
                                     : `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}">—</span></td>`;
-                            }).join('')}
-                            <td class="td-sa1 text-center" style="border-left:2px solid #90a4ae"><span id="gesamt-sa-${s.id}">${saGesamtBadge}</span></td>
+                            }).join('') : ''}
+                            ${!isSpanisch ? `<td class="td-sa1 text-center" style="border-left:2px solid #90a4ae"><span id="gesamt-sa-${s.id}">${saGesamtBadge}</span></td>` : ''}
                             <td class="td-wdh text-center">${wdh !== null ? `<span class="note-badge note-${noteInt(wdh)}" id="gswdh-${s.id}">${fmtNote2(wdh)}</span>` : `<span class="note-badge note-empty" id="gswdh-${s.id}">—</span>`}</td>
                             <td class="td-praes text-center">${pr !== null ? `<span class="note-badge note-${noteInt(pr)}" id="gspr-${s.id}">${fmtNote2(pr)}</span>` : `<span class="note-badge note-empty" id="gspr-${s.id}">—</span>`}</td>
-                            <td class="td-ha text-center">${ha !== null ? `<span class="note-badge note-${ha}" id="gsha-${s.id}">${fmtNote2(ha)}</span>` : `<span class="note-badge note-empty" id="gsha-${s.id}">—</span>`}</td>
+                            ${!isSpanisch ? `<td class="td-ha text-center">${ha !== null ? `<span class="note-badge note-${ha}" id="gsha-${s.id}">${fmtNote2(ha)}</span>` : `<span class="note-badge note-empty" id="gsha-${s.id}">—</span>`}</td>` : ''}
                             <td class="td-praes text-center">${mm !== null ? `<span class="note-badge note-${mm}" id="gsmm-${s.id}">${mm}</span>` : `<span class="note-badge note-empty" id="gsmm-${s.id}">—</span>`}</td>
                             <td class="td-zp text-center">
                                 <select class="zp-select" data-sid="${s.id}"${zpAdj !== null ? ' style="border-color:#9c27b0;background:#f3e5f5;"' : ''}>
@@ -2891,6 +2920,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('inp-class-name').value='';
         document.getElementById('inp-class-type').value='oberstufe';
         document.querySelector('#modalAddClass .modal-title').innerHTML='<i class="bi bi-folder-plus"></i>Neue Oberstufen-Klasse';
+        showModal('modalAddClass');
+    });
+    document.getElementById('btn-add-class-s').addEventListener('click', ()=>{
+        document.getElementById('inp-class-name').value='';
+        document.getElementById('inp-class-type').value='spanisch';
+        document.querySelector('#modalAddClass .modal-title').innerHTML='<i class="bi bi-folder-plus"></i>Neue Spanisch-Klasse';
         showModal('modalAddClass');
     });
     document.getElementById('btn-save-add-class').addEventListener('click', ()=>{
