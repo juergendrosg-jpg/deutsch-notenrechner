@@ -1374,14 +1374,22 @@ function noteBadgeInt(n, id) {
 function newClass(name, type) {
     type = type || 'unterstufe';
     const isOberstufe = type === 'oberstufe';
-    const semBase = () => ({
-        schularbeiten: isOberstufe
-            ? [{id: genId(), name: '1. Schularbeit'}]
-            : [{id: genId(), name: '1. Schularbeit'}, {id: genId(), name: '2. Schularbeit'}],
-        wiederholungen: [], praesentationen: [], hausaufgaben: [],
-        gewichtung: {schularbeiten:40, wiederholung:20, praesentation:20, hausaufgaben:20, muendlich:0},
-        studentData: {}
-    });
+    const isSpanisch  = type === 'spanisch';
+    const semBase = () => {
+        if (isSpanisch) return {
+            wiederholungen: [], praesentationen: [], hausaufgaben: [],
+            gewichtung: {},
+            studentData: {}
+        };
+        return {
+            schularbeiten: isOberstufe
+                ? [{id: genId(), name: '1. Schularbeit'}]
+                : [{id: genId(), name: '1. Schularbeit'}, {id: genId(), name: '2. Schularbeit'}],
+            wiederholungen: [], praesentationen: [], hausaufgaben: [],
+            gewichtung: {schularbeiten:40, wiederholung:20, praesentation:20, hausaufgaben:20, muendlich:0},
+            studentData: {}
+        };
+    };
     return {
         id: genId(), name: name.trim(), type: type, students: [],
         semester1: semBase(),
@@ -1392,7 +1400,7 @@ function newClass(name, type) {
 function addClass(name, type) {
     const c=newClass(name, type); activeClasses().push(c);
     activeClassId=c.id; activeSemester='semester1';
-    activeSaId=c.semester1.schularbeiten[0].id;
+    activeSaId=c.semester1.schularbeiten?.[0]?.id ?? null;
     saveData(); render();
 }
 function editClass(id, name)     { const c=activeClasses().find(c=>c.id===id); if(c){c.name=name.trim(); saveData(); render();} }
