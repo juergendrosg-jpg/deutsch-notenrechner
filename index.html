@@ -445,8 +445,13 @@
                 padding: 18px 12px;
                 display: flex; flex-direction: column; gap: 18px;
                 overflow-y: auto;
-                transition: width 0.2s ease;
+                transition: width 0.2s ease, padding 0.2s ease, gap 0.2s ease;
                 overflow-x: hidden;
+            }
+            .sidebar-group-label {
+                font-size: 10.5px; font-weight: 500; letter-spacing: .07em;
+                text-transform: uppercase; color: var(--ink-mute);
+                padding: 0 6px; margin-bottom: 4px;
             }
             #sidebar.sidebar-collapsed {
                 width: 44px;
@@ -480,12 +485,6 @@
             }
             .class-item-icon { display: none; }
             #sidebar.sidebar-collapsed .class-item-icon { display: inline; font-size: 16px; }
-            .sidebar-group-label {
-                font-size: 10.5px; font-weight: 500; letter-spacing: .07em;
-                text-transform: uppercase; color: var(--ink-mute);
-                padding: 0 6px; margin-bottom: 4px;
-            }
-
             /* ── Schuljahr selector ── */
             #schuljahr-selector {
                 display: flex; flex-wrap: wrap; gap: 4px;
