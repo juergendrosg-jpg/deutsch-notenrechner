@@ -1,0 +1,29 @@
+data.json
+__pycache__/
+*.pyc
+.env
+
+# Distributions & Backups
+*.zip
+*_backup_*
+Notenrechner-v1.0/
+Notenrechner-v1.1/
+Notenrechner-v1.2/
+Notenrechner-v1.3-build/
+
+index_Alt.html
+
+# Misc artefacts
+Resources/
+*.xlsx
+Notenbuch*
+avatar_b64.txt
+design-canvas.jsx
+pixel-header.jsx
+shared-grades.jsx
+styles.css
+variants.jsx
+preview_design_a.html
+
+# Claude internal
+.claude/

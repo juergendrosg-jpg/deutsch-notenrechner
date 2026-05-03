@@ -1,0 +1,3191 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notenbuch Deutsch</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @layer base {
+            *, *::before, *::after { box-sizing: border-box; }
+            html, body {
+                margin: 0; padding: 0;
+                min-height: 100vh;
+                background: #faf7f2;
+                color: #2a2a36;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+            ::-webkit-scrollbar { width: 5px; height: 5px; }
+            ::-webkit-scrollbar-track { background: transparent; }
+            ::-webkit-scrollbar-thumb { background: #e9aab7; border-radius: 3px; }
+            ::-webkit-scrollbar-thumb:hover { background: #dc8294; }
+            select option { background: #faf7f2; color: #2a2a36; }
+            input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
+            code {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.78em;
+                background: #f4efe6;
+                padding: 1px 5px; border-radius: 3px;
+            }
+            strong { font-weight: 700; }
+        }
+
+        @layer components {
+            /* ══ Design-System Variablen ══════════════════════════════ */
+            :root {
+                --paper:        #faf7f2;
+                --paper-soft:   #f4efe6;
+                --paper-line:   #ece5d8;
+                --ink:          #2a2a36;
+                --ink-soft:     #4a4a5a;
+                --ink-mute:     #8a8898;
+                --ink-faint:    #c9c5d3;
+                --rose-50:      #fdf5f6;
+                --rose-100:     #f9e6ea;
+                --rose-200:     #f3cdd5;
+                --rose-300:     #e9aab7;
+                --rose-400:     #dc8294;
+                --rose-500:     #c95f76;
+                --leaf-200:     #d4e0cc;
+                --leaf-500:     #6b8a5e;
+                --sun-200:      #f0e4b8;
+                --sun-500:      #b89530;
+                --note-1:       #d4e0cc; --note-1-fg:    #4a6440;
+                --note-2:       #e3e0c2; --note-2-fg:    #6a6230;
+                --note-3:       #f0e4b8; --note-3-fg:    #8a7430;
+                --note-4:       #f0d4b8; --note-4-fg:    #8a5a30;
+                --note-5:       #f3cdd5; --note-5-fg:    #8a3a4a;
+                --r-sm: 6px; --r-md: 10px; --r-lg: 16px;
+                --shadow-sm: 0 1px 2px rgba(42,42,54,.04);
+                --shadow-md: 0 2px 8px rgba(42,42,54,.06), 0 1px 2px rgba(42,42,54,.04);
+                --shadow-lg: 0 8px 24px rgba(42,42,54,.08), 0 2px 6px rgba(42,42,54,.04);
+                --font-serif: 'Lora', Georgia, serif;
+                --font-sans:  'Inter', -apple-system, sans-serif;
+                --font-mono:  'JetBrains Mono', monospace;
+            }
+
+            /* ── Bootstrap compat for JS-generated HTML ──── */
+            .d-flex      { display: flex; }
+            .d-none      { display: none; }
+            .d-md-inline { display: inline; }
+            .flex-grow-1 { flex-grow: 1; }
+            .flex-wrap   { flex-wrap: wrap; }
+            .flex-shrink-0 { flex-shrink: 0; }
+            .flex-column { flex-direction: column; }
+            .pe-1  { padding-right: 0.25rem; }
+            .gap-1 { gap: 0.25rem; }
+            .gap-3 { gap: 0.75rem; }
+            .align-items-center      { align-items: center; }
+            .justify-content-between { justify-content: space-between; }
+            .justify-content-center  { justify-content: center; }
+            .fw-semibold { font-weight: 600; }
+            .fw-bold     { font-weight: 700; }
+            .text-muted  { color: var(--ink-mute); }
+            .text-center { text-align: center; }
+            .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .text-primary { color: var(--rose-500); }
+            .text-white   { color: var(--ink) !important; }
+            .text-white-50 { color: var(--ink-mute); }
+            .small { font-size: 0.78rem; }
+            .mb-0 { margin-bottom: 0; }
+            .mb-1 { margin-bottom: 0.25rem; }
+            .mb-2 { margin-bottom: 0.5rem; }
+            .mb-3 { margin-bottom: 0.75rem; }
+            .mt-1 { margin-top: 0.25rem; }
+            .mt-2 { margin-top: 0.5rem; }
+            .mt-3 { margin-top: 0.75rem; }
+            .me-1 { margin-right: 0.25rem; }
+            .me-2 { margin-right: 0.5rem; }
+            .rounded { border-radius: var(--r-sm); }
+            .border { border: 1px solid var(--paper-line); }
+            .bg-white { background: #fff !important; }
+            .h5 { font-size: 1.1rem; font-weight: 600; margin: 0; font-family: var(--font-serif); }
+
+            /* ── Buttons ─────────────────────────────────── */
+            .btn {
+                display: inline-flex; align-items: center; justify-content: center;
+                border-radius: var(--r-sm); font-family: var(--font-sans);
+                font-size: 0.82rem; font-weight: 500;
+                cursor: pointer; border: 1px solid var(--paper-line);
+                transition: all 0.14s; line-height: 1; gap: 4px;
+                text-decoration: none; user-select: none; white-space: nowrap;
+                background: #fff; color: var(--ink-soft);
+            }
+            .btn:hover { background: var(--paper-soft); }
+            .btn-sm   { padding: 5px 12px; font-size: 0.79rem; }
+            .btn-xs   { padding: 2px 7px; font-size: 0.69rem; line-height: 1.5; }
+            .btn-icon { padding: 3px 7px; font-size: 0.69rem; line-height: 1.5; }
+            .btn-primary {
+                background: var(--ink); color: #fff; border-color: var(--ink);
+            }
+            .btn-primary:hover { background: var(--ink-soft); border-color: var(--ink-soft); }
+            .btn-secondary { background: var(--paper-soft); color: var(--ink-soft); border-color: var(--paper-line); }
+            .btn-secondary:hover { background: var(--paper-line); }
+            .btn-danger { background: #b91c1c; color: #fff; border-color: #b91c1c; }
+            .btn-danger:hover { background: #991b1b; }
+            .btn-outline-secondary { background: transparent; color: var(--ink-mute); border-color: var(--paper-line); }
+            .btn-outline-secondary:hover { background: var(--paper-soft); color: var(--ink-soft); }
+            .btn-outline-danger { background: transparent; color: #b91c1c; border-color: rgba(185,28,28,0.25); }
+            .btn-outline-danger:hover { background: rgba(185,28,28,0.06); }
+            .btn-outline-light { background: transparent; color: var(--ink-mute); border-color: var(--paper-line); }
+            .btn-outline-light:hover { background: var(--paper-soft); color: var(--ink); }
+            .btn-close {
+                background: transparent; border: none; cursor: pointer;
+                color: var(--ink-mute); font-size: 1.2rem; padding: 2px 6px;
+                border-radius: var(--r-sm); line-height: 1;
+                display: inline-flex; align-items: center; justify-content: center;
+                font-style: normal;
+            }
+            .btn-close:hover { color: var(--ink); background: var(--paper-soft); }
+            .btn-close-white { color: var(--ink-mute); }
+
+            /* ── Form Controls ───────────────────────────── */
+            .form-control {
+                display: block; width: 100%;
+                padding: 7px 11px;
+                background: #fff;
+                border: 1px solid var(--paper-line);
+                border-radius: var(--r-sm); color: var(--ink);
+                font-family: var(--font-sans);
+                font-size: 0.875rem;
+                transition: border-color 0.14s, box-shadow 0.14s;
+            }
+            .form-control:focus {
+                outline: none; border-color: var(--rose-300);
+                box-shadow: 0 0 0 3px var(--rose-50);
+            }
+            .form-control::placeholder { color: var(--ink-faint); font-style: italic; }
+            .form-control-sm { padding: 4px 9px; font-size: 0.81rem; border-radius: var(--r-sm); }
+            .form-label { display: block; font-size: 0.79rem; font-weight: 500; color: var(--ink-mute); margin-bottom: 5px; }
+            .form-label-sm { font-size: 0.75rem; }
+            .input-group { display: flex; }
+            .input-group .form-control { border-radius: var(--r-sm) 0 0 var(--r-sm); flex: 1; min-width: 0; }
+            .input-group-text {
+                padding: 4px 9px;
+                background: var(--paper-soft);
+                border: 1px solid var(--paper-line);
+                border-left: none; border-radius: 0 var(--r-sm) var(--r-sm) 0;
+                color: var(--ink-mute); font-size: 0.79rem;
+            }
+            .input-group-sm .form-control { padding: 3px 7px; font-size: 0.79rem; }
+
+            /* ── Tables ──────────────────────────────────── */
+            .table-wrapper {
+                overflow-x: auto;
+                border-radius: var(--r-md);
+                border: 1px solid var(--paper-line);
+                box-shadow: var(--shadow-md);
+            }
+            .grade-table {
+                min-width: max-content; background: #fff;
+                margin-bottom: 0; font-size: .81rem; width: 100%; border-collapse: collapse;
+            }
+            .grade-table th, .grade-table td {
+                vertical-align: middle; white-space: nowrap;
+                padding: 8px 11px;
+                border: 1px solid var(--paper-line);
+            }
+            .grade-table thead tr:first-child th {
+                background: var(--paper); color: var(--ink-soft);
+                border-color: var(--paper-line);
+                font-size: 0.75rem; letter-spacing: 0.04em; font-weight: 500;
+                text-transform: uppercase;
+            }
+            .grade-table thead tr:nth-child(2) th {
+                background: var(--paper-soft); color: var(--ink-mute);
+                border-color: var(--paper-line);
+                font-size: .73rem; padding: 4px 8px;
+            }
+            .grade-table tbody tr:hover td { background-color: var(--rose-50) !important; }
+            .table-sm td, .table-sm th { padding: 5px 8px; }
+            .table-bordered td, .table-bordered th { border: 1px solid var(--paper-line); }
+
+            .grade-table td.sticky-col[style*="#dbeafe"],
+            .grade-table tr[style*="#dbeafe"] td { background: rgba(233,170,183,0.08) !important; }
+
+            /* Sticky column */
+            .sticky-col {
+                position: sticky; left: 0; z-index: 2;
+                background: #fff; min-width: 180px;
+                box-shadow: 3px 0 8px rgba(42,42,54,0.06);
+            }
+            .grade-table thead .sticky-col { z-index: 3; background: var(--paper) !important; }
+
+            /* Column header colors — warm pastel palette */
+            .th-sa1   { background: #e8eaf6 !important; color: #3949ab !important; border-color: rgba(57,73,171,0.12) !important; }
+            .th-sa2   { background: #e8eaf6 !important; color: #3949ab !important; border-color: rgba(57,73,171,0.12) !important; }
+            .th-wdh   { background: var(--rose-100) !important; color: var(--rose-500) !important; border-color: var(--rose-200) !important; }
+            .th-praes { background: var(--sun-200) !important; color: var(--sun-500) !important; border-color: rgba(184,149,48,0.2) !important; }
+            .th-ha    { background: var(--leaf-200) !important; color: var(--leaf-500) !important; border-color: rgba(107,138,94,0.2) !important; }
+            .th-komm  { background: var(--paper-soft) !important; color: var(--ink-mute) !important; border-color: var(--paper-line) !important; }
+            .th-zp    { background: #ede7f6 !important; color: #6a1b9a !important; border-color: rgba(106,27,154,0.15) !important; }
+
+            /* Cell tints */
+            .td-sa1   { background: rgba(232,234,246,0.3); }
+            .td-sa2   { background: rgba(232,234,246,0.3); }
+            .td-wdh   { background: rgba(249,230,234,0.35); }
+            .td-praes { background: rgba(240,228,184,0.3); }
+            .td-ha    { background: rgba(212,224,204,0.3); }
+            .td-zp    { background: rgba(237,231,246,0.3); }
+
+            /* Cell inputs */
+            .cell-input {
+                width: 58px; padding: 3px 4px;
+                background: #fff;
+                border: 1px solid var(--paper-line);
+                border-radius: var(--r-sm); text-align: center;
+                font-size: .81rem; color: var(--ink);
+                font-family: var(--font-mono);
+                transition: border-color .12s, box-shadow .12s;
+            }
+            .cell-input:focus { outline: none; border-color: var(--rose-300); box-shadow: 0 0 0 2px var(--rose-50); }
+            .cell-input:invalid { border-color: #b91c1c; background: rgba(185,28,28,0.04); }
+            .wdh-inp { width: 72px; }
+
+            .ha-select, .praes-select, .zp-select {
+                padding: 3px 5px;
+                background: #fff;
+                border: 1px solid var(--paper-line);
+                border-radius: var(--r-sm); font-size: .81rem; color: var(--ink); cursor: pointer;
+            }
+            .ha-select:focus, .praes-select:focus, .zp-select:focus { outline: none; border-color: var(--rose-300); }
+            .ha-alle-select {
+                padding: 3px 6px;
+                background: var(--rose-50);
+                border: 1px solid var(--rose-200);
+                border-radius: var(--r-sm); font-size: .79rem; color: var(--rose-500); cursor: pointer;
+            }
+
+            /* Read-only cells */
+            .cell-ro {
+                display: inline-block; min-width: 36px; padding: 2px 7px;
+                text-align: center; font-size: .81rem;
+                font-family: var(--font-mono);
+                background: var(--paper-soft);
+                border-radius: var(--r-sm); color: var(--ink-soft);
+            }
+
+            /* Note badges */
+            .note-badge {
+                display: inline-flex; align-items: center; justify-content: center;
+                width: 36px; height: 36px; border-radius: 50%;
+                font-weight: 600; font-size: .85rem;
+                font-family: var(--font-serif);
+                border: none; letter-spacing: 0;
+            }
+            .note-empty  { background: var(--paper-soft); color: var(--ink-faint); width: 36px; }
+            .note-1 { background: var(--note-1); color: var(--note-1-fg); }
+            .note-2 { background: var(--note-2); color: var(--note-2-fg); }
+            .note-3 { background: var(--note-3); color: var(--note-3-fg); }
+            .note-4 { background: var(--note-4); color: var(--note-4-fg); }
+            .note-5 { background: var(--note-5); color: var(--note-5-fg); }
+            .note-borderline::after { content: '*'; font-size: .58rem; vertical-align: super; margin-left: 1px; opacity: .6; }
+
+            /* Comment textarea */
+            .komm-input {
+                width: 160px; min-height: 27px; max-height: 27px; padding: 3px 6px;
+                font-size: .78rem;
+                background: #fff;
+                border: 1px solid var(--paper-line);
+                border-radius: var(--r-sm); resize: none; color: var(--ink);
+                font-family: var(--font-sans);
+                transition: max-height .2s, border-color .12s; overflow: hidden;
+            }
+            .komm-input:focus { max-height: 90px; outline: none; border-color: var(--rose-300); box-shadow: 0 0 0 2px var(--rose-50); overflow: auto; }
+            .komm-input::placeholder { color: var(--ink-faint); font-style: italic; }
+
+            /* ── Part Tabs (Schularbeiten / Wiederholungen etc.) ── */
+            .class-tabs {
+                display: flex; border-bottom: 1px solid var(--paper-line);
+                margin-bottom: 1rem; gap: 0; overflow-x: auto;
+                background: var(--paper-soft);
+                padding: 8px 12px 0;
+            }
+            .class-tabs .nav-item { display: flex; }
+            .class-tabs .nav-link {
+                color: var(--ink-mute); padding: 6px 12px;
+                font-size: .84rem; border: 1px solid transparent;
+                border-bottom: none; border-radius: var(--r-sm) var(--r-sm) 0 0;
+                margin-bottom: -1px;
+                cursor: pointer; text-decoration: none;
+                transition: color 0.14s, background 0.14s; background: transparent;
+                white-space: nowrap; display: flex; align-items: center; gap: 5px;
+                font-family: var(--font-sans); font-weight: 500;
+            }
+            .class-tabs .nav-link:hover { color: var(--ink-soft); background: rgba(255,255,255,0.6); }
+            .class-tabs .nav-link.active {
+                color: var(--ink); background: #fff;
+                border-color: var(--paper-line); border-bottom-color: #fff;
+                font-weight: 600;
+            }
+            .nav-link { cursor: pointer; }
+
+            /* ── SA sub-tabs ─────────────────────────────── */
+            .sa-tab-bar {
+                display: flex; align-items: center; gap: 3px;
+                margin-bottom: 1rem; flex-wrap: wrap;
+                padding: 0 2px;
+            }
+            .sa-tab {
+                display: flex; align-items: center; gap: 4px;
+                padding: 6px 13px; border-radius: var(--r-sm) var(--r-sm) 0 0;
+                background: var(--paper-soft);
+                border: 1px solid var(--paper-line);
+                border-bottom: none; cursor: pointer;
+                font-size: .84rem; color: var(--ink-mute);
+                transition: background 0.12s, color 0.12s;
+                font-family: var(--font-sans); font-weight: 500;
+                margin-bottom: -1px;
+            }
+            .sa-tab:hover { background: rgba(255,255,255,0.7); color: var(--ink-soft); }
+            .sa-tab.active { background: #fff; border-color: var(--paper-line); border-bottom-color: #fff; color: var(--ink); }
+            .sa-tab span { cursor: pointer; }
+            .sa-tab-del {
+                background: none; border: none; color: inherit;
+                opacity: .5; font-size: .9rem; padding: 0 2px;
+                cursor: pointer; line-height: 1;
+            }
+            .sa-tab-del:hover { opacity: 1; color: #b91c1c; }
+            .sa-tab-del.confirm { color: #b91c1c; opacity: 1; font-weight: 700; }
+            .sa-tab-add {
+                background: none; border: 1px dashed var(--paper-line);
+                border-radius: var(--r-sm); color: var(--leaf-500); font-size: 1.1rem;
+                padding: 3px 10px; cursor: pointer; line-height: 1;
+                transition: background 0.12s;
+            }
+            .sa-tab-add:hover { background: var(--leaf-200); }
+
+            /* ── Semester tabs ───────────────────────────────── */
+            .semester-tab-bar {
+                display: flex; gap: 4px; margin-bottom: 0;
+                padding: 10px 14px; background: #fff;
+                border-bottom: 1px solid var(--paper-line);
+            }
+            .semester-tab {
+                padding: 6px 16px; border-radius: 999px;
+                border: none; background: transparent; color: var(--ink-mute);
+                cursor: pointer; font-size: .85rem; font-family: var(--font-sans); font-weight: 500;
+                transition: background 0.12s, color 0.12s;
+            }
+            .semester-tab:hover { background: var(--paper-soft); color: var(--ink-soft); }
+            .semester-tab.active { background: var(--rose-50); color: var(--rose-500); }
+            .semester-tab.jahr-tab.active { background: var(--leaf-200); color: var(--leaf-500); }
+            .semester-tab.schueler-tab { margin-left: auto; }
+            .semester-tab.schueler-tab.active { background: var(--paper-soft); color: var(--ink); border: 1px solid var(--paper-line); }
+
+            /* Weight card */
+            .weight-card {
+                background: var(--paper-soft);
+                border: 1px solid var(--paper-line);
+                border-radius: var(--r-md); padding: 1rem 1.25rem; margin-bottom: 1rem;
+            }
+            .weight-input { width: 70px; text-align: center; font-size: .87rem; font-family: var(--font-mono); }
+            .weight-sum-ok   { color: var(--leaf-500); font-weight: 600; }
+            .weight-sum-warn { color: var(--note-5-fg); font-weight: 600; }
+
+            /* Empty states */
+            .empty-state { text-align: center; padding: 3rem 2rem; color: var(--ink-mute); }
+            .empty-state i { font-size: 2.5rem; color: var(--ink-faint); display: block; margin-bottom: 0.5rem; }
+            .empty-state h5, .empty-state h6 { color: var(--ink-soft); margin-bottom: 0.5rem; font-family: var(--font-serif); }
+
+            /* Toast */
+            .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1100; }
+            .toast {
+                background: var(--leaf-200);
+                border: 1px solid rgba(107,138,94,0.3);
+                border-radius: var(--r-md); padding: 0; color: var(--leaf-500);
+                font-size: 0.84rem;
+                box-shadow: var(--shadow-lg);
+                opacity: 0; transform: translateY(6px) scale(0.98);
+                transition: opacity 0.2s, transform 0.2s;
+                pointer-events: none;
+            }
+            .toast.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+            .toast-body { padding: 10px 16px; display: flex; align-items: center; gap: 6px; }
+            .border-0 { border: none; }
+            .align-items-center { align-items: center; }
+
+            /* ── Navbar / Header ─────────────────────────── */
+            #app-navbar {
+                background: var(--paper);
+                border-bottom: 1px solid var(--paper-line);
+                display: flex; align-items: center;
+                padding: 0 2rem; gap: 1rem; height: 56px;
+                position: sticky; top: 0; z-index: 100;
+                box-shadow: var(--shadow-sm);
+            }
+            #app-navbar .brand {
+                font-family: var(--font-serif);
+                font-size: 1.2rem; font-weight: 600;
+                color: var(--ink); display: flex; align-items: center; gap: 12px;
+                letter-spacing: -0.01em;
+            }
+            #app-navbar .brand svg { flex-shrink: 0; }
+            #app-navbar .subtitle {
+                font-size: 0.72rem; color: var(--ink-mute);
+                font-weight: 400; letter-spacing: 0.03em;
+                margin-left: auto; display: none;
+            }
+            @media (min-width: 640px) { #app-navbar .subtitle { display: block; } }
+
+            /* ── Layout ──────────────────────────────────── */
+            #app-layout {
+                display: flex; min-height: calc(100vh - 56px);
+            }
+
+            /* Sidebar */
+            #sidebar {
+                width: 210px; flex-shrink: 0;
+                background: var(--paper-soft);
+                border-right: 1px solid var(--paper-line);
+                padding: 18px 12px;
+                display: flex; flex-direction: column; gap: 18px;
+                overflow-y: auto;
+            }
+            .sidebar-group-label {
+                font-size: 10.5px; font-weight: 500; letter-spacing: .07em;
+                text-transform: uppercase; color: var(--ink-mute);
+                padding: 0 6px; margin-bottom: 4px;
+            }
+
+            /* ── Schuljahr selector ── */
+            #schuljahr-selector {
+                display: flex; flex-wrap: wrap; gap: 4px;
+                padding: 8px 8px 6px 8px;
+                border-bottom: 1px solid var(--paper-line);
+                margin-bottom: 6px;
+            }
+            .sj-wrap { position: relative; display: inline-flex; }
+            .sj-chip {
+                font-size: 11px; font-weight: 500;
+                padding: 2px 8px; border-radius: 20px;
+                cursor: pointer;
+                background: var(--paper-line); color: var(--ink-soft);
+                border: 1px solid transparent; white-space: nowrap;
+                user-select: none;
+            }
+            .sj-chip.active {
+                background: var(--rose-200); color: var(--rose-500);
+                border-color: var(--rose-300);
+            }
+            .sj-chip:hover:not(.active) { background: var(--rose-100); }
+            .sj-menu-btn {
+                display: none; align-items: center; justify-content: center;
+                margin-left: 2px; padding: 0 4px;
+                border-radius: 20px; border: none; background: transparent;
+                color: inherit; cursor: pointer; font-size: 11px; line-height: 1;
+            }
+            .sj-wrap:hover .sj-menu-btn { display: inline-flex; }
+            .sj-menu-btn:hover { background: rgba(0,0,0,.08); }
+            .sj-dropdown {
+                display: none; position: absolute; top: calc(100% + 4px); left: 0;
+                background: var(--paper); border: 1px solid var(--paper-line);
+                border-radius: var(--r-md); box-shadow: var(--shadow-lg);
+                min-width: 140px; z-index: 200; overflow: hidden;
+            }
+            .sj-dropdown.open { display: block; }
+            .sj-dropdown button {
+                display: flex; align-items: center; gap: 6px;
+                width: 100%; padding: 7px 12px; border: none; background: transparent;
+                color: var(--ink); font-size: 12px; cursor: pointer; text-align: left;
+            }
+            .sj-dropdown button:hover { background: var(--paper-soft); }
+            .sj-dropdown button.danger { color: var(--rose-500); }
+            .sj-dropdown button.danger:hover { background: var(--rose-100); }
+            .sj-dropdown .sj-divider { height: 1px; background: var(--paper-line); margin: 2px 0; }
+            .sj-add-btn {
+                font-size: 14px; line-height: 1;
+                padding: 1px 7px; border-radius: 20px;
+                cursor: pointer; background: transparent;
+                color: var(--ink-mute); border: 1px dashed var(--ink-faint);
+            }
+            .sj-add-btn:hover { color: var(--rose-500); border-color: var(--rose-300); }
+            .sidebar-group-head {
+                display: flex; align-items: center; justify-content: space-between;
+                margin-bottom: 4px;
+            }
+            .class-item {
+                cursor: pointer;
+                display: flex; align-items: center;
+                padding: 8px 10px; border-radius: var(--r-sm);
+                border: 1px solid transparent;
+                transition: background .12s, border-color .12s;
+                position: relative; gap: 0;
+            }
+            .class-item:hover { background: var(--paper-line); }
+            .class-item.active {
+                background: var(--rose-50); border-color: var(--rose-200);
+            }
+            .class-item .fw-semibold {
+                font-family: var(--font-serif); font-size: 15px; font-weight: 600;
+                color: var(--ink); flex: 1;
+            }
+            .class-item.active .fw-semibold { color: var(--rose-500); }
+            .class-item small { display: none; }
+            .class-item .class-item-actions {
+                display: none; gap: 2px; flex-shrink: 0;
+            }
+            .class-item:hover .class-item-actions { display: flex; }
+            .class-item.active .class-item-actions { display: flex; }
+
+            /* Main content */
+            #main-content {
+                flex: 1; padding: 24px 28px; min-width: 0;
+                display: flex; flex-direction: column; gap: 0;
+            }
+
+            /* ── Main content area ───────────────────────── */
+            #content-area { min-width: 0; }
+
+            /* ── Dialogs ─────────────────────────────────── */
+            dialog {
+                background: var(--paper);
+                border: 1px solid var(--paper-line);
+                border-radius: var(--r-lg); padding: 0;
+                color: var(--ink);
+                box-shadow: var(--shadow-lg);
+                max-width: 380px; width: 90%;
+                margin: auto;
+                animation: dialogIn 0.18s cubic-bezier(0.34, 1.2, 0.64, 1);
+            }
+            dialog::backdrop {
+                background: rgba(42,42,54,0.4);
+                backdrop-filter: blur(4px);
+            }
+            @keyframes dialogIn {
+                from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+                to   { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            .modal-header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 14px 18px;
+                border-bottom: 1px solid var(--paper-line);
+            }
+            h6.modal-title {
+                margin: 0; font-size: 0.91rem; font-weight: 600;
+                display: flex; align-items: center; gap: 7px;
+                font-family: var(--font-serif);
+                color: var(--ink);
+            }
+            .modal-header.bg-danger { background: rgba(185,28,28,0.06); }
+            .modal-header.text-white h6.modal-title { color: #b91c1c; }
+            .modal-body  { padding: 18px; }
+            .modal-footer {
+                display: flex; justify-content: flex-end; gap: 8px;
+                padding: 12px 18px;
+                border-top: 1px solid var(--paper-line);
+            }
+            .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+
+            /* Misc */
+            .navbar-brand { font-weight: 600; }
+            .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+
+            /* List reset */
+            ul.class-tabs { list-style: none; margin: 0; padding: 0; }
+
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+            #content-area > * { animation: fadeIn 0.18s ease; }
+
+            /* ── Navbar icon buttons (undo, redo) ─────────── */
+            #avatar-toggle, #btn-undo, #btn-redo {
+                background: transparent; border: 1px solid var(--paper-line);
+                border-radius: var(--r-sm); padding: 5px 9px;
+                color: var(--ink-mute); cursor: pointer;
+                font-size: 1rem; line-height: 1;
+                transition: background 0.14s, color 0.14s, border-color 0.14s;
+                display: flex; align-items: center;
+            }
+            #avatar-toggle:hover, #btn-undo:hover:not(:disabled), #btn-redo:hover:not(:disabled) {
+                background: var(--paper-soft); color: var(--ink); border-color: var(--ink-faint);
+            }
+            #app-navbar button:disabled { opacity: 0.3; cursor: default; }
+
+            /* table-hover (used in Schüler-Tab) */
+            .table-hover tbody tr:hover td { background: var(--rose-50); }
+            .table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+            .table td, .table th { padding: 8px 12px; border-bottom: 1px solid var(--paper-line); }
+            .table thead th { font-weight: 500; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-mute); background: var(--paper); }
+            .text-end { text-align: right; }
+
+            #sidebar-footer {
+                display: flex;
+                gap: 4px;
+                padding: 8px 8px 10px 8px;
+                border-top: 1px solid #e5e7eb;
+                margin-top: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══════════════════════════════════════════════ -->
+<nav id="app-navbar">
+    <div class="brand">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="3" width="16" height="22" rx="2" fill="#f4efe6" stroke="#ece5d8" stroke-width="1.5"/>
+            <rect x="6" y="6" width="10" height="1.5" rx="0.75" fill="#c9c5d3"/>
+            <rect x="6" y="9" width="8" height="1.5" rx="0.75" fill="#c9c5d3"/>
+            <rect x="6" y="12" width="9" height="1.5" rx="0.75" fill="#c9c5d3"/>
+            <rect x="4" y="3" width="2.5" height="22" rx="1" fill="#e9aab7"/>
+            <line x1="19" y1="18" x2="24" y2="23" stroke="#c95f76" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="17.5" cy="16.5" r="3.5" stroke="#c95f76" stroke-width="1.5" fill="none"/>
+        </svg>
+        Notenbuch Deutsch
+    </div>
+    <button id="avatar-toggle" onclick="togglePixelguy()" title="Avatar ein/ausschalten" style="margin-left:auto">
+        <i id="avatar-toggle-icon" class="bi bi-person-fill"></i>
+    </button>
+    <button id="btn-undo" onclick="undoData()" title="Rückgängig" disabled>
+        <i class="bi bi-arrow-counterclockwise"></i>
+    </button>
+    <button id="btn-redo" onclick="redoData()" title="Wiederholen" disabled>
+        <i class="bi bi-arrow-clockwise"></i>
+    </button>
+</nav>
+
+<!-- ═══ LAYOUT ═══════════════════════════════════════════════ -->
+<div id="app-layout">
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div id="schuljahr-selector"><!-- filled by renderSidebar() --></div>
+        <div>
+            <div class="sidebar-group-head">
+                <span class="sidebar-group-label">Unterstufe</span>
+                <button class="btn btn-xs btn-outline-secondary" id="btn-add-class-u" title="Neue Unterstufen-Klasse"><i class="bi bi-plus-lg"></i></button>
+            </div>
+            <div id="class-list-u"></div>
+        </div>
+        <div>
+            <div class="sidebar-group-head">
+                <span class="sidebar-group-label">Oberstufe</span>
+                <button class="btn btn-xs btn-outline-secondary" id="btn-add-class-o" title="Neue Oberstufen-Klasse"><i class="bi bi-plus-lg"></i></button>
+            </div>
+            <div id="class-list-o"></div>
+        </div>
+        <div id="sidebar-footer">
+            <button type="button" class="btn btn-xs btn-outline-secondary w-50" onclick="exportData()" title="Daten als JSON-Datei herunterladen">
+                <i class="bi bi-download"></i> Exportieren
+            </button>
+            <input type="file" id="import-file-input" accept=".json" style="display:none" aria-hidden="true" onchange="importData(event)">
+            <button type="button" class="btn btn-xs btn-outline-secondary w-50" onclick="document.getElementById('import-file-input').click()" title="Daten aus JSON-Datei laden">
+                <i class="bi bi-upload"></i> Importieren
+            </button>
+        </div>
+    </div>
+    <!-- Main -->
+    <div id="main-content">
+        <div id="content-area"></div>
+    </div>
+</div>
+
+<!-- ═══ TOAST ════════════════════════════════════════════════ -->
+<div class="toast-container">
+    <div id="toast-saved" role="alert">
+        <div class="toast-body">
+            <i class="bi bi-check-circle-fill"></i> Gespeichert
+        </div>
+    </div>
+</div>
+
+<!-- ═══ DIALOGS ══════════════════════════════════════════════ -->
+
+<!-- Klasse hinzufügen -->
+<dialog id="modalAddClass">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-folder-plus"></i>Neue Klasse</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalAddClass')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Bezeichnung</label>
+        <input type="text" class="form-control form-control-sm" id="inp-class-name" placeholder="z.B. 3A" maxlength="20">
+        <input type="hidden" id="inp-class-type" value="unterstufe">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalAddClass')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-add-class">Erstellen</button>
+    </div>
+</dialog>
+
+<!-- Klasse bearbeiten -->
+<dialog id="modalEditClass">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-pencil"></i>Klasse umbenennen</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalEditClass')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Bezeichnung</label>
+        <input type="text" class="form-control form-control-sm" id="inp-edit-class-name" maxlength="20">
+        <input type="hidden" id="inp-edit-class-id">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalEditClass')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-edit-class">Speichern</button>
+    </div>
+</dialog>
+
+<!-- Schüler hinzufügen -->
+<dialog id="modalAddStudent">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-person-plus"></i>Neue/r Schüler:in</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalAddStudent')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Name</label>
+        <input type="text" class="form-control form-control-sm" id="inp-student-name" placeholder="z.B. Muster Maria" maxlength="60">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalAddStudent')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-add-student">Hinzufügen</button>
+    </div>
+</dialog>
+
+<!-- Schüler bearbeiten -->
+<dialog id="modalEditStudent">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-person-gear"></i>Schüler:in bearbeiten</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalEditStudent')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Name</label>
+        <input type="text" class="form-control form-control-sm" id="inp-edit-student-name" maxlength="60">
+        <input type="hidden" id="inp-edit-student-id">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalEditStudent')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-edit-student">Speichern</button>
+    </div>
+</dialog>
+
+<!-- Wiederholung hinzufügen / bearbeiten -->
+<dialog id="modalWdh">
+    <div class="modal-header">
+        <h6 class="modal-title" id="modalWdh-title">Wiederholung</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalWdh')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Bezeichnung</label>
+        <input type="text" class="form-control form-control-sm mb-2" id="inp-wdh-name" placeholder="z.B. 1. Wiederholung" maxlength="40">
+        <label class="form-label form-label-sm">Maximalpunkte</label>
+        <input type="number" class="form-control form-control-sm" id="inp-wdh-max" min="1" max="200" value="10">
+        <input type="hidden" id="inp-wdh-id">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalWdh')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-wdh">Speichern</button>
+    </div>
+</dialog>
+
+<!-- Präsentation hinzufügen / bearbeiten -->
+<dialog id="modalPraes">
+    <div class="modal-header">
+        <h6 class="modal-title" id="modalPraes-title">Präsentation</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalPraes')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Bezeichnung</label>
+        <input type="text" class="form-control form-control-sm" id="inp-praes-name" placeholder="z.B. 1. Präsentation" maxlength="40">
+        <input type="hidden" id="inp-praes-id">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalPraes')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-praes">Speichern</button>
+    </div>
+</dialog>
+
+<!-- Hausübung hinzufügen / bearbeiten -->
+<dialog id="modalHA">
+    <div class="modal-header">
+        <h6 class="modal-title" id="modalHA-title">Hausübung</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalHA')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Bezeichnung</label>
+        <input type="text" class="form-control form-control-sm" id="inp-ha-name" placeholder="z.B. HÜ 1" maxlength="40">
+        <input type="hidden" id="inp-ha-id">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalHA')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-ha">Speichern</button>
+    </div>
+</dialog>
+
+<!-- Löschen bestätigen -->
+<dialog id="modalConfirmDelete">
+    <div class="modal-header bg-danger text-white">
+        <h6 class="modal-title"><i class="bi bi-exclamation-triangle"></i>Löschen bestätigen</h6>
+        <button type="button" class="btn-close btn-close-white" onclick="hideModal('modalConfirmDelete')">×</button>
+    </div>
+    <div class="modal-body" id="confirm-delete-msg">Wirklich löschen?</div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalConfirmDelete')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-danger" id="btn-confirm-delete">Löschen</button>
+    </div>
+</dialog>
+
+<!-- Neues Schuljahr -->
+<dialog id="modalAddSchuljahr">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-calendar-plus"></i>Neues Schuljahr</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalAddSchuljahr')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Bezeichnung</label>
+        <input type="text" class="form-control form-control-sm" id="inp-sj-name" placeholder="z.B. 2025/26" maxlength="20">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalAddSchuljahr')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-add-sj">Erstellen</button>
+    </div>
+</dialog>
+
+<!-- Schuljahr umbenennen -->
+<dialog id="modalEditSchuljahr">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-pencil"></i>Schuljahr umbenennen</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalEditSchuljahr')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Bezeichnung</label>
+        <input type="text" class="form-control form-control-sm" id="inp-edit-sj-name" maxlength="20">
+        <input type="hidden" id="inp-edit-sj-id">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalEditSchuljahr')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" id="btn-save-edit-sj">Speichern</button>
+    </div>
+</dialog>
+
+<script>
+// ================================================================
+// KONSTANTEN
+// ================================================================
+// Notentabelle: Punkte (0–32) → {note, decimal, borderline}
+const GRADE_TABLE = (() => {
+    const t = [];
+    for (let i = 0; i <= 14; i++) t[i] = {note:5, decimal:5.0,  bl:false};
+    t[15]={note:5,decimal:4.75,bl:true};  t[16]={note:4,decimal:4.25,bl:false};
+    t[17]={note:4,decimal:4.0, bl:false}; t[18]={note:4,decimal:4.0, bl:false};
+    t[19]={note:4,decimal:3.75,bl:true};  t[20]={note:3,decimal:3.25,bl:false};
+    t[21]={note:3,decimal:3.0, bl:false}; t[22]={note:3,decimal:3.0, bl:false};
+    t[23]={note:3,decimal:3.0, bl:false}; t[24]={note:3,decimal:2.75,bl:true};
+    t[25]={note:2,decimal:2.25,bl:false}; t[26]={note:2,decimal:2.0, bl:false};
+    t[27]={note:2,decimal:2.0, bl:false}; t[28]={note:2,decimal:1.75,bl:true};
+    t[29]={note:1,decimal:1.25,bl:false}; t[30]={note:1,decimal:1.0, bl:false};
+    t[31]={note:1,decimal:1.0, bl:false}; t[32]={note:1,decimal:1.0, bl:false};
+    return t;
+})();
+
+// ================================================================
+// ZUSTAND
+// ================================================================
+let data = {schuljahre: [], activeSchuljahrId: null};
+let activeClassId = null;
+let activeTab = 'sa'; // 'sa' | 'wdh' | 'praes' | 'ha' | 'gesamt'
+let activeSaId = null;
+let activeSemester = 'semester1'; // 'semester1' | 'semester2'
+let pendingDelete = null;
+let undoSnapshot = null;
+let redoSnapshot = null;
+
+// ================================================================
+// DATEN – Laden / Speichern / Migration
+// ================================================================
+async function loadData() {
+    try {
+        const r = await fetch('/api/data');
+        if (r.ok) data = await r.json();
+    } catch(e) { console.error('loadData failed', e); }
+    migrateData();
+}
+
+function saveData() {
+    fetch('/api/data', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => showToast()).catch(e => console.error('saveData failed', e));
+}
+
+function exportData() {
+    const date = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `notenrechner-backup-${date}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let parsed;
+        try {
+            parsed = JSON.parse(e.target.result);
+        } catch {
+            alert('Fehler: Die Datei ist kein gültiges JSON.');
+            return;
+        }
+        if (!parsed.classes && !parsed.schuljahre) {
+            alert('Fehler: Die Datei enthält keine gültigen Notendaten.');
+            return;
+        }
+        data = parsed;
+        migrateData();
+        saveData();
+        render();
+        alert('Daten wurden erfolgreich geladen.');
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+function saveDataWithUndo() {
+    redoSnapshot = null;
+    saveData();
+    updateUndoButtons();
+}
+
+function snapshotForUndo() {
+    undoSnapshot = JSON.parse(JSON.stringify(data));
+    redoSnapshot = null;
+}
+
+function undoData() {
+    if (!undoSnapshot) return;
+    redoSnapshot = JSON.parse(JSON.stringify(data));
+    data = undoSnapshot;
+    undoSnapshot = null;
+    saveData(); render(); updateUndoButtons();
+}
+
+function redoData() {
+    if (!redoSnapshot) return;
+    undoSnapshot = JSON.parse(JSON.stringify(data));
+    data = redoSnapshot;
+    redoSnapshot = null;
+    saveData(); render(); updateUndoButtons();
+}
+
+function updateUndoButtons() {
+    const u = document.getElementById('btn-undo');
+    const r = document.getElementById('btn-redo');
+    if (u) u.disabled = !undoSnapshot;
+    if (r) r.disabled = !redoSnapshot;
+}
+
+function migrateData() {
+    // ── Migrate flat data.classes → schuljahre structure ──────────
+    if (!data.schuljahre || !Array.isArray(data.schuljahre)) {
+        const existingClasses = data.classes || [];
+        const sjId = genId();
+        const _y = new Date().getFullYear(), _m = new Date().getMonth();
+        const _sjName = _m >= 8 ? `${_y}/${String(_y+1).slice(2)}` : `${_y-1}/${String(_y).slice(2)}`;
+        data.schuljahre = [{ id: sjId, name: _sjName, classes: existingClasses }];
+        data.activeSchuljahrId = sjId;
+        delete data.classes;
+    }
+    if (!data.activeSchuljahrId || !data.schuljahre.find(s => s.id === data.activeSchuljahrId)) {
+        data.activeSchuljahrId = data.schuljahre[0]?.id ?? null;
+    }
+    for (const sj of data.schuljahre) { for (const cls of sj.classes) {
+
+        // ── Migrate flat structure → semester1 ──────────────────────
+        if (!cls.semester1) {
+            const saId = genId();
+            cls.semester1 = {
+                schularbeiten: cls.schularbeiten || [{id: saId, name: '1. Schularbeit'}],
+                wiederholungen:  cls.wiederholungen  || [],
+                praesentationen: cls.praesentationen || [],
+                hausaufgaben:    cls.hausaufgaben    || [],
+                gewichtung:      cls.gewichtung      || {schularbeiten:40, wiederholung:20, praesentation:20, hausaufgaben:20},
+                studentData: {}
+            };
+
+            // Migrate old sa1/sa2 weights → schularbeiten on semester1
+            const g1 = cls.semester1.gewichtung;
+            if (g1.sa1 !== undefined || g1.sa2 !== undefined) {
+                g1.schularbeiten = (+(g1.sa1)||0) + (+(g1.sa2)||0);
+                delete g1.sa1; delete g1.sa2;
+            }
+            if (g1.schularbeiten === undefined) g1.schularbeiten = 40;
+
+            // Migrate old fixed schularbeiten entries in the array if needed
+            if (!cls.semester1.schularbeiten.length) {
+                cls.semester1.schularbeiten = [{id: saId, name: '1. Schularbeit'}];
+            }
+
+            // Migrate student grade data → semester1.studentData
+            for (const s of (cls.students || [])) {
+                const sd = { schularbeiten:{}, wiederholungen:{}, praesentationen:{}, hausaufgaben:{} };
+
+                // Migrate old fixed schularbeit1/2
+                if (s.schularbeit1 !== undefined) {
+                    sd.schularbeiten['sa1-legacy'] = {
+                        aufgabenstellung: s.schularbeit1?.aufgabenstellung ?? null,
+                        fehler:           s.schularbeit1?.fehler           ?? null,
+                        wortschatz:       s.schularbeit1?.wortschatz       ?? null,
+                        textorganisation: s.schularbeit1?.textorganisation ?? null,
+                        kommentar:        s.kommentar1 ?? ''
+                    };
+                    delete s.schularbeit1;
+                }
+                if (s.schularbeit2 !== undefined) {
+                    sd.schularbeiten['sa2-legacy'] = {
+                        aufgabenstellung: s.schularbeit2?.aufgabenstellung ?? null,
+                        fehler:           s.schularbeit2?.fehler           ?? null,
+                        wortschatz:       s.schularbeit2?.wortschatz       ?? null,
+                        textorganisation: s.schularbeit2?.textorganisation ?? null,
+                        kommentar:        s.kommentar2 ?? ''
+                    };
+                    delete s.schularbeit2;
+                }
+                delete s.kommentar1; delete s.kommentar2;
+
+                // Move already-migrated dynamic fields (merge to preserve legacy entries)
+                if (s.schularbeiten)   Object.assign(sd.schularbeiten,   s.schularbeiten);
+                if (s.wiederholungen)  Object.assign(sd.wiederholungen,  s.wiederholungen);
+                if (s.praesentationen) Object.assign(sd.praesentationen, s.praesentationen);
+                if (s.hausaufgaben)    Object.assign(sd.hausaufgaben,    s.hausaufgaben);
+                delete s.schularbeiten; delete s.wiederholungen;
+                delete s.praesentationen; delete s.hausaufgaben;
+
+                cls.semester1.studentData[s.id] = sd;
+            }
+
+            // Delete flat fields from class
+            delete cls.schularbeiten; delete cls.wiederholungen;
+            delete cls.praesentationen; delete cls.hausaufgaben; delete cls.gewichtung;
+        }
+
+        // ── Ensure semester2 exists ──────────────────────────────────
+        if (!cls.semester2) {
+            cls.semester2 = {
+                schularbeiten: [{id: genId(), name: '1. Schularbeit'}, {id: genId(), name: '2. Schularbeit'}],
+                wiederholungen: [], praesentationen: [], hausaufgaben: [],
+                gewichtung: {schularbeiten:40, wiederholung:20, praesentation:20, hausaufgaben:20},
+                studentData: {}
+            };
+        }
+
+        // ── Ensure type exists (all legacy classes are Unterstufe) ─────
+        if (!cls.type) cls.type = 'unterstufe';
+
+        // ── Ensure exactly 2 Schularbeiten per semester (Unterstufe only)
+        if (cls.type === 'unterstufe') {
+            for (const semKey of ['semester1','semester2']) {
+                const sem = cls[semKey];
+                if (sem && sem.schularbeiten && sem.schularbeiten.length < 2) {
+                    const n = sem.schularbeiten.length + 1;
+                    sem.schularbeiten.push({id: genId(), name: n + '. Schularbeit'});
+                }
+            }
+        }
+        // ── Ensure zwischenpruefung field exists on all studentData entries ──
+        for (const semKey of ['semester1', 'semester2']) {
+            const sem = cls[semKey];
+            if (!sem) continue;
+            for (const sid of Object.keys(sem.studentData || {})) {
+                if (sem.studentData[sid].zwischenpruefung === undefined)
+                    sem.studentData[sid].zwischenpruefung = null;
+            }
+        }
+        // ── Ensure muendlicheMitarbeit exists on all studentData entries ──
+        for (const semKey of ['semester1', 'semester2']) {
+            const sem = cls[semKey];
+            if (!sem) continue;
+            if (sem.gewichtung && sem.gewichtung.muendlich === undefined)
+                sem.gewichtung.muendlich = 0;
+            for (const sid of Object.keys(sem.studentData || {})) {
+                if (!sem.studentData[sid].muendlicheMitarbeit)
+                    sem.studentData[sid].muendlicheMitarbeit = {note: null, kommentar: ''};
+            }
+        }
+        // ── Ensure jahresnote exists ─────────────────────────────────
+        if (!cls.jahresnote) cls.jahresnote = {gewichtung: {semester1: 50, semester2: 50}};
+        if (cls.jahresnote.gewichtung.semester1 === undefined) cls.jahresnote.gewichtung.semester1 = 50;
+        if (cls.jahresnote.gewichtung.semester2 === undefined) cls.jahresnote.gewichtung.semester2 = 50;
+
+        // ── Ensure students list exists ──────────────────────────────
+        if (!cls.students) cls.students = [];
+    }} // closes for cls / for sj
+}
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function activeClasses() {
+    const sj = data.schuljahre.find(s => s.id === data.activeSchuljahrId);
+    return sj ? sj.classes : [];
+}
+function activeSchuljahr() {
+    return data.schuljahre.find(s => s.id === data.activeSchuljahrId) ?? null;
+}
+
+// ================================================================
+// BERECHNUNGEN
+// ================================================================
+
+// Sprachrichtigkeit: MAX(0; 8 − GANZZAHL(Fehler / fehlerProPunkt))
+function calcSprachrichtigkeit(fehler, fehlerProPunkt) {
+    if (fehler === null || fehler === '' || fehler === undefined) return null;
+    const f = parseInt(fehler, 10);
+    const d = (fehlerProPunkt && fehlerProPunkt > 0) ? fehlerProPunkt : 3;
+    if (isNaN(f) || f < 0) return null;
+    return Math.max(0, 8 - Math.floor(f / d));
+}
+
+// Gesamtpunkte Schularbeit (max 32)
+function calcGesamt(sa, fehlerProPunkt) {
+    const sp = calcSprachrichtigkeit(sa.fehler, fehlerProPunkt ?? sa.fehlerProPunkt);
+    const a  = parseOrNull(sa.aufgabenstellung);
+    const w  = parseOrNull(sa.wortschatz);
+    const t  = parseOrNull(sa.textorganisation);
+    if (a === null && sp === null && w === null && t === null) return null;
+    return (a ?? 0) + (sp ?? 0) + (w ?? 0) + (t ?? 0);
+}
+
+// Punkte → GRADE_TABLE-Eintrag
+function calcNote(gesamt) {
+    if (gesamt === null) return null;
+    return GRADE_TABLE[Math.min(32, Math.max(0, gesamt))];
+}
+
+// Prozent → Ganzzahlnote (1–5)
+function pctToNote(pct) {
+    if (pct >= 90) return 1;
+    if (pct >= 80) return 2;
+    if (pct >= 70) return 3;
+    if (pct >= 60) return 4;
+    return 5;
+}
+
+// Dezimalnote → Ganzzahl (für Farbe)
+function noteInt(dec) {
+    if (dec < 1.5) return 1;
+    if (dec < 2.5) return 2;
+    if (dec < 3.5) return 3;
+    if (dec < 4.5) return 4;
+    return 5;
+}
+
+// Teilnote Wiederholung (Durchschnitt der Einzelnoten)
+function calcWdhTeilnote(sem, sid) {
+    const sd = sem.studentData?.[sid] || {};
+    const wdhs = sem.wiederholungen || [];
+    if (wdhs.length === 0) return null;
+    const notes = [];
+    for (const w of wdhs) {
+        const val = sd.wiederholungen?.[w.id];
+        if (val === null || val === undefined || val === '' || val === 'abwesend') continue;
+        const pct = (parseFloat(val) / w.maxPunkte) * 100;
+        notes.push(pctToNote(pct));
+    }
+    if (notes.length === 0) return null;
+    return notes.reduce((a,b) => a+b, 0) / notes.length;
+}
+
+// Teilnote Präsentation (Durchschnitt der eingetragenen Noten)
+function calcPraesTeilnote(sem, sid) {
+    const sd = sem.studentData?.[sid] || {};
+    const praes = sem.praesentationen || [];
+    if (praes.length === 0) return null;
+    const notes = [];
+    for (const p of praes) {
+        const val = sd.praesentationen?.[p.id];
+        if (val === null || val === undefined || val === '') continue;
+        const n = parseInt(val, 10);
+        if (!isNaN(n) && n >= 1 && n <= 5) notes.push(n);
+    }
+    if (notes.length === 0) return null;
+    return notes.reduce((a,b) => a+b, 0) / notes.length;
+}
+
+// Teilnote Hausübungen (Gesamtprozent → Note)
+function calcHATeilnote(sem, sid) {
+    const sd = sem.studentData?.[sid] || {};
+    const has = sem.hausaufgaben || [];
+    if (has.length === 0) return null;
+    let achieved = 0, possible = 0;
+    for (const h of has) {
+        const val = sd.hausaufgaben?.[h.id];
+        if (val === null || val === undefined || val === '' || val === 'k') continue;
+        const v = parseFloat(val);
+        if (isNaN(v)) continue;
+        achieved += v;
+        possible += 1;
+    }
+    if (possible === 0) return null;
+    return pctToNote((achieved / possible) * 100);
+}
+
+// Teilnote Mündliche Mitarbeit (direkt eingegebene Note 1–5)
+function calcMMTeilnote(sem, sid) {
+    const sd = sem.studentData?.[sid] || {};
+    const n = sd.muendlicheMitarbeit?.note;
+    if (n === null || n === undefined || n === '') return null;
+    const v = +n;
+    return (v >= 1 && v <= 5) ? v : null;
+}
+
+// Gesamt-Schularbeitennote: Durchschnitt der Dezimalnoten aller SAs mit Daten
+function calcSATeilnote(sem, sid) {
+    const sas = sem.schularbeiten || [];
+    const sd = sem.studentData?.[sid] || {};
+    const notes = [];
+    for (const sa of sas) {
+        const saData = sd.schularbeiten?.[sa.id];
+        if (!saData) continue;
+        // Oberstufe: direkt eingegebene Note 1-5
+        if (saData.note !== undefined && saData.note !== null && saData.note !== '') {
+            notes.push(+saData.note);
+            continue;
+        }
+        // Unterstufe: Punkte-basierte Berechnung
+        const n = calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3));
+        if (n !== null) notes.push(n.decimal);
+    }
+    if (notes.length === 0) return null;
+    return notes.reduce((a, b) => a + b, 0) / notes.length;
+}
+
+// Gesamtnote (gewichteter Durchschnitt)
+function calcGesamtnote(cls, sem, s) {
+    const g = sem.gewichtung || {};
+    const saWeight = +(g.schularbeiten || 0);
+    const wdhNote   = calcWdhTeilnote(sem, s.id);
+    const praesNote = calcPraesTeilnote(sem, s.id);
+    const haNote    = calcHATeilnote(sem, s.id);
+
+    const saTeilnote = calcSATeilnote(sem, s.id);
+    const mmNote = calcMMTeilnote(sem, s.id);
+    const components = [
+        {val: saTeilnote, w: saWeight},
+        {val: wdhNote,   w: +(g.wiederholung  || 0)},
+        {val: praesNote, w: +(g.praesentation || 0)},
+        {val: haNote,    w: +(g.hausaufgaben  || 0)},
+        {val: mmNote,    w: +(g.muendlich     || 0)},
+    ];
+
+    let sumW = 0, sumWN = 0;
+    for (const c of components) {
+        if (c.val !== null && c.w > 0) { sumWN += c.val * c.w; sumW += c.w; }
+    }
+    if (sumW === 0) return null;
+    return sumWN / sumW;
+}
+
+function calcGesamtnoteAdjusted(cls, sem, s) {
+    const raw = calcGesamtnote(cls, sem, s);
+    if (raw === null) return null;
+    const adj = sem.studentData?.[s.id]?.zwischenpruefung;
+    if (adj === null || adj === undefined) return raw;
+    return raw + adj;
+}
+
+function effectiveSemesterNote(cls, sem, s) {
+    const sas = sem.schularbeiten || [];
+    const sd  = sem.studentData?.[s.id] || {};
+    const hasSAData = sas.some(sa => sd.schularbeiten?.[sa.id]);
+    if (cls.type !== 'oberstufe' && hasSAData && !hasPositiveSA(sem, s)) return 5;
+    return calcGesamtnoteAdjusted(cls, sem, s);
+}
+
+function calcJahresnote(cls, s) {
+    const jg = cls.jahresnote?.gewichtung || {};
+    const w1 = +(jg.semester1 || 0), w2 = +(jg.semester2 || 0);
+    const n1 = effectiveSemesterNote(cls, cls.semester1, s);
+    const n2 = effectiveSemesterNote(cls, cls.semester2, s);
+    const comps = [];
+    if (n1 !== null && w1 > 0) comps.push({val: n1, w: w1});
+    if (n2 !== null && w2 > 0) comps.push({val: n2, w: w2});
+    if (!comps.length) return null;
+    const sumW = comps.reduce((a, c) => a + c.w, 0);
+    return comps.reduce((a, c) => a + c.val * c.w, 0) / sumW;
+}
+
+// ── Hilfsfunktionen ────────────────────────────────────────────
+function parseOrNull(v) {
+    if (v === null || v === undefined || v === '') return null;
+    const n = parseInt(v, 10); return isNaN(n) ? null : n;
+}
+function fmtNote(val) {
+    if (val === null || val === undefined) return '—';
+    if (val % 1 === 0) return val.toString();
+    return val.toFixed(2).replace('.', ',');
+}
+function fmtNoteModifier(decimal) {
+    if (decimal === null || decimal === undefined) return '—';
+    const frac = Math.round((decimal % 1) * 100);
+    const base = Math.round(decimal - decimal % 1);
+    if (frac === 75) return (base + 1) + '+';
+    if (frac === 25) return base + '-';
+    return Math.round(decimal).toString();
+}
+function fmtNote2(val) {
+    if (val === null || val === undefined) return '—';
+    return val.toFixed(2).replace('.', ',');
+}
+function fmtPct(pct) {
+    if (pct === null || pct === undefined) return '—';
+    return pct.toFixed(1).replace('.', ',') + '\u202f%';
+}
+function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ================================================================
+// BADGE-HELFER
+// ================================================================
+function noteBadgeSA(entry, id) {
+    if (!entry) return `<span class="note-badge note-empty" id="${id}">—</span>`;
+    return `<span class="note-badge note-${entry.note}" id="${id}" title="Ganzzahlnote: ${entry.note}">${fmtNoteModifier(entry.decimal)}</span>`;
+}
+function noteBadgeSAInt(entry, id) {
+    if (!entry) return `<span class="note-badge note-empty" id="${id}">—</span>`;
+    return `<span class="note-badge note-${entry.note}" id="${id}">${fmtNoteModifier(entry.decimal)}</span>`;
+}
+function noteBadgeSADec(entry, id) {
+    if (!entry) return `<span class="cell-ro text-muted" id="${id}">—</span>`;
+    return `<span class="cell-ro" id="${id}" style="font-weight:600">${fmtNote2(entry.decimal)}</span>`;
+}
+function noteBadgeDec(dec, id) {
+    if (dec === null || dec === undefined) return `<span class="note-badge note-empty" id="${id}">—</span>`;
+    const ni = noteInt(dec);
+    return `<span class="note-badge note-${ni}" id="${id}">${fmtNote(dec)}</span>`;
+}
+function noteBadgeInt(n, id) {
+    if (n === null || n === undefined) return `<span class="note-badge note-empty" id="${id}">—</span>`;
+    return `<span class="note-badge note-${n}" id="${id}">${n}</span>`;
+}
+
+// ================================================================
+// KLASSENVERWALTUNG
+// ================================================================
+function newClass(name, type) {
+    type = type || 'unterstufe';
+    const isOberstufe = type === 'oberstufe';
+    const semBase = () => ({
+        schularbeiten: isOberstufe
+            ? [{id: genId(), name: '1. Schularbeit'}]
+            : [{id: genId(), name: '1. Schularbeit'}, {id: genId(), name: '2. Schularbeit'}],
+        wiederholungen: [], praesentationen: [], hausaufgaben: [],
+        gewichtung: {schularbeiten:40, wiederholung:20, praesentation:20, hausaufgaben:20, muendlich:0},
+        studentData: {}
+    });
+    return {
+        id: genId(), name: name.trim(), type: type, students: [],
+        semester1: semBase(),
+        semester2: semBase(),
+        jahresnote: {gewichtung: {semester1: 50, semester2: 50}}
+    };
+}
+function addClass(name, type) {
+    const c=newClass(name, type); activeClasses().push(c);
+    activeClassId=c.id; activeSemester='semester1';
+    activeSaId=c.semester1.schularbeiten[0].id;
+    saveData(); render();
+}
+function editClass(id, name)     { const c=activeClasses().find(c=>c.id===id); if(c){c.name=name.trim(); saveData(); render();} }
+function deleteClass(id) {
+    const sj = activeSchuljahr(); if(!sj) return;
+    sj.classes = sj.classes.filter(c=>c.id!==id);
+    if (activeClassId===id) activeClassId = activeClasses()[0]?.id ?? null;
+    saveData(); render();
+}
+
+function openAddSchuljahr() {
+    document.getElementById('inp-sj-name').value = '';
+    showModal('modalAddSchuljahr');
+}
+
+function addSchuljahr(name) {
+    const sjId = genId();
+    const newSj = {
+        id: sjId,
+        name: name.trim(),
+        classes: activeClasses().map(cls => {
+            const fresh = newClass(cls.name, cls.type);
+            fresh.students = cls.students.map(s => ({ id: genId(), name: s.name }));
+            return fresh;
+        })
+    };
+    data.schuljahre.push(newSj);
+    data.activeSchuljahrId = sjId;
+    activeClassId = newSj.classes[0]?.id ?? null;
+    const initCls = newSj.classes[0];
+    activeSaId = initCls?.semester1?.schularbeiten?.[0]?.id ?? null;
+    activeTab = 'sa';
+    activeSemester = 'semester1';
+    saveData();
+    render();
+}
+
+function deleteSchuljahr(sjId) {
+    if (data.schuljahre.length <= 1) return;
+    const sj = data.schuljahre.find(s => s.id === sjId);
+    if (!sj) return;
+    document.getElementById('confirm-delete-msg').innerHTML =
+        `Schuljahr <strong>${esc(sj.name)}</strong> mit allen Noten wirklich löschen?`;
+    pendingDelete = () => {
+        data.schuljahre = data.schuljahre.filter(s => s.id !== sjId);
+        if (data.activeSchuljahrId === sjId) {
+            data.activeSchuljahrId = data.schuljahre[0]?.id ?? null;
+            activeClassId = activeClasses()[0]?.id ?? null;
+            const initCls = activeClasses()[0];
+            activeSaId = initCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+            activeTab = 'sa';
+        }
+        saveData(); render();
+    };
+    showModal('modalConfirmDelete');
+}
+
+function toggleSjMenu(sjId) {
+    const menu = document.getElementById('sj-menu-' + sjId);
+    const isOpen = menu.classList.contains('open');
+    closeSjMenus();
+    if (!isOpen) menu.classList.add('open');
+}
+function closeSjMenus() {
+    document.querySelectorAll('.sj-dropdown.open').forEach(m => m.classList.remove('open'));
+}
+function openEditSchuljahr(sjId) {
+    const sj = data.schuljahre.find(s => s.id === sjId); if (!sj) return;
+    document.getElementById('inp-edit-sj-name').value = sj.name;
+    document.getElementById('inp-edit-sj-id').value = sjId;
+    showModal('modalEditSchuljahr');
+}
+function editSchuljahr(sjId, name) {
+    const sj = data.schuljahre.find(s => s.id === sjId); if (!sj) return;
+    sj.name = name.trim();
+    saveData(); renderSchuljahrSelector();
+}
+
+function addSA() {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    if (sem.schularbeiten.length >= 2) return;
+    const n = sem.schularbeiten.length + 1;
+    const sa = {id: genId(), name: n + '. Schularbeit'};
+    sem.schularbeiten.push(sa);
+    activeSaId = sa.id;
+    saveData(); renderTabContent();
+}
+
+function selectSA(saId) {
+    activeSaId = saId;
+    renderTabContent();
+}
+
+function updateFehlerProPunkt(val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sa = sem.schularbeiten.find(s=>s.id===activeSaId); if(!sa) return;
+    snapshotForUndo();
+    const n = parseInt(val, 10);
+    sa.fehlerProPunkt = (isNaN(n) || n < 1) ? 3 : n;
+    saveDataWithUndo(); renderTabContent();
+}
+
+function deleteSA(saId) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    if (sem.schularbeiten.length <= 1) return; // minimum 1
+    sem.schularbeiten = sem.schularbeiten.filter(sa=>sa.id!==saId);
+    for (const sd of Object.values(sem.studentData)) delete sd.schularbeiten[saId];
+    if (activeSaId === saId) activeSaId = sem.schularbeiten[0].id;
+    saveData(); renderTabContent();
+}
+
+function confirmDeleteSA(saId, btn) {
+    if (btn.dataset.confirm === '1') {
+        deleteSA(saId);
+    } else {
+        btn.dataset.confirm = '1';
+        btn.classList.add('confirm');
+        btn.textContent = '?';
+        setTimeout(() => {
+            if (btn.dataset.confirm === '1') {
+                btn.dataset.confirm = '0';
+                btn.classList.remove('confirm');
+                btn.textContent = '×';
+            }
+        }, 2500);
+    }
+}
+
+// ================================================================
+// SCHÜLERVERWALTUNG
+// ================================================================
+function newStudent(name) {
+    return { id: genId(), name: name.trim() };
+}
+function getSData(sem, sid) {
+    if (!sem.studentData[sid]) sem.studentData[sid] = {schularbeiten:{}, wiederholungen:{}, praesentationen:{}, hausaufgaben:{}, zwischenpruefung: null, muendlicheMitarbeit: {note: null, kommentar: ''}};
+    return sem.studentData[sid];
+}
+function sortStudents(cls) { cls.students.sort((a,b)=>a.name.localeCompare(b.name,'de')); }
+
+function addStudent(classId, name) {
+    const cls = activeClasses().find(c=>c.id===classId); if(!cls) return;
+    cls.students.push(newStudent(name)); sortStudents(cls); saveData(); renderTabContent();
+}
+function editStudent(sid, name) {
+    for (const cls of activeClasses()) {
+        const s = cls.students.find(s=>s.id===sid);
+        if (s) { s.name=name.trim(); sortStudents(cls); saveData(); renderTabContent(); return; }
+    }
+}
+function deleteStudent(sid) {
+    for (const cls of activeClasses()) {
+        const i = cls.students.findIndex(s=>s.id===sid);
+        if (i!==-1) { cls.students.splice(i,1); saveData(); renderTabContent(); return; }
+    }
+}
+function updateSAField(sid, saId, field, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    if (!sd.schularbeiten[saId]) sd.schularbeiten[saId] = {aufgabenstellung:null,fehler:null,wortschatz:null,textorganisation:null,kommentar:''};
+    const n = val==='' ? null : parseInt(val,10);
+    sd.schularbeiten[saId][field] = (val===''||isNaN(n)) ? null : n;
+    saveDataWithUndo();
+    const s = cls.students.find(s=>s.id===sid);
+    if (s) updateSACells(sem, s, saId);
+}
+function updateKommentar(sid, saId, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    if (!sd.schularbeiten[saId]) {
+        sd.schularbeiten[saId] = cls.type === 'oberstufe'
+            ? {note: null, kommentar: ''}
+            : {aufgabenstellung:null,fehler:null,wortschatz:null,textorganisation:null,kommentar:''};
+    }
+    sd.schularbeiten[saId].kommentar = val;
+    saveDataWithUndo();
+}
+function updateOberstufeSANote(sid, saId, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    if (!sd.schularbeiten[saId]) sd.schularbeiten[saId] = {note: null, kommentar: ''};
+    sd.schularbeiten[saId].note = val === '' ? null : +val;
+    saveDataWithUndo();
+}
+
+// ================================================================
+// WIEDERHOLUNG-VERWALTUNG
+// ================================================================
+function addWdh(name, maxPunkte) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    cls[activeSemester].wiederholungen.push({id:genId(), name:name.trim(), maxPunkte:+maxPunkte});
+    saveData(); renderTabContent();
+}
+function editWdh(wid, name, maxPunkte) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const w = cls[activeSemester].wiederholungen.find(w=>w.id===wid); if(!w) return;
+    w.name=name.trim(); w.maxPunkte=+maxPunkte; saveData(); renderTabContent();
+}
+function deleteWdh(wid) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    sem.wiederholungen = sem.wiederholungen.filter(w=>w.id!==wid);
+    for (const sd of Object.values(sem.studentData)) delete sd.wiederholungen[wid];
+    saveData(); renderTabContent();
+}
+function updateWdhField(sid, wid, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    if (val === 'abwesend') {
+        const prev = sd.wiederholungen[wid];
+        sd.wiederholungen[wid] = 'abwesend';
+        if (prev !== null && prev !== undefined && prev !== '' && prev !== 'abwesend') {
+            sd.wiederholungen[wid + '__prev'] = prev;
+        }
+    } else if (val === '__restore__') {
+        const saved = sd.wiederholungen[wid + '__prev'];
+        delete sd.wiederholungen[wid + '__prev'];
+        sd.wiederholungen[wid] = (saved !== undefined) ? saved : null;
+    } else {
+        delete sd.wiederholungen[wid + '__prev'];
+        const n = val==='' ? null : parseFloat(val);
+        sd.wiederholungen[wid] = (val===''||isNaN(n)) ? null : n;
+    }
+    if (!isNaN(parseFloat(val)) && val !== 'abwesend' && window.pixelguyNoteHint) {
+        const _wObj = sem.wiederholungen.find(x => x.id === wid);
+        if (_wObj) {
+            const _wPct = (parseFloat(val) / _wObj.maxPunkte) * 100;
+            const _wN = pctToNote(_wPct);
+            if (_wN === 1 || _wN === 5) window.pixelguyNoteHint(_wN);
+        }
+    }
+    saveDataWithUndo();
+    renderTabContent();
+}
+
+// ================================================================
+// PRÄSENTATION-VERWALTUNG
+// ================================================================
+function addPraes(name) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    cls[activeSemester].praesentationen.push({id:genId(), name:name.trim()}); saveData(); renderTabContent();
+}
+function editPraes(pid, name) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const p = cls[activeSemester].praesentationen.find(p=>p.id===pid); if(!p) return;
+    p.name=name.trim(); saveData(); renderTabContent();
+}
+function deletePraes(pid) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    sem.praesentationen = sem.praesentationen.filter(p=>p.id!==pid);
+    for (const sd of Object.values(sem.studentData)) delete sd.praesentationen[pid];
+    saveData(); renderTabContent();
+}
+function updatePraesField(sid, pid, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    const n = val==='' ? null : parseInt(val,10);
+    sd.praesentationen[pid] = (val===''||isNaN(n)) ? null : n;
+    if ((n === 1 || n === 5) && window.pixelguyNoteHint) window.pixelguyNoteHint(n);
+    saveDataWithUndo();
+    const tn = calcPraesTeilnote(sem, sid);
+    setBadgeDec('praes-note-' + sid, tn);
+}
+
+// ================================================================
+// HAUSÜBUNG-VERWALTUNG
+// ================================================================
+function addHA(name) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    cls[activeSemester].hausaufgaben.push({id:genId(), name:name.trim()}); saveData(); renderTabContent();
+}
+function editHA(hid, name) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const h = cls[activeSemester].hausaufgaben.find(h=>h.id===hid); if(!h) return;
+    h.name=name.trim(); saveData(); renderTabContent();
+}
+function deleteHA(hid) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    sem.hausaufgaben = sem.hausaufgaben.filter(h=>h.id!==hid);
+    for (const sd of Object.values(sem.studentData)) delete sd.hausaufgaben[hid];
+    saveData(); renderTabContent();
+}
+function updateHAField(sid, hid, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    sd.hausaufgaben[hid] = val==='' ? null : val;
+    saveDataWithUndo();
+    const s = cls.students.find(s=>s.id===sid);
+    if (s) updateHACells(sem, s);
+}
+
+function updateZwischenpruefung(sid, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    sd.zwischenpruefung = (val === '' || val === null) ? null : parseFloat(val);
+    saveDataWithUndo();
+    updateGesamtColumn(cls, sem);
+    const sel = document.querySelector(`.zp-select[data-sid="${sid}"]`);
+    if (sel) {
+        const isSet = sd.zwischenpruefung !== null;
+        sel.style.borderColor = isSet ? '#9c27b0' : '';
+        sel.style.background  = isSet ? '#f3e5f5' : '';
+    }
+}
+
+function updateMMNote(sid, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    sd.muendlicheMitarbeit.note = val === '' ? null : +val;
+    if ((+val === 1 || +val === 5) && window.pixelguyNoteHint) window.pixelguyNoteHint(+val);
+    saveDataWithUndo();
+}
+
+function updateMMKommentar(sid, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    sd.muendlicheMitarbeit.kommentar = val;
+    saveDataWithUndo();
+}
+
+// ================================================================
+// GEWICHTUNG
+// ================================================================
+function updateGewichtung(key, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    snapshotForUndo();
+    cls[activeSemester].gewichtung[key] = +val || 0;
+    saveDataWithUndo();
+    render();
+}
+
+// ================================================================
+// RENDER – Hauptfunktionen
+// ================================================================
+function render() { renderSidebar(); renderContent(); }
+
+function renderSchuljahrSelector() {
+    const el = document.getElementById('schuljahr-selector');
+    if (!el) return;
+    const canDelete = data.schuljahre.length > 1;
+    el.innerHTML = data.schuljahre.map(sj => `
+        <span class="sj-wrap">
+            <span class="sj-chip ${sj.id===data.activeSchuljahrId?'active':''}" onclick="selectSchuljahr('${sj.id}')">${esc(sj.name)}</span>
+            <button class="sj-menu-btn" onclick="event.stopPropagation();toggleSjMenu('${sj.id}')" title="Optionen">⋯</button>
+            <div class="sj-dropdown" id="sj-menu-${sj.id}">
+                <button onclick="closeSjMenus();openEditSchuljahr('${sj.id}')"><i class="bi bi-pencil"></i>Umbenennen</button>
+                ${canDelete ? `<div class="sj-divider"></div><button class="danger" onclick="closeSjMenus();deleteSchuljahr('${sj.id}')"><i class="bi bi-trash"></i>Löschen</button>` : ''}
+            </div>
+        </span>`
+    ).join('') + `<button class="sj-add-btn" onclick="openAddSchuljahr()" title="Neues Schuljahr">+</button>`;
+}
+
+function selectSchuljahr(sjId) {
+    data.activeSchuljahrId = sjId;
+    activeClassId = activeClasses()[0]?.id ?? null;
+    const initCls = activeClasses()[0];
+    activeSaId = initCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+    activeTab = 'sa';
+    saveData();
+    render();
+}
+
+function renderSidebar() {
+    renderSchuljahrSelector();
+    const listU = document.getElementById('class-list-u');
+    const listO = document.getElementById('class-list-o');
+    const classItem = cls => `
+        <div class="class-item ${cls.id===activeClassId?'active':''}" data-id="${cls.id}" onclick="selectClass('${cls.id}')">
+            <div class="fw-semibold">${esc(cls.name)}</div>
+            <div class="class-item-actions">
+                <button class="btn btn-xs btn-outline-secondary" onclick="event.stopPropagation();openEditClass('${cls.id}')" title="Umbenennen"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-xs btn-outline-danger" onclick="event.stopPropagation();openDeleteClass('${cls.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+            </div>
+        </div>`;
+    const empty = '<p class="text-muted small" style="padding:4px 6px">Keine Klassen.</p>';
+    const uClasses = activeClasses().filter(c => c.type !== 'oberstufe');
+    const oClasses = activeClasses().filter(c => c.type === 'oberstufe');
+    listU.innerHTML = uClasses.length ? uClasses.map(classItem).join('') : empty;
+    listO.innerHTML = oClasses.length ? oClasses.map(classItem).join('') : empty;
+}
+
+function renderContent() {
+    const area = document.getElementById('content-area');
+    if (!activeClassId || !activeClasses().length) {
+        area.innerHTML = `<div class="empty-state"><i class="bi bi-folder-plus"></i><h5 class="mt-3">Keine Klasse ausgewählt</h5><p>Lege eine Klasse über die Seitenleiste an.</p></div>`;
+        return;
+    }
+    const cls = activeClasses().find(c=>c.id===activeClassId);
+    if (!cls) return;
+
+    area.innerHTML = `
+        <div class="mb-2">
+            <h5 class="mb-0">Klasse <strong>${esc(cls.name)}</strong></h5>
+            <small class="text-muted">${cls.students.length} Schüler:in${cls.students.length!==1?'nen':''}</small>
+        </div>
+        <div class="semester-tab-bar">
+            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester1'?'active':''}" onclick="selectSemester('semester1')">1. Semester</div>
+            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester2'?'active':''}" onclick="selectSemester('semester2')">2. Semester</div>
+            <div class="semester-tab jahr-tab ${activeTab==='jahr'?'active':''}" onclick="selectTab('jahr');return false;">Jahresnote</div>
+            <div class="semester-tab schueler-tab ${activeTab==='schueler'?'active':''}" onclick="selectTab('schueler');return false;">Schüler:innen</div>
+        </div>
+        ${activeTab!=='jahr'&&activeTab!=='schueler' ? `<ul class="nav class-tabs" id="class-tabs">
+            <li class="nav-item"><a class="nav-link ${activeTab==='sa'?'active':''}" href="#" onclick="selectTab('sa');return false;"><i class="bi bi-pencil-square me-1"></i>Schularbeiten</a></li>
+            <li class="nav-item"><a class="nav-link ${activeTab==='wdh'?'active':''}" href="#" onclick="selectTab('wdh');return false;"><i class="bi bi-journal-check me-1"></i>Wiederholungen</a></li>
+            <li class="nav-item"><a class="nav-link ${activeTab==='praes'?'active':''}" href="#" onclick="selectTab('praes');return false;"><i class="bi bi-mic me-1"></i>Präsentationen</a></li>
+            <li class="nav-item"><a class="nav-link ${activeTab==='ha'?'active':''}" href="#" onclick="selectTab('ha');return false;"><i class="bi bi-house me-1"></i>Hausübungen</a></li>
+            <li class="nav-item"><a class="nav-link ${activeTab==='mm'?'active':''}" href="#" onclick="selectTab('mm');return false;"><i class="bi bi-chat-dots me-1"></i>Mündl. Mitarbeit</a></li>
+            <li class="nav-item"><a class="nav-link ${activeTab==='gesamt'?'active':''}" href="#" onclick="selectTab('gesamt');return false;"><i class="bi bi-calculator me-1"></i>Gesamtnote</a></li>
+        </ul>` : ''}
+        <div id="tab-content"></div>`;
+
+    renderTabContent();
+}
+
+function selectClass(id) {
+    activeClassId=id;
+    const _selCls = activeClasses().find(c=>c.id===id);
+    activeSaId = _selCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+    activeTab='sa'; renderSidebar(); renderContent();
+}
+function selectTab(tab)  { activeTab=tab; if (tab==='jahr'||tab==='schueler') { renderContent(); } else { renderTabContent(); updateTabLinks(); } }
+function selectSemester(sem) {
+    activeSemester = sem;
+    const cls = activeClasses().find(c=>c.id===activeClassId);
+    activeSaId = cls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+    if (activeTab === 'jahr' || activeTab === 'schueler') activeTab = 'sa';
+    renderContent();
+}
+
+function updateTabLinks() {
+    document.querySelectorAll('#class-tabs .nav-link').forEach(a => {
+        const t = a.getAttribute('onclick').match(/'(\w+)'/)?.[1];
+        a.classList.toggle('active', t===activeTab);
+    });
+}
+
+function renderTabContent() {
+    const area = document.getElementById('tab-content');
+    if (!area) return;
+    const cls = activeClasses().find(c=>c.id===activeClassId);
+    if (!cls) return;
+    const sem = cls[activeSemester];
+    switch(activeTab) {
+        case 'sa':     area.innerHTML = renderTabSA(cls, sem);     attachSAListeners();    break;
+        case 'wdh':    area.innerHTML = renderTabWDH(cls, sem);    attachWDHListeners();   break;
+        case 'praes':  area.innerHTML = renderTabPraes(cls, sem);  attachPraesListeners(); break;
+        case 'ha':     area.innerHTML = renderTabHA(cls, sem);     attachHAListeners();    break;
+        case 'mm':       area.innerHTML = renderTabMM(cls, sem);        attachMMListeners();       break;
+        case 'gesamt':   area.innerHTML = renderTabGesamt(cls, sem);    attachGesamtListeners();   break;
+        case 'jahr':     area.innerHTML = renderTabJahresnote(cls);     attachJahrListeners();     break;
+        case 'schueler': area.innerHTML = renderTabSchueler(cls);       attachSchuelerListeners(); break;
+    }
+}
+
+function renderTabSchueler(cls) {
+    const rows = cls.students.map(s => `
+        <tr>
+            <td>${esc(s.name)}</td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-secondary btn-icon me-1" onclick="openEditStudent('${s.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger btn-icon" onclick="openDeleteStudent('${s.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+            </td>
+        </tr>`).join('');
+    return `
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+            <span class="text-muted small">${cls.students.length} Schüler:in${cls.students.length!==1?'nen':''}</span>
+            <button class="btn btn-sm btn-primary" onclick="openAddStudent()"><i class="bi bi-person-plus me-1"></i>Schüler:in hinzufügen</button>
+        </div>
+        <table class="table table-sm table-hover">
+            <tbody>${rows || '<tr><td class="text-muted">Noch keine Schüler:innen eingetragen.</td><td></td></tr>'}</tbody>
+        </table>`;
+}
+
+function attachSchuelerListeners() {}
+
+// ================================================================
+// RENDER – Tab Schularbeiten
+// ================================================================
+function renderTabSA(cls, sem) {
+    const sas = sem.schularbeiten || [];
+    if (!activeSaId || !sas.find(sa=>sa.id===activeSaId)) {
+        activeSaId = sas[0]?.id ?? null;
+    }
+    const isOberstufe = cls.type === 'oberstufe';
+    const canAddSA = sas.length < 2;
+    const tabBar = `
+        <div class="sa-tab-bar">
+            ${sas.map(sa => `
+                <div class="sa-tab ${sa.id===activeSaId?'active':''}">
+                    <span onclick="selectSA('${sa.id}')">${esc(sa.name)}</span>
+                    ${isOberstufe && sas.length > 1 ? `<button class="sa-tab-del" onclick="deleteSA('${sa.id}')" title="Entfernen">×</button>` : ''}
+                </div>`).join('')}
+            ${isOberstufe && canAddSA ? `<button class="sa-tab-add" onclick="addSA()" title="2. Schularbeit hinzufügen">+</button>` : ''}
+        </div>`;
+    if (!activeSaId || !cls.students.length) {
+        return tabBar + (cls.students.length ? '' : emptyStudents());
+    }
+    if (isOberstufe) {
+        return tabBar + `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0" id="sa-table">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="min-width:180px;">Name</th>
+                        <th class="text-center th-sa1">Note<br><span style="opacity:.7">1–5</span></th>
+                        <th class="th-sa1">Kommentar</th>
+                    </tr>
+                </thead>
+                <tbody id="sa-tbody">
+                    ${cls.students.map(s => renderSARowOberstufe(getSData(sem, s.id), s, activeSaId)).join('')}
+                </tbody>
+            </table>
+        </div>`;
+    }
+    const activeSaDef = sas.find(sa=>sa.id===activeSaId);
+    const fpp = activeSaDef?.fehlerProPunkt ?? 3;
+    return tabBar + `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0" id="sa-table">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="min-width:180px;">Name</th>
+                        <th class="text-center th-sa1" title="Aufgabenstellung (max. 8)">Aufgaben&shy;stellung<br><span style="opacity:.7">0–8</span></th>
+                        <th class="text-center th-sa1" title="Fehler (Eingabe)">Fehler<br><span style="opacity:.7;font-weight:normal;font-size:.75em">÷<input type="number" id="fpp-inp" min="1" max="20" step="1" value="${fpp}" style="width:36px;padding:0 2px;text-align:center;" class="cell-input" onchange="updateFehlerProPunkt(this.value)" onclick="event.stopPropagation()" title="Fehler pro Punkt Abzug">− 1 Pkt</span></th>
+                        <th class="text-center th-sa1" title="Sprachrichtigkeit (auto)">Sprach&shy;richtigkeit<br><span style="opacity:.7">auto *</span></th>
+                        <th class="text-center th-sa1" title="Wortschatz (max. 8)">Wort&shy;schatz<br><span style="opacity:.7">0–8</span></th>
+                        <th class="text-center th-sa1" title="Textorganisation (max. 8)">Text&shy;organisation<br><span style="opacity:.7">0–8</span></th>
+                        <th class="text-center th-sa1" title="Gesamtpunkte (max. 32)">Gesamt<br><span style="opacity:.7">max 32</span></th>
+                        <th class="text-center th-sa1">Note</th>
+                        <th class="text-center th-sa1">Dezimal</th>
+                        <th class="text-center th-sa1">Kommentar</th>
+                    </tr>
+                </thead>
+                <tbody id="sa-tbody">
+                    ${cls.students.map(s => renderSARow(getSData(sem, s.id), s, activeSaId, fpp)).join('')}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3 d-flex align-items-start gap-4 flex-wrap">
+            <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i>* Sprachrichtigkeit: wird automatisch berechnet.</p>
+            <table class="small mb-0" style="border-collapse:collapse;line-height:1.4;">
+                <thead><tr>
+                    <th class="text-muted fw-normal pe-3" style="white-space:nowrap;">Note</th>
+                    <th class="text-muted fw-normal pe-2">1</th>
+                    <th class="text-muted fw-normal pe-2">2</th>
+                    <th class="text-muted fw-normal pe-2">3</th>
+                    <th class="text-muted fw-normal pe-2">4</th>
+                    <th class="text-muted fw-normal">5</th>
+                </tr></thead>
+                <tbody><tr>
+                    <td class="text-muted pe-3" style="white-space:nowrap;">Punkte</td>
+                    <td class="pe-2">32–29</td>
+                    <td class="pe-2">28–25</td>
+                    <td class="pe-2">24–20</td>
+                    <td class="pe-2">19–16</td>
+                    <td>15–0</td>
+                </tr></tbody>
+            </table>
+        </div>`;
+}
+
+function renderSARowOberstufe(sd, s, saId) {
+    const sa = sd.schularbeiten?.[saId] || {note: null, kommentar: ''};
+    const note = sa.note ?? '';
+    const noteClass = note ? `note-${note}` : 'note-empty';
+    return `
+    <tr data-sid="${s.id}">
+        <td class="sticky-col">${studentNameCell(s)}</td>
+        <td class="td-sa1 text-center">
+            <select class="cell-input ost-note-sel" data-sid="${s.id}" data-said="${saId}">
+                <option value="">—</option>
+                ${[1,2,3,4,5].map(n => `<option value="${n}" ${note==n?'selected':''}>${n}</option>`).join('')}
+            </select>
+        </td>
+        <td class="td-sa1"><textarea class="komm-input" data-sid="${s.id}" data-said="${saId}" placeholder="Kommentar...">${esc(sa.kommentar||'')}</textarea></td>
+    </tr>`;
+}
+
+
+function renderSARow(sd, s, saId, fehlerProPunkt) {
+    const sa = sd.schularbeiten?.[saId] || {aufgabenstellung:null,fehler:null,wortschatz:null,textorganisation:null,kommentar:''};
+    const sp = calcSprachrichtigkeit(sa.fehler, fehlerProPunkt);
+    const g  = calcGesamt(sa, fehlerProPunkt);
+    const n  = calcNote(g);
+    return `
+    <tr data-sid="${s.id}">
+        <td class="sticky-col">${studentNameCell(s)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'aufgabenstellung', sa.aufgabenstellung, 0, 8)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'fehler', sa.fehler, 0, null)}</td>
+        <td class="td-sa1 text-center"><span class="cell-ro" id="sp-${s.id}">${sp??'—'}</span></td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'wortschatz', sa.wortschatz, 0, 8)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'textorganisation', sa.textorganisation, 0, 8)}</td>
+        <td class="td-sa1 text-center"><span class="cell-ro" id="g-${s.id}">${g??'—'}</span></td>
+        <td class="td-sa1 text-center">${noteBadgeSAInt(n, 'n-'+s.id)}</td>
+        <td class="td-sa1 text-center">${noteBadgeSADec(n, 'nd-'+s.id)}</td>
+        <td class="td-sa1"><textarea class="komm-input" data-sid="${s.id}" data-said="${saId}" placeholder="Kommentar...">${esc(sa.kommentar||'')}</textarea></td>
+    </tr>`;
+}
+
+function numInp(sid, sa, field, val, min, max) {
+    const v = val!==null?val:'';
+    const maxA = max!==null?`max="${max}"`:'';
+    return `<input class="cell-input sa-inp" type="number" min="${min}" ${maxA} step="1" value="${v}" data-sid="${sid}" data-sa="${sa}" data-field="${field}">`;
+}
+
+function studentNameCell(s) {
+    return `<span class="text-truncate" title="${esc(s.name)}">${esc(s.name)}</span>`;
+}
+
+function attachSAListeners() {
+    const tbody = document.getElementById('sa-tbody'); if(!tbody) return;
+    tbody.querySelectorAll('.sa-inp').forEach(inp => {
+        inp.addEventListener('change', function() { updateSAField(this.dataset.sid, this.dataset.sa, this.dataset.field, this.value); });
+    });
+    tbody.querySelectorAll('.ost-note-sel').forEach(sel => {
+        sel.addEventListener('change', function() { updateOberstufeSANote(this.dataset.sid, this.dataset.said, this.value); });
+    });
+    tbody.querySelectorAll('.komm-input').forEach(ta => {
+        ta.addEventListener('change', function() { updateKommentar(this.dataset.sid, this.dataset.said, this.value); });
+    });
+}
+
+function updateSACells(sem, s, saId) {
+    const sd = getSData(sem, s.id);
+    const sa = sd.schularbeiten?.[saId] || {};
+    const saDef = sem.schularbeiten.find(x=>x.id===saId);
+    const fpp = saDef?.fehlerProPunkt ?? 3;
+    const sp = calcSprachrichtigkeit(sa.fehler, fpp);
+    const g  = calcGesamt(sa, fpp);
+    const n  = calcNote(g);
+    setTxt('sp-'+s.id, sp??'—');
+    setTxt('g-'+s.id,  g??'—');
+    setBadgeSA('n-'+s.id, n);
+}
+
+// ================================================================
+// RENDER – Tab Wiederholungen
+// ================================================================
+function renderTabWDH(cls, sem) {
+    const wdhs = sem.wiederholungen;
+    const hasStudents = cls.students.length > 0;
+    return `
+        <div class="mb-3">
+            <div class="fw-semibold text-muted mb-1">Wiederholungen verwalten</div>
+            <button class="btn btn-sm btn-primary" onclick="openAddWdh()"><i class="bi bi-plus-lg me-1"></i>Wiederholung</button>
+        </div>
+        ${!hasStudents ? emptyStudents() : !wdhs.length ? `
+            <div class="empty-state border rounded bg-white">
+                <i class="bi bi-journal-plus"></i>
+                <h6 class="mt-3">Noch keine Wiederholungen</h6>
+                <p class="small">Füge eine Wiederholung über den Button oben hinzu.</p>
+            </div>` : `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="">Name</th>
+                        ${wdhs.map(w=>`
+                            <th class="text-center th-wdh" style="min-width:110px">
+                                <div>${esc(w.name)}</div>
+                                <div class="small" style="opacity:.75">max ${w.maxPunkte} Pkt.</div>
+                                <div class="d-flex justify-content-center gap-1 mt-1">
+                                    <button class="btn btn-xs btn-outline-light" onclick="openEditWdh('${w.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-xs btn-outline-danger" onclick="openDeleteWdh('${w.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </th>`).join('')}
+                        <th class="text-center" style="">Teilnote</th>
+                    </tr>
+                </thead>
+                <tbody id="wdh-tbody">
+                    ${cls.students.map(s => {
+                        const tn = calcWdhTeilnote(sem, s.id);
+                        return `<tr data-sid="${s.id}">
+                            <td class="sticky-col">${studentNameCell(s)}</td>
+                            ${wdhs.map(w => {
+                                const val = getSData(sem, s.id).wiederholungen?.[w.id];
+                                const absent = val === 'abwesend';
+                                const numVal = (!absent && val!==null && val!==undefined && val!=='') ? val : '';
+                                const pct = (!absent && numVal!=='') ? ((parseFloat(numVal)/w.maxPunkte)*100) : null;
+                                const note = pct!==null ? pctToNote(pct) : null;
+                                const tooltip = note!==null ? `title="${fmtPct(pct)} → Note ${note}"` : '';
+                                return `<td class="td-wdh text-center">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <input class="cell-input wdh-inp" type="number" min="0" max="${w.maxPunkte}" step="0.5"
+                                               value="${numVal}"
+                                               data-sid="${s.id}" data-wid="${w.id}" ${tooltip}${absent?' disabled style="opacity:.35"':''}>
+                                        ${note!==null ? `<span style="font-size:.7rem;color:#666;white-space:nowrap">${fmtPct(pct)}</span><span class="note-badge note-${note}" >${note}</span>` : ''}
+                                        <label class="d-flex align-items-center gap-1 mb-0" style="font-size:.7rem;color:#888;cursor:pointer;white-space:nowrap">
+                                            <input type="checkbox" class="wdh-absent" data-sid="${s.id}" data-wid="${w.id}" ${absent?'checked':''} title="Abwesend">Abw.
+                                        </label>
+                                    </div>
+                                </td>`;
+                            }).join('')}
+                            <td class="text-center">${noteBadgeDec(tn,'wdh-note-'+s.id)}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>`}`;
+}
+
+function attachWDHListeners() {
+    document.querySelectorAll('.wdh-inp').forEach(inp => {
+        inp.addEventListener('change', function() { updateWdhField(this.dataset.sid, this.dataset.wid, this.value); });
+    });
+    document.querySelectorAll('.wdh-absent').forEach(cb => {
+        cb.addEventListener('change', function() {
+            updateWdhField(this.dataset.sid, this.dataset.wid, this.checked ? 'abwesend' : '__restore__');
+        });
+    });
+}
+
+// ================================================================
+// RENDER – Tab Präsentationen
+// ================================================================
+function renderTabPraes(cls, sem) {
+    const praes = sem.praesentationen;
+    const hasStudents = cls.students.length > 0;
+    return `
+        <div class="mb-3">
+            <div class="fw-semibold text-muted mb-1">Präsentationen verwalten</div>
+            <button class="btn btn-sm btn-primary" onclick="openAddPraes()"><i class="bi bi-plus-lg me-1"></i>Präsentation</button>
+        </div>
+        ${!hasStudents ? emptyStudents() : !praes.length ? `
+            <div class="empty-state border rounded bg-white">
+                <i class="bi bi-mic"></i>
+                <h6 class="mt-3">Noch keine Präsentationen</h6>
+                <p class="small">Füge eine Präsentation über den Button oben hinzu.</p>
+            </div>` : `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="">Name</th>
+                        ${praes.map(p=>`
+                            <th class="text-center th-praes" style="min-width:120px">
+                                <div>${esc(p.name)}</div>
+                                <div class="small" style="opacity:.75">Note 1–5</div>
+                                <div class="d-flex justify-content-center gap-1 mt-1">
+                                    <button class="btn btn-xs btn-outline-light" onclick="openEditPraes('${p.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-xs btn-outline-danger" onclick="openDeletePraes('${p.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </th>`).join('')}
+                        <th class="text-center" style="">Teilnote Ø</th>
+                    </tr>
+                </thead>
+                <tbody id="praes-tbody">
+                    ${cls.students.map(s => {
+                        const tn = calcPraesTeilnote(sem, s.id);
+                        return `<tr data-sid="${s.id}">
+                            <td class="sticky-col">${studentNameCell(s)}</td>
+                            ${praes.map(p => {
+                                const val = getSData(sem, s.id).praesentationen?.[p.id] ?? '';
+                                return `<td class="td-praes text-center">
+                                    <select class="praes-select" data-sid="${s.id}" data-pid="${p.id}">
+                                        <option value="">—</option>
+                                        ${[1,2,3,4,5].map(n=>`<option value="${n}" ${+val===n?'selected':''}>${n}</option>`).join('')}
+                                    </select>
+                                </td>`;
+                            }).join('')}
+                            <td class="text-center">${noteBadgeDec(tn,'praes-note-'+s.id)}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>`}`;
+}
+
+function attachPraesListeners() {
+    document.querySelectorAll('.praes-select').forEach(sel => {
+        sel.addEventListener('change', function() { updatePraesField(this.dataset.sid, this.dataset.pid, this.value); });
+    });
+}
+
+// ================================================================
+// RENDER – Tab Hausübungen
+// ================================================================
+function renderTabHA(cls, sem) {
+    const has = sem.hausaufgaben;
+    const hasStudents = cls.students.length > 0;
+    return `
+        <div class="mb-3">
+            <div class="fw-semibold text-muted mb-1">Hausübungen verwalten</div>
+            <button class="btn btn-sm btn-primary" onclick="openAddHA()"><i class="bi bi-plus-lg me-1"></i>Hausübung</button>
+        </div>
+        ${!hasStudents ? emptyStudents() : !has.length ? `
+            <div class="empty-state border rounded bg-white">
+                <i class="bi bi-house"></i>
+                <h6 class="mt-3">Noch keine Hausübungen</h6>
+                <p class="small">Füge eine Hausübung über den Button oben hinzu.</p>
+            </div>` : `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="">Name</th>
+                        ${has.map(h=>`
+                            <th class="text-center th-ha" style="min-width:90px">
+                                <div>${esc(h.name)}</div>
+                                <div class="d-flex justify-content-center gap-1 mt-1">
+                                    <button class="btn btn-xs btn-outline-light" onclick="openEditHA('${h.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-xs btn-outline-danger" onclick="openDeleteHA('${h.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </th>`).join('')}
+                        <th class="text-center" style="">Punkte</th>
+                        <th class="text-center" style="">Prozent</th>
+                        <th class="text-center" style="">Note</th>
+                    </tr>
+                </thead>
+                <tbody id="ha-tbody">
+                    <tr style="background:#dbeafe; border-bottom:2px solid #93c5fd;">
+                        <td class="sticky-col" style="background:#dbeafe;">
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-arrow-right-circle-fill text-primary"></i>
+                                <span class="fw-semibold text-primary small">Für alle</span>
+                            </div>
+                        </td>
+                        ${has.map(h => `
+                            <td class="text-center" style="background:#dbeafe;">
+                                <select class="ha-alle-select" data-hid="${h.id}" title="Wert für alle Schüler setzen">
+                                    <option value="">—</option>
+                                    <option value="k">k</option>
+                                    <option value="0">0</option>
+                                    <option value="0.3333">⅓</option>
+                                    <option value="0.5">½</option>
+                                    <option value="0.6667">⅔</option>
+                                    <option value="1">1</option>
+                                </select>
+                            </td>`).join('')}
+                        <td colspan="3" style="background:#dbeafe; color:#6c757d; font-size:.8rem; text-align:center;">
+                            Wert wählen → alle Schüler werden gesetzt
+                        </td>
+                    </tr>
+                    ${cls.students.map(s => {
+                        const {achieved, possible} = haStats(sem, s.id);
+                        const pct = possible>0 ? (achieved/possible)*100 : null;
+                        const note = pct!==null ? pctToNote(pct) : null;
+                        return `<tr data-sid="${s.id}">
+                            <td class="sticky-col">${studentNameCell(s)}</td>
+                            ${has.map(h => {
+                                const val = getSData(sem, s.id).hausaufgaben?.[h.id] ?? '';
+                                return `<td class="td-ha text-center">
+                                    <select class="ha-select" data-sid="${s.id}" data-hid="${h.id}">
+                                        <option value="">—</option>
+                                        <option value="k"     ${val==='k' ?'selected':''}>k</option>
+                                        <option value="0"     ${val===0||val==='0'?'selected':''}>0</option>
+                                        <option value="0.3333"${parseFloat(val)===0.3333?'selected':''}>⅓</option>
+                                        <option value="0.5"   ${val===0.5||val==='0.5'?'selected':''}>½</option>
+                                        <option value="0.6667"${parseFloat(val)===0.6667?'selected':''}>⅔</option>
+                                        <option value="1"     ${val===1||val==='1'?'selected':''}>1</option>
+                                    </select>
+                                </td>`;
+                            }).join('')}
+                            <td class="text-center"><span class="cell-ro" id="ha-pts-${s.id}">${achieved!==null?achieved.toFixed(2)+'/'+possible:'—'}</span></td>
+                            <td class="text-center"><span class="cell-ro" id="ha-pct-${s.id}">${pct!==null?fmtPct(pct):'—'}</span></td>
+                            <td class="text-center">${noteBadgeInt(note,'ha-note-'+s.id)}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2"><i class="bi bi-info-circle me-1"></i><strong>k</strong> = krank (wird nicht gewertet, zählt nicht im Durchschnitt) &nbsp;|&nbsp; Notengrenzen: ≥90 %=1, ≥80 %=2, ≥70 %=3, ≥60 %=4, &lt;60 %=5</p>`}`;
+}
+
+function haStats(sem, sid) {
+    const sd = sem.studentData?.[sid] || {};
+    let achieved=0, possible=0;
+    for (const h of sem.hausaufgaben) {
+        const val = sd.hausaufgaben?.[h.id];
+        if (val===null||val===undefined||val===''||val==='k') continue;
+        const v = parseFloat(val);
+        if (!isNaN(v)) { achieved+=v; possible+=1; }
+    }
+    return possible===0 ? {achieved:null,possible:null} : {achieved, possible};
+}
+
+function attachHAListeners() {
+    document.querySelectorAll('.ha-select').forEach(sel => {
+        sel.addEventListener('change', function() { updateHAField(this.dataset.sid, this.dataset.hid, this.value); });
+    });
+    document.querySelectorAll('.ha-alle-select').forEach(sel => {
+        sel.addEventListener('change', function() {
+            const hid = this.dataset.hid;
+            const val = this.value;
+            if (val === '') return;
+            setAllHA(hid, val);
+            this.value = '';
+        });
+    });
+}
+
+function setAllHA(hid, val) {
+    const cls = activeClasses().find(c => c.id === activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    snapshotForUndo();
+    for (const s of cls.students) {
+        getSData(sem, s.id).hausaufgaben[hid] = val === '' ? null : val;
+    }
+    saveDataWithUndo();
+    renderTabContent();
+}
+
+function updateHACells(sem, s) {
+    const {achieved, possible} = haStats(sem, s.id);
+    const pct = possible>0 ? (achieved/possible)*100 : null;
+    const note = pct!==null ? pctToNote(pct) : null;
+    setTxt('ha-pts-'+s.id, achieved!==null?achieved.toFixed(2)+'/'+possible:'—');
+    setTxt('ha-pct-'+s.id, pct!==null?fmtPct(pct):'—');
+    setBadgeInt('ha-note-'+s.id, note);
+}
+
+// Hat der Schüler mindestens eine positive Schularbeit (Note ≤ 4)?
+function hasPositiveSA(sem, s) {
+    const sas = sem.schularbeiten || [];
+    if (sas.length === 0) return true;
+    const sd = sem.studentData?.[s.id] || {};
+    return sas.some(sa => {
+        const saData = sd.schularbeiten?.[sa.id];
+        if (!saData) return false;
+        // Oberstufe: direkt eingegebene Note
+        if (saData.note !== undefined && saData.note !== null && saData.note !== '') {
+            return +saData.note <= 4;
+        }
+        // Unterstufe: Punkte-basiert
+        const n = calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3));
+        return n !== null && n.note <= 4;
+    });
+}
+
+// ================================================================
+// RENDER – Tab Mündliche Mitarbeit
+// ================================================================
+function renderTabMM(cls, sem) {
+    if (!cls.students.length) return emptyStudents();
+    return `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="min-width:180px;">Name</th>
+                        <th class="text-center th-sa1">Note<br><span style="opacity:.7">1–5</span></th>
+                        <th class="th-sa1">Kommentar</th>
+                    </tr>
+                </thead>
+                <tbody id="mm-tbody">
+                    ${cls.students.map(s => {
+                        const mm = getSData(sem, s.id).muendlicheMitarbeit || {note: null, kommentar: ''};
+                        const note = mm.note ?? '';
+                        return `<tr data-sid="${s.id}">
+                            <td class="sticky-col">${studentNameCell(s)}</td>
+                            <td class="td-sa1 text-center">
+                                <select class="cell-input mm-note-sel" data-sid="${s.id}">
+                                    <option value="">—</option>
+                                    ${[1,2,3,4,5].map(n => `<option value="${n}" ${note==n?'selected':''}>${n}</option>`).join('')}
+                                </select>
+                            </td>
+                            <td class="td-sa1"><textarea class="komm-input mm-komm-ta" data-sid="${s.id}" placeholder="Kommentar...">${esc(mm.kommentar||'')}</textarea></td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>`;
+}
+
+function attachMMListeners() {
+    document.querySelectorAll('.mm-note-sel').forEach(sel => {
+        sel.addEventListener('change', function() { updateMMNote(this.dataset.sid, this.value); });
+    });
+    document.querySelectorAll('.mm-komm-ta').forEach(ta => {
+        ta.addEventListener('change', function() { updateMMKommentar(this.dataset.sid, this.value); });
+    });
+}
+
+// ================================================================
+// RENDER – Tab Gesamtnote
+// ================================================================
+function renderTabGesamt(cls, sem) {
+    const g = sem.gewichtung;
+    const saWeight = +(g.schularbeiten || 0);
+    const sas = sem.schularbeiten || [];
+    const totalW =saWeight+(+(g.wiederholung)||0)+(+(g.praesentation)||0)+(+(g.hausaufgaben)||0)+(+(g.muendlich)||0);
+    const warnClass = totalW===100?'weight-sum-ok':'weight-sum-warn';
+    const warnTxt   = totalW===100?'✓ Summe: 100 %':`⚠ Summe: ${totalW} % (sollte 100 % sein)`;
+
+    return `
+        <div class="weight-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>Gewichtung der Teilnoten</strong>
+                <span class="${warnClass}" id="weight-sum-display">${warnTxt}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+                ${weightInput('schularbeiten', 'Schularbeiten', g.schularbeiten)}
+                ${weightInput('wiederholung','Wiederholung',   g.wiederholung)}
+                ${weightInput('praesentation','Präsentation',  g.praesentation)}
+                ${weightInput('hausaufgaben','Hausübungen',    g.hausaufgaben)}
+                ${weightInput('muendlich','Mündl. Mitarbeit', g.muendlich)}
+                ${activeSemester === 'semester2' ? `<button class="btn btn-sm" id="btn-copy-weights" style="align-self:flex-end;background:#e8f0fe;color:#1a56db;border-color:#a4c2f7;font-weight:500">↩ Gewichtungen aus 1. Sem. übernehmen</button>` : ''}
+            </div>
+        </div>
+        ${!cls.students.length ? emptyStudents() : `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="">Name</th>
+                        ${sas.map(sa => `<th class="text-center th-sa1">${esc(sa.name)}</th>`).join('')}
+                        <th class="text-center th-sa1" style="border-left:2px solid #90a4ae">SA gesamt<br><small>${saWeight} %</small></th>
+                        <th class="text-center th-wdh">Wdh.<br><small>${g.wiederholung||0} %</small></th>
+                        <th class="text-center th-praes">Präs.<br><small>${g.praesentation||0} %</small></th>
+                        <th class="text-center th-ha">HÜ<br><small>${g.hausaufgaben||0} %</small></th>
+                        <th class="text-center th-praes">Mündl.<br><small>${g.muendlich||0} %</small></th>
+                        <th class="text-center th-zp">Wunschpr.</th>
+                        <th class="text-center" style="min-width:80px">Gesamtnote</th>
+                        <th class="text-center" style="min-width:70px" title="Berechnete Dezimalnote (auch bei erzwungener 5)">Dezimal</th>
+                    </tr>
+                </thead>
+                <tbody id="gesamt-tbody">
+                    ${cls.students.map(s => {
+                        const sd = sem.studentData?.[s.id] || {};
+                        const hasSAData = sas.some(sa => sd.schularbeiten?.[sa.id]);
+                        const wdh = calcWdhTeilnote(sem, s.id);
+                        const pr  = calcPraesTeilnote(sem, s.id);
+                        const ha  = calcHATeilnote(sem, s.id);
+                        const mm  = calcMMTeilnote(sem, s.id);
+                        const saGesamt = calcSATeilnote(sem, s.id);
+                        const ges = calcGesamtnote(cls, sem, s);
+                        const zpAdj = sd.zwischenpruefung ?? null;
+                        const gesAdj = (ges !== null && zpAdj !== null) ? ges + zpAdj : ges;
+
+                        const forced    = cls.type !== 'oberstufe' && hasSAData && !hasPositiveSA(sem, s);
+                        const intNote   = forced ? 5 : (gesAdj !== null ? noteInt(gesAdj) : null);
+                        const intBadge  = intNote === null
+                            ? '<span class="note-badge note-empty">—</span>'
+                            : forced
+                                ? `<span class="note-badge note-5" title="Automatische 5: keine positive Schularbeit">5 ⚠</span>`
+                                : `<span class="note-badge note-${intNote}">${intNote}</span>`;
+                        const decCell   = gesAdj !== null
+                            ? `<span class="cell-ro" style="font-weight:600">${fmtNote(gesAdj)}</span>`
+                            : '<span class="text-muted small">—</span>';
+                        const saGesamtInt = saGesamt !== null ? noteInt(saGesamt) : null;
+                        const saGesamtBadge = saGesamtInt === null
+                            ? '<span class="note-badge note-empty">—</span>'
+                            : `<span class="note-badge note-${saGesamtInt}">${fmtNote2(saGesamt)}</span>`;
+
+                        return `<tr data-sid="${s.id}">
+                            <td class="sticky-col">${studentNameCell(s)}</td>
+                            ${sas.map(sa => {
+                                const saData = sd.schularbeiten?.[sa.id];
+                                const saId2 = 'gsn-'+sa.id+'-'+s.id;
+                                if (cls.type === 'oberstufe') {
+                                    const noteVal = saData?.note !== undefined && saData?.note !== null && saData?.note !== '' ? +saData.note : null;
+                                    return noteVal !== null
+                                        ? `<td class="td-sa1 text-center"><span class="note-badge note-${noteVal}" id="${saId2}">${noteVal}</span></td>`
+                                        : `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}">—</span></td>`;
+                                }
+                                const n = saData ? calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3)) : null;
+                                return n
+                                    ? `<td class="td-sa1 text-center"><span class="note-badge note-${n.note}" id="${saId2}">${fmtNoteModifier(n.decimal)}</span></td>`
+                                    : `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}">—</span></td>`;
+                            }).join('')}
+                            <td class="td-sa1 text-center" style="border-left:2px solid #90a4ae"><span id="gesamt-sa-${s.id}">${saGesamtBadge}</span></td>
+                            <td class="td-wdh text-center">${wdh !== null ? `<span class="note-badge note-${noteInt(wdh)}" id="gswdh-${s.id}">${fmtNote2(wdh)}</span>` : `<span class="note-badge note-empty" id="gswdh-${s.id}">—</span>`}</td>
+                            <td class="td-praes text-center">${pr !== null ? `<span class="note-badge note-${noteInt(pr)}" id="gspr-${s.id}">${fmtNote2(pr)}</span>` : `<span class="note-badge note-empty" id="gspr-${s.id}">—</span>`}</td>
+                            <td class="td-ha text-center">${ha !== null ? `<span class="note-badge note-${ha}" id="gsha-${s.id}">${fmtNote2(ha)}</span>` : `<span class="note-badge note-empty" id="gsha-${s.id}">—</span>`}</td>
+                            <td class="td-praes text-center">${mm !== null ? `<span class="note-badge note-${mm}" id="gsmm-${s.id}">${mm}</span>` : `<span class="note-badge note-empty" id="gsmm-${s.id}">—</span>`}</td>
+                            <td class="td-zp text-center">
+                                <select class="zp-select" data-sid="${s.id}"${zpAdj !== null ? ' style="border-color:#9c27b0;background:#f3e5f5;"' : ''}>
+                                    <option value=""${zpAdj === null ? ' selected' : ''}></option>
+                                    <option value="-0.5"${zpAdj === -0.5 ? ' selected' : ''}>verbessert (−0,5)</option>
+                                    <option value="0"${zpAdj !== null && zpAdj === 0 ? ' selected' : ''}>gleich (±0)</option>
+                                    <option value="0.5"${zpAdj === 0.5 ? ' selected' : ''}>verschlechtert (+0,5)</option>
+                                </select>
+                            </td>
+                            <td class="text-center"><span id="gesamt-int-${s.id}">${intBadge}</span></td>
+                            <td class="text-center"><span id="gesamt-dec-${s.id}">${decCell}</span></td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>`}`;
+}
+
+// ================================================================
+// RENDER – Tab Jahresnote
+// ================================================================
+function renderTabJahresnote(cls) {
+    const jg = cls.jahresnote?.gewichtung || {semester1: 50, semester2: 50};
+    const w1 = +(jg.semester1 || 0), w2 = +(jg.semester2 || 0);
+    const totalW = w1 + w2;
+    const warnClass = totalW===100?'weight-sum-ok':'weight-sum-warn';
+    const warnTxt   = totalW===100?'✓ Summe: 100 %':`⚠ Summe: ${totalW} % (sollte 100 % sein)`;
+
+    return `
+        <div class="weight-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>Gewichtung der Semester</strong>
+                <span class="${warnClass}" id="jahr-weight-sum">${warnTxt}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-3">
+                ${jahrWeightInput('semester1', '1. Semester', jg.semester1)}
+                ${jahrWeightInput('semester2', '2. Semester', jg.semester2)}
+            </div>
+        </div>
+        ${!cls.students.length ? emptyStudents() : `
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th class="sticky-col" style="">Name</th>
+                        <th class="text-center th-sa1">1. Semester<br><small>${w1} %</small></th>
+                        <th class="text-center th-sa2">2. Semester<br><small>${w2} %</small></th>
+                        <th class="text-center" style="background:#1a6651;color:#fff;min-width:80px">Jahresnote</th>
+                        <th class="text-center" style="min-width:70px">Dezimal</th>
+                    </tr>
+                </thead>
+                <tbody id="jahr-tbody">
+                    ${cls.students.map(s => {
+                        const n1 = calcGesamtnote(cls, cls.semester1, s);
+                        const n2 = calcGesamtnote(cls, cls.semester2, s);
+                        const n1Int = n1 !== null ? noteInt(n1) : null;
+                        const n2Int = n2 !== null ? noteInt(n2) : null;
+                        const forced1 = cls.type !== 'oberstufe' && (() => { const sas=cls.semester1.schularbeiten||[]; const sd=cls.semester1.studentData?.[s.id]||{}; return sas.some(sa=>sd.schularbeiten?.[sa.id]) && !hasPositiveSA(cls.semester1,s); })();
+                        const forced2 = cls.type !== 'oberstufe' && (() => { const sas=cls.semester2.schularbeiten||[]; const sd=cls.semester2.studentData?.[s.id]||{}; return sas.some(sa=>sd.schularbeiten?.[sa.id]) && !hasPositiveSA(cls.semester2,s); })();
+                        const semCell = (nInt, dec, forced, forcedLabel='5 ⚠') => {
+                            if (dec === null) return '<span class="note-badge note-empty">—</span>';
+                            if (forced) return `<div class="d-flex justify-content-center align-items-center"><span class="note-badge note-5" style="flex-shrink:0" title="Automatische 5">${forcedLabel}</span><span style="min-width:2.8rem"></span></div>`;
+                            return `<div class="d-flex justify-content-center align-items-center"><span class="note-badge note-${nInt}" style="flex-shrink:0">${nInt}</span><span class="text-muted" style="font-size:.75rem;min-width:2.8rem;padding-left:.35rem">${fmtNote2(dec)}</span></div>`;
+                        };
+                        const badge1 = semCell(n1Int, n1, forced1);
+                        const badge2 = semCell(n2Int, n2, forced2);
+                        const jahr = calcJahresnote(cls, s);
+                        const jahrInt = jahr !== null ? noteInt(jahr) : null;
+                        const jahrBadge = jahrInt === null
+                            ? '<span class="note-badge note-empty">—</span>'
+                            : `<span class="note-badge note-${jahrInt}">${jahrInt}</span>`;
+                        const jahrDec = jahr !== null
+                            ? `<span class="cell-ro" style="font-weight:600">${fmtNote(jahr)}</span>`
+                            : '<span class="text-muted small">—</span>';
+                        return `<tr data-sid="${s.id}">
+                            <td class="sticky-col">${studentNameCell(s)}</td>
+                            <td class="td-sa1 text-center">${badge1}</td>
+                            <td class="td-sa2 text-center">${badge2}</td>
+                            <td class="text-center"><span id="jahr-int-${s.id}">${jahrBadge}</span></td>
+                            <td class="text-center"><span id="jahr-dec-${s.id}">${jahrDec}</span></td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>`}`;
+}
+
+function jahrWeightInput(key, label, val) {
+    return `<div class="d-flex flex-column align-items-center gap-1">
+        <label class="form-label form-label-sm mb-0 text-center" style="font-size:.8rem">${label}</label>
+        <div class="input-group input-group-sm" style="width:90px">
+            <input type="number" class="form-control jahr-weight-input" min="0" max="100" step="5"
+                   value="${val||0}" data-key="${key}" id="jw-${key}">
+            <span class="input-group-text" style="font-size:.8rem">%</span>
+        </div>
+    </div>`;
+}
+
+function attachJahrListeners() {
+    document.querySelectorAll('.jahr-weight-input').forEach(inp => {
+        inp.addEventListener('change', function() { updateJahrGewichtung(this.dataset.key, this.value); });
+    });
+}
+
+function updateJahrGewichtung(key, val) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    snapshotForUndo();
+    if (!cls.jahresnote) cls.jahresnote = {gewichtung: {semester1: 50, semester2: 50}};
+    cls.jahresnote.gewichtung[key] = +val || 0;
+    saveDataWithUndo();
+    render();
+}
+
+function updateJahrWeightSum() {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const jg = cls.jahresnote?.gewichtung || {};
+    const total = (+(jg.semester1)||0)+(+(jg.semester2)||0);
+    const el = document.getElementById('jahr-weight-sum');
+    if (!el) return;
+    if (total===100) { el.className='weight-sum-ok'; el.textContent='✓ Summe: 100 %'; }
+    else             { el.className='weight-sum-warn'; el.textContent=`⚠ Summe: ${total} % (sollte 100 % sein)`; }
+}
+
+function updateJahrColumns(cls) {
+    document.querySelectorAll('#jahr-tbody tr').forEach(row => {
+        const sid = row.dataset.sid;
+        const s = cls.students.find(st=>st.id===sid); if(!s) return;
+        const jahr = calcJahresnote(cls, s);
+        const jahrInt = jahr !== null ? noteInt(jahr) : null;
+        const intEl = document.getElementById('jahr-int-'+sid);
+        if (intEl) intEl.innerHTML = jahrInt === null
+            ? '<span class="note-badge note-empty">—</span>'
+            : `<span class="note-badge note-${jahrInt}">${jahrInt}</span>`;
+        const decEl = document.getElementById('jahr-dec-'+sid);
+        if (decEl) decEl.innerHTML = jahr !== null
+            ? `<span class="cell-ro" style="font-weight:600">${fmtNote(jahr)}</span>`
+            : '<span class="text-muted small">—</span>';
+    });
+}
+
+function weightInput(key, label, val) {
+    return `<div class="d-flex flex-column align-items-center gap-1">
+        <label class="form-label form-label-sm mb-0 text-center" style="font-size:.8rem">${label}</label>
+        <div class="input-group input-group-sm" style="width:90px">
+            <input type="number" class="form-control weight-input" min="0" max="100" step="5"
+                   value="${val||0}" data-key="${key}" id="w-${key}">
+            <span class="input-group-text" style="font-size:.8rem">%</span>
+        </div>
+    </div>`;
+}
+
+function copyWeightsFromSem1() {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    snapshotForUndo();
+    const src = cls.semester1.gewichtung;
+    const dst = cls.semester2.gewichtung;
+    dst.schularbeiten = src.schularbeiten;
+    dst.wiederholung  = src.wiederholung;
+    dst.praesentation = src.praesentation;
+    dst.hausaufgaben  = src.hausaufgaben;
+    saveDataWithUndo();
+    render();
+}
+
+function attachGesamtListeners() {
+    document.querySelectorAll('.weight-input').forEach(inp => {
+        inp.addEventListener('change', function() { updateGewichtung(this.dataset.key, this.value); });
+    });
+    const btnCopy = document.getElementById('btn-copy-weights');
+    if (btnCopy) btnCopy.addEventListener('click', copyWeightsFromSem1);
+    document.querySelectorAll('.zp-select').forEach(sel => {
+        sel.addEventListener('change', function() { updateZwischenpruefung(this.dataset.sid, this.value); });
+    });
+}
+
+function updateGesamtColumn(cls, sem) {
+    if (activeTab !== 'gesamt') return;
+    document.querySelectorAll('#gesamt-tbody tr').forEach(row => {
+        const sid = row.dataset.sid;
+        const s = cls.students.find(s=>s.id===sid); if(!s) return;
+        const sd = sem.studentData?.[s.id] || {};
+        const ges = calcGesamtnote(cls, sem, s);
+        const zpAdj = sd.zwischenpruefung ?? null;
+        const gesAdj = (ges !== null && zpAdj !== null) ? ges + zpAdj : ges;
+
+        const sas = sem.schularbeiten || [];
+        const hasSAData = sas.some(sa => sd.schularbeiten?.[sa.id]);
+        const forced    = cls.type !== 'oberstufe' && hasSAData && !hasPositiveSA(sem, s);
+        const intNote   = forced ? 5 : (gesAdj !== null ? noteInt(gesAdj) : null);
+
+        const saGesamt = calcSATeilnote(sem, s.id);
+        const saGesamtInt = saGesamt !== null ? noteInt(saGesamt) : null;
+        const saEl = document.getElementById('gesamt-sa-'+sid);
+        if (saEl) {
+            saEl.innerHTML = saGesamtInt === null
+                ? '<span class="note-badge note-empty">—</span>'
+                : `<span class="note-badge note-${saGesamtInt}">${fmtNote2(saGesamt)}</span>`;
+        }
+        const intEl = document.getElementById('gesamt-int-'+sid);
+        if (intEl) {
+            intEl.innerHTML = intNote === null
+                ? '<span class="note-badge note-empty">—</span>'
+                : forced
+                    ? `<span class="note-badge note-5" title="Automatische 5: keine positive Schularbeit">5 ⚠</span>`
+                    : `<span class="note-badge note-${intNote}">${intNote}</span>`;
+        }
+        const decEl = document.getElementById('gesamt-dec-'+sid);
+        if (decEl) {
+            decEl.innerHTML = gesAdj !== null
+                ? `<span class="cell-ro" style="font-weight:600">${fmtNote(gesAdj)}</span>`
+                : '<span class="text-muted small">—</span>';
+        }
+    });
+}
+
+function updateWeightSum() {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const g = sem.gewichtung;
+    const total = (+(g.schularbeiten)||0)+(+(g.wiederholung)||0)+(+(g.praesentation)||0)+(+(g.hausaufgaben)||0)+(+(g.muendlich)||0);
+    const el = document.getElementById('weight-sum-display');
+    if (!el) return;
+    if (total===100) { el.className='weight-sum-ok'; el.textContent='✓ Summe: 100 %'; }
+    else             { el.className='weight-sum-warn'; el.textContent=`⚠ Summe: ${total} % (sollte 100 % sein)`; }
+}
+
+// ================================================================
+// DOM-HELFER
+// ================================================================
+function setTxt(id, txt) { const el=document.getElementById(id); if(el) el.textContent=txt; }
+
+function setBadgeSA(id, entry) {
+    const el=document.getElementById(id); if(!el) return;
+    if (!entry) { el.className='note-badge note-empty'; el.textContent='—'; el.title=''; }
+    else {
+        el.className=`note-badge note-${entry.note}`;
+        el.textContent=fmtNoteModifier(entry.decimal); el.title='';
+    }
+    const decId = id.replace(/^n-/, 'nd-');
+    const decEl = document.getElementById(decId); if(!decEl) return;
+    if (!entry) { decEl.className='cell-ro text-muted'; decEl.textContent='—'; }
+    else { decEl.className='cell-ro'; decEl.style.fontWeight='600'; decEl.textContent=fmtNote2(entry.decimal); }
+}
+function setBadgeDec(id, dec) {
+    const el=document.getElementById(id); if(!el) return;
+    if (dec===null||dec===undefined) { el.className='note-badge note-empty'; el.textContent='—'; return; }
+    el.className=`note-badge note-${noteInt(dec)}`; el.textContent=fmtNote(dec);
+}
+function setBadgeInt(id, n) {
+    const el=document.getElementById(id); if(!el) return;
+    if (n===null||n===undefined) { el.className='note-badge note-empty'; el.textContent='—'; return; }
+    el.className=`note-badge note-${n}`; el.textContent=n;
+}
+
+function emptyStudents() {
+    return `<div class="empty-state border rounded bg-white">
+        <i class="bi bi-people"></i>
+        <h6 class="mt-3">Noch keine Schüler:innen</h6>
+        <p class="small">Füge Schüler:innen über den Tab <strong>Schüler:innen</strong> hinzu.</p>
+    </div>`;
+}
+
+// ================================================================
+// MODAL-HELFER  (native <dialog>)
+// ================================================================
+function showModal(id) { document.getElementById(id).showModal(); }
+function hideModal(id) { document.getElementById(id).close(); }
+
+function openEditClass(id) {
+    const cls=activeClasses().find(c=>c.id===id); if(!cls) return;
+    document.getElementById('inp-edit-class-name').value=cls.name;
+    document.getElementById('inp-edit-class-id').value=id;
+    showModal('modalEditClass');
+}
+function openDeleteClass(id) {
+    const cls=activeClasses().find(c=>c.id===id); if(!cls) return;
+    document.getElementById('confirm-delete-msg').innerHTML=`Klasse <strong>${esc(cls.name)}</strong> mit allen ${cls.students.length} Schüler:innen wirklich löschen?`;
+    pendingDelete=()=>deleteClass(id); showModal('modalConfirmDelete');
+}
+function openAddStudent() { document.getElementById('inp-student-name').value=''; showModal('modalAddStudent'); }
+function openEditStudent(id) {
+    for (const cls of activeClasses()) {
+        const s=cls.students.find(s=>s.id===id); if(!s) continue;
+        document.getElementById('inp-edit-student-name').value=s.name;
+        document.getElementById('inp-edit-student-id').value=id;
+        showModal('modalEditStudent'); return;
+    }
+}
+function openDeleteStudent(id) {
+    for (const cls of activeClasses()) {
+        const s=cls.students.find(s=>s.id===id); if(!s) continue;
+        document.getElementById('confirm-delete-msg').innerHTML=`Schüler:in <strong>${esc(s.name)}</strong> wirklich löschen?`;
+        pendingDelete=()=>deleteStudent(id); showModal('modalConfirmDelete'); return;
+    }
+}
+
+// WDH
+function openAddWdh() {
+    document.getElementById('modalWdh-title').textContent='Neue Wiederholung';
+    document.getElementById('inp-wdh-name').value='';
+    document.getElementById('inp-wdh-max').value=10;
+    document.getElementById('inp-wdh-id').value='';
+    showModal('modalWdh');
+}
+function openEditWdh(id) {
+    const cls=activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const w=cls[activeSemester].wiederholungen.find(w=>w.id===id); if(!w) return;
+    document.getElementById('modalWdh-title').textContent='Wiederholung bearbeiten';
+    document.getElementById('inp-wdh-name').value=w.name;
+    document.getElementById('inp-wdh-max').value=w.maxPunkte;
+    document.getElementById('inp-wdh-id').value=id;
+    showModal('modalWdh');
+}
+function openDeleteWdh(id) {
+    const cls=activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const w=cls[activeSemester].wiederholungen.find(w=>w.id===id); if(!w) return;
+    document.getElementById('confirm-delete-msg').innerHTML=`Wiederholung <strong>${esc(w.name)}</strong> wirklich löschen?`;
+    pendingDelete=()=>deleteWdh(id); showModal('modalConfirmDelete');
+}
+
+// Präsentation
+function openAddPraes() {
+    document.getElementById('modalPraes-title').textContent='Neue Präsentation';
+    document.getElementById('inp-praes-name').value='';
+    document.getElementById('inp-praes-id').value='';
+    showModal('modalPraes');
+}
+function openEditPraes(id) {
+    const cls=activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const p=cls[activeSemester].praesentationen.find(p=>p.id===id); if(!p) return;
+    document.getElementById('modalPraes-title').textContent='Präsentation bearbeiten';
+    document.getElementById('inp-praes-name').value=p.name;
+    document.getElementById('inp-praes-id').value=id;
+    showModal('modalPraes');
+}
+function openDeletePraes(id) {
+    const cls=activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const p=cls[activeSemester].praesentationen.find(p=>p.id===id); if(!p) return;
+    document.getElementById('confirm-delete-msg').innerHTML=`Präsentation <strong>${esc(p.name)}</strong> wirklich löschen?`;
+    pendingDelete=()=>deletePraes(id); showModal('modalConfirmDelete');
+}
+
+// Hausübung
+function openAddHA() {
+    document.getElementById('modalHA-title').textContent='Neue Hausübung';
+    document.getElementById('inp-ha-name').value='';
+    document.getElementById('inp-ha-id').value='';
+    showModal('modalHA');
+}
+function openEditHA(id) {
+    const cls=activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const h=cls[activeSemester].hausaufgaben.find(h=>h.id===id); if(!h) return;
+    document.getElementById('modalHA-title').textContent='Hausübung bearbeiten';
+    document.getElementById('inp-ha-name').value=h.name;
+    document.getElementById('inp-ha-id').value=id;
+    showModal('modalHA');
+}
+function openDeleteHA(id) {
+    const cls=activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const h=cls[activeSemester].hausaufgaben.find(h=>h.id===id); if(!h) return;
+    document.getElementById('confirm-delete-msg').innerHTML=`Hausübung <strong>${esc(h.name)}</strong> wirklich löschen?`;
+    pendingDelete=()=>deleteHA(id); showModal('modalConfirmDelete');
+}
+
+// ================================================================
+// TOAST
+// ================================================================
+function showToast() {
+    const el = document.getElementById('toast-saved');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// ================================================================
+// INIT
+// ================================================================
+function onEnter(inpId, btnId) {
+    document.getElementById(inpId).addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById(btnId).click(); });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
+    activeClassId = activeClasses()[0]?.id ?? null;
+    const _initCls = activeClasses()[0];
+    activeSaId = _initCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+    render();
+
+    // Close dialog on backdrop click
+    document.querySelectorAll('dialog').forEach(d => {
+        d.addEventListener('click', e => { if (e.target === d) d.close(); });
+    });
+
+    // Klasse
+    document.getElementById('btn-add-class-u').addEventListener('click', ()=>{
+        document.getElementById('inp-class-name').value='';
+        document.getElementById('inp-class-type').value='unterstufe';
+        document.querySelector('#modalAddClass .modal-title').innerHTML='<i class="bi bi-folder-plus"></i>Neue Unterstufen-Klasse';
+        showModal('modalAddClass');
+    });
+    document.getElementById('btn-add-class-o').addEventListener('click', ()=>{
+        document.getElementById('inp-class-name').value='';
+        document.getElementById('inp-class-type').value='oberstufe';
+        document.querySelector('#modalAddClass .modal-title').innerHTML='<i class="bi bi-folder-plus"></i>Neue Oberstufen-Klasse';
+        showModal('modalAddClass');
+    });
+    document.getElementById('btn-save-add-class').addEventListener('click', ()=>{
+        const n=document.getElementById('inp-class-name').value.trim(); if(!n) return;
+        const t=document.getElementById('inp-class-type').value;
+        hideModal('modalAddClass'); addClass(n, t);
+    });
+    onEnter('inp-class-name','btn-save-add-class');
+
+    document.getElementById('btn-save-edit-class').addEventListener('click', ()=>{
+        const id=document.getElementById('inp-edit-class-id').value;
+        const n=document.getElementById('inp-edit-class-name').value.trim(); if(!n) return;
+        hideModal('modalEditClass'); editClass(id, n);
+    });
+    onEnter('inp-edit-class-name','btn-save-edit-class');
+
+    // Schüler
+    document.getElementById('btn-save-add-student').addEventListener('click', ()=>{
+        const n=document.getElementById('inp-student-name').value.trim(); if(!n||!activeClassId) return;
+        hideModal('modalAddStudent'); addStudent(activeClassId, n);
+    });
+    onEnter('inp-student-name','btn-save-add-student');
+
+    document.getElementById('btn-save-edit-student').addEventListener('click', ()=>{
+        const id=document.getElementById('inp-edit-student-id').value;
+        const n=document.getElementById('inp-edit-student-name').value.trim(); if(!n) return;
+        hideModal('modalEditStudent'); editStudent(id, n);
+    });
+    onEnter('inp-edit-student-name','btn-save-edit-student');
+
+    // Wiederholung
+    document.getElementById('btn-save-wdh').addEventListener('click', ()=>{
+        const id=document.getElementById('inp-wdh-id').value;
+        const name=document.getElementById('inp-wdh-name').value.trim();
+        const max=document.getElementById('inp-wdh-max').value;
+        if (!name||!max) return;
+        hideModal('modalWdh');
+        if (id) editWdh(id, name, max); else addWdh(name, max);
+    });
+    onEnter('inp-wdh-name','btn-save-wdh');
+
+    // Präsentation
+    document.getElementById('btn-save-praes').addEventListener('click', ()=>{
+        const id=document.getElementById('inp-praes-id').value;
+        const name=document.getElementById('inp-praes-name').value.trim(); if(!name) return;
+        hideModal('modalPraes');
+        if (id) editPraes(id, name); else addPraes(name);
+    });
+    onEnter('inp-praes-name','btn-save-praes');
+
+    // Hausübung
+    document.getElementById('btn-save-ha').addEventListener('click', ()=>{
+        const id=document.getElementById('inp-ha-id').value;
+        const name=document.getElementById('inp-ha-name').value.trim(); if(!name) return;
+        hideModal('modalHA');
+        if (id) editHA(id, name); else addHA(name);
+    });
+    onEnter('inp-ha-name','btn-save-ha');
+
+    // Löschen bestätigen
+    document.getElementById('btn-confirm-delete').addEventListener('click', ()=>{
+        hideModal('modalConfirmDelete');
+        if (pendingDelete) { pendingDelete(); pendingDelete=null; }
+    });
+
+    // Neues Schuljahr
+    document.getElementById('btn-save-add-sj').addEventListener('click', ()=>{
+        const n = document.getElementById('inp-sj-name').value.trim();
+        if (!n) return;
+        hideModal('modalAddSchuljahr');
+        addSchuljahr(n);
+    });
+    onEnter('inp-sj-name', 'btn-save-add-sj');
+
+    // Schuljahr umbenennen
+    document.getElementById('btn-save-edit-sj').addEventListener('click', ()=>{
+        const id = document.getElementById('inp-edit-sj-id').value;
+        const n = document.getElementById('inp-edit-sj-name').value.trim();
+        if (!n) return;
+        hideModal('modalEditSchuljahr');
+        editSchuljahr(id, n);
+    });
+    onEnter('inp-edit-sj-name', 'btn-save-edit-sj');
+
+    // Menüs schließen bei Klick außerhalb
+    document.addEventListener('click', () => closeSjMenus());
+});
+</script>
+<!-- PixelGuy ─────────────────────────────────────────────────── -->
+<script>
+(function() {
+'use strict';
+
+const AVATAR_SRC = "data:image/png;base64,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";
+
+function buildSVG() {
+  return '<img src="' + AVATAR_SRC + '" width="90" style="display:block">';
+}
+
+const SPRUECHE = {
+  pageload: [
+    'Guten Morgen, mein Schatz! ☀️',
+    'Ich liebe dich ❤️',
+    'Du bist die beste Lehrperson der Welt 😍',
+    'Was wär ich ohne dich? 🥺',
+    'Heute wird ein super Tag!',
+    'Denkst du auch gerade an mich? 💭',
+    'Kaffee getrunken? Sonst mach das jetzt! ☕',
+    'Warum gibt es für "bester Mensch der Welt" keine Note? Du hättest eine 1!',
+    'Die Klasse schreibt Aufsätze. Du schreibst Geschichte. 🖊️',
+    'Heute keine Ausreden — nur großartige Noten. Go! 💪',
+    'Ich hoffe, die Schularbeiten waren diesmal leserlicher als letztes Mal. 🧐',
+    'Falls heute jemand frech wird: denk an mich und lächle. 😏',
+    'Gerüchten zufolge sind Deutschlehrkräfte die besten Menschen überhaupt. ❤️',
+    'Irgendwo da draußen lernt gerade jemand für deine Schularbeit. Viel Glück dabei. 😇',
+    'Die Klassenliste schaut heute wieder gut aus. Zumindest die Namen. 📋',
+  ],
+  note_1: [
+    'Streber! 🤓',
+    'Na, Liebling der Lehrkraft? 😏',
+    'Perfekt — genau wie du 😊',
+    'Bravo! 🎉 Wer hat abgeschrieben?',
+    'Sehr gut! … sagt man den Schülerinnen und Schülern. Dir sag ich: ich liebe dich 💕',
+    'Einser! Die Person hat zuhause gelernt. Oder ChatGPT. 🤖',
+    'Musterschülerschaft detected. Eltern werden sich freuen. 📱',
+    'So eine 1 sieht man selten. Fast so selten wie dich. 🦄',
+    'Das Notenbuch jubelt innerlich. 📖✨',
+    'Wenn alle so wären, wärst du arbeitslos. Zum Glück sind sie\'s nicht. 😅',
+  ],
+  note_5: [
+    'Hat die Person das wirklich verdient? 🤔',
+    'Autsch… 😬',
+    'Jemand braucht dringend Nachhilfe.',
+    'Fünf! Das ist… mutig. 😅',
+    'Da wird wohl wer sitzenbleiben… 😬',
+    'Elternsprechtag incoming. 📞',
+    'Der Aufsatz war kreativ. Leider falsch. 🖊️',
+    'Eine 5 ist auch eine Note. Irgendwie. 🤷',
+    'Manche brauchen einfach mehr Zeit. Viel mehr Zeit. ⏳',
+    'Ich sag jetzt nichts. Aber ich denke viel. 🧐',
+  ],
+};
+
+function randomSpruch(context) {
+  const pool = SPRUECHE[context] || SPRUECHE.pageload;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+let overlayEl = null;
+let hideTimer = null;
+
+function ensureOverlay() {
+  if (overlayEl) return;
+  overlayEl = document.createElement('div');
+  overlayEl.id = 'pixelguy-overlay';
+  overlayEl.style.cssText = [
+    'position:fixed',
+    'z-index:9999',
+    'pointer-events:none',
+    'display:none',
+    'flex-direction:column',
+    'align-items:center',
+    'gap:6px',
+    'transition:opacity 0.4s ease',
+    'opacity:0',
+  ].join(';');
+  document.body.appendChild(overlayEl);
+}
+
+function buildBubble(text) {
+  return `
+    <div style="
+      background:#fff;
+      border:2px solid #2a2a36;
+      border-radius:10px;
+      padding:8px 12px;
+      max-width:200px;
+      font-size:13px;
+      font-family:'Inter',sans-serif;
+      line-height:1.4;
+      color:#2a2a36;
+      box-shadow:3px 3px 0 #2a2a3640;
+      position:relative;
+    ">
+      ${text}
+      <div style="
+        position:absolute;
+        bottom:-10px;
+        left:50%;
+        transform:translateX(-50%);
+        width:0;height:0;
+        border-left:8px solid transparent;
+        border-right:8px solid transparent;
+        border-top:10px solid #2a2a36;
+      "></div>
+      <div style="
+        position:absolute;
+        bottom:-7px;
+        left:50%;
+        transform:translateX(-50%);
+        width:0;height:0;
+        border-left:7px solid transparent;
+        border-right:7px solid transparent;
+        border-top:9px solid #fff;
+      "></div>
+    </div>`;
+}
+
+function randomPosition(overlayW, overlayH) {
+  const margin = 20;
+  const maxX = window.innerWidth  - overlayW - margin;
+  const maxY = window.innerHeight - overlayH - margin;
+  const x = margin + Math.floor(Math.random() * Math.max(1, maxX - margin));
+  const y = margin + Math.floor(Math.random() * Math.max(1, maxY - margin));
+  return {x, y};
+}
+
+const pixelguy = {
+  show(context) {
+    ensureOverlay();
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+
+    const text = randomSpruch(context);
+    overlayEl.innerHTML = buildBubble(text) + `
+      <div style="position:relative;align-self:flex-end">
+        ${buildSVG()}
+        <button id="pixelguy-close" style="
+          position:absolute;top:-6px;right:-6px;
+          width:18px;height:18px;
+          background:#2a2a36;color:#fff;
+          border:none;border-radius:50%;
+          font-size:11px;line-height:18px;text-align:center;
+          cursor:pointer;pointer-events:auto;
+          padding:0;
+        ">×</button>
+      </div>`;
+    overlayEl.style.display = 'flex';
+    document.getElementById('pixelguy-close').addEventListener('click', () => pixelguy.hide());
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const {x, y} = randomPosition(overlayEl.offsetWidth || 220, overlayEl.offsetHeight || 180);
+        overlayEl.style.left = x + 'px';
+        overlayEl.style.top  = y + 'px';
+        overlayEl.style.opacity = '1';
+      });
+    });
+
+    hideTimer = setTimeout(() => pixelguy.hide(), 10000);
+  },
+
+  maybeShow(context, probability = 0.4) {
+    if (Math.random() < probability) this.show(context);
+  },
+
+  hide() {
+    if (!overlayEl) return;
+    overlayEl.style.opacity = '0';
+    setTimeout(() => { if (overlayEl) overlayEl.style.display = 'none'; }, 450);
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+  },
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const _origSaveDataWithUndo = window.saveDataWithUndo;
+  if (typeof _origSaveDataWithUndo === 'function') {
+    window.saveDataWithUndo = function() {
+      _origSaveDataWithUndo.apply(this, arguments);
+      const n = pixelguy._pendingNote;
+      pixelguy._pendingNote = null;
+      if (n === 1) pixelguy.maybeShow('note_1');
+      else if (n === 5) pixelguy.maybeShow('note_5');
+    };
+  }
+  pixelguy.show('pageload');
+});
+
+window.pixelguyNoteHint = function(note) {
+  pixelguy._pendingNote = +note;
+};
+
+window.pixelguy = pixelguy;
+
+let pixelguyEnabled = true;
+
+window.togglePixelguy = function() {
+  pixelguyEnabled = !pixelguyEnabled;
+  const icon = document.getElementById('avatar-toggle-icon');
+  if (pixelguyEnabled) {
+    icon.className = 'bi bi-person-fill';
+    document.getElementById('avatar-toggle').title = 'Avatar ausschalten';
+  } else {
+    icon.className = 'bi bi-person-slash';
+    document.getElementById('avatar-toggle').title = 'Avatar einschalten';
+    pixelguy.hide();
+  }
+};
+
+const _origShow = pixelguy.show.bind(pixelguy);
+const _origMaybeShow = pixelguy.maybeShow.bind(pixelguy);
+pixelguy.show = function(ctx) { if (pixelguyEnabled) _origShow(ctx); };
+pixelguy.maybeShow = function(ctx, p) { if (pixelguyEnabled) _origMaybeShow(ctx, p); };
+})();
+</script>
+</body>
+</html>
