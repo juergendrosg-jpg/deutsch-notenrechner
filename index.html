@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desis Notenbuch</title>
+    <title>Notenbuch v1.1.1</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -740,6 +740,7 @@
                 <i class="bi bi-upload"></i> Importieren
             </button>
         </div>
+        <div style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;">Notenbuch v1.1.1</div>
     </div>
     <!-- Main -->
     <div id="main-content">
@@ -985,7 +986,7 @@ function exportData() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `notenrechner-backup-${date}.json`;
+    a.download = `notenbuch-backup-${date}.json`;
     a.click();
     URL.revokeObjectURL(url);
 }
