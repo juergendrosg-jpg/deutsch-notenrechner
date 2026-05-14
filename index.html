@@ -19,9 +19,9 @@
                 color: #2a2a36;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             }
-            ::-webkit-scrollbar { width: 5px; height: 5px; }
+            ::-webkit-scrollbar { width: 8px; height: 10px; }
             ::-webkit-scrollbar-track { background: transparent; }
-            ::-webkit-scrollbar-thumb { background: #e9aab7; border-radius: 3px; }
+            ::-webkit-scrollbar-thumb { background: #e9aab7; border-radius: 5px; }
             ::-webkit-scrollbar-thumb:hover { background: #dc8294; }
             select option { background: #faf7f2; color: #2a2a36; }
             input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
@@ -180,6 +180,13 @@
                 border: 1px solid var(--paper-line);
                 box-shadow: var(--shadow-md);
             }
+            .top-scroll {
+                overflow-x: scroll;
+                overflow-y: hidden;
+                height: 10px;
+                border-radius: var(--r-md) var(--r-md) 0 0;
+            }
+            .top-scroll-inner { height: 1px; }
             .grade-table {
                 min-width: max-content; background: #fff;
                 margin-bottom: 0; font-size: .81rem; width: 100%; border-collapse: collapse;
@@ -210,8 +217,9 @@
             /* Sticky column */
             .sticky-col {
                 position: sticky; left: 0; z-index: 2;
-                background: #fff; min-width: 180px;
+                background: #fff; min-width: 210px;
                 box-shadow: 3px 0 8px rgba(42,42,54,0.06);
+                will-change: transform;
             }
             .grade-table thead .sticky-col { z-index: 3; background: var(--paper) !important; }
 
@@ -220,7 +228,9 @@
             .th-sa2   { background: #e8eaf6 !important; color: #3949ab !important; border-color: rgba(57,73,171,0.12) !important; }
             .th-wdh   { background: var(--rose-100) !important; color: var(--rose-500) !important; border-color: var(--rose-200) !important; }
             .th-praes { background: var(--sun-200) !important; color: var(--sun-500) !important; border-color: rgba(184,149,48,0.2) !important; }
-            .th-ha    { background: var(--leaf-200) !important; color: var(--leaf-500) !important; border-color: rgba(107,138,94,0.2) !important; }
+            .th-ha    { background: var(--leaf-200) !important; color: var(--leaf-500) !important; border-color: rgba(107,138,94,0.2) !important; width:90px; min-width:90px; max-width:90px; overflow:hidden; }
+            .th-ha .ha-title { line-height:1.2; word-break:break-word; overflow-wrap:anywhere; white-space:normal; }
+            .ha-table { table-layout:fixed; }
             .th-komm  { background: var(--paper-soft) !important; color: var(--ink-mute) !important; border-color: var(--paper-line) !important; }
             .th-zp    { background: #ede7f6 !important; color: #6a1b9a !important; border-color: rgba(106,27,154,0.15) !important; }
 
@@ -258,6 +268,7 @@
                 background: var(--rose-50);
                 border: 1px solid var(--rose-200);
                 border-radius: var(--r-sm); font-size: .79rem; color: var(--rose-500); cursor: pointer;
+                width: 100%; max-width: 80px; box-sizing: border-box;
             }
 
             /* Read-only cells */
@@ -564,6 +575,15 @@
             }
             .class-item:hover .class-item-actions { display: flex; }
             .class-item.active .class-item-actions { display: flex; }
+            .class-item .drag-handle {
+                cursor: grab; color: var(--ink-faint); font-size: 13px;
+                padding: 0 4px 0 0; flex-shrink: 0; opacity: 0;
+                transition: opacity 0.15s;
+            }
+            .class-item:hover .drag-handle { opacity: 1; }
+            .class-item.drag-over-top { border-top: 2px solid var(--rose-400); }
+            .class-item.drag-over-bottom { border-bottom: 2px solid var(--rose-400); }
+            .class-item.dragging { opacity: 0.4; }
 
             /* Main content */
             #main-content {
@@ -729,7 +749,7 @@
 
 <!-- ═══ TOAST ════════════════════════════════════════════════ -->
 <div class="toast-container">
-    <div id="toast-saved" role="alert">
+    <div id="toast-saved" class="toast" role="alert">
         <div class="toast-body">
             <i class="bi bi-check-circle-fill"></i> Gespeichert
         </div>
@@ -798,6 +818,10 @@
         <label class="form-label form-label-sm">Name</label>
         <input type="text" class="form-control form-control-sm" id="inp-edit-student-name" maxlength="60">
         <input type="hidden" id="inp-edit-student-id">
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="inp-edit-student-leg">
+            <label class="form-check-label small" for="inp-edit-student-leg">Legasthenie (Sprachrichtigkeit manuell)</label>
+        </div>
     </div>
     <div class="modal-footer py-2">
         <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalEditStudent')">Abbrechen</button>
@@ -1187,8 +1211,10 @@ function calcSprachrichtigkeit(fehler, fehlerProPunkt) {
 }
 
 // Gesamtpunkte Schularbeit (max 32)
-function calcGesamt(sa, fehlerProPunkt) {
-    const sp = calcSprachrichtigkeit(sa.fehler, fehlerProPunkt ?? sa.fehlerProPunkt);
+function calcGesamt(sa, fehlerProPunkt, legasthenie) {
+    const sp = legasthenie
+        ? parseOrNull(sa.sprachrichtigkeitManuell)
+        : calcSprachrichtigkeit(sa.fehler, fehlerProPunkt ?? sa.fehlerProPunkt);
     const a  = parseOrNull(sa.aufgabenstellung);
     const w  = parseOrNull(sa.wortschatz);
     const t  = parseOrNull(sa.textorganisation);
@@ -1280,9 +1306,10 @@ function calcMMTeilnote(sem, sid) {
 }
 
 // Gesamt-Schularbeitennote: Durchschnitt der Dezimalnoten aller SAs mit Daten
-function calcSATeilnote(sem, sid) {
+function calcSATeilnote(sem, sid, legasthenie) {
     const sas = sem.schularbeiten || [];
     const sd = sem.studentData?.[sid] || {};
+    const leg = !!legasthenie;
     const notes = [];
     for (const sa of sas) {
         const saData = sd.schularbeiten?.[sa.id];
@@ -1293,7 +1320,7 @@ function calcSATeilnote(sem, sid) {
             continue;
         }
         // Unterstufe: Punkte-basierte Berechnung
-        const n = calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3));
+        const n = calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3, leg));
         if (n !== null) notes.push(n.decimal);
     }
     if (notes.length === 0) return null;
@@ -1313,7 +1340,7 @@ function calcGesamtnote(cls, sem, s) {
     const praesNote = calcPraesTeilnote(sem, s.id);
     const haNote    = calcHATeilnote(sem, s.id);
 
-    const saTeilnote = calcSATeilnote(sem, s.id);
+    const saTeilnote = calcSATeilnote(sem, s.id, s.legasthenie);
     const mmNote = calcMMTeilnote(sem, s.id);
     const components = [
         {val: saTeilnote, w: saWeight},
@@ -1389,6 +1416,10 @@ function fmtPct(pct) {
 function esc(s) {
     if (!s) return '';
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function haTitleFs(name) {
+    const n = (name||'').length;
+    return n <= 10 ? '.75rem' : n <= 18 ? '.68rem' : '.6rem';
 }
 
 // ================================================================
@@ -1597,10 +1628,10 @@ function addStudent(classId, name) {
     const cls = activeClasses().find(c=>c.id===classId); if(!cls) return;
     cls.students.push(newStudent(name)); sortStudents(cls); saveData(); renderTabContent();
 }
-function editStudent(sid, name) {
+function editStudent(sid, name, legasthenie) {
     for (const cls of activeClasses()) {
         const s = cls.students.find(s=>s.id===sid);
-        if (s) { s.name=name.trim(); sortStudents(cls); saveData(); renderTabContent(); return; }
+        if (s) { s.name=name.trim(); s.legasthenie=legasthenie; sortStudents(cls); saveData(); renderTabContent(); return; }
     }
 }
 function deleteStudent(sid) {
@@ -1807,7 +1838,34 @@ function updateGewichtung(key, val) {
 // ================================================================
 // RENDER – Hauptfunktionen
 // ================================================================
-function render() { renderSidebar(); renderContent(); }
+function render() { renderSidebar(); renderContent(); attachTopScrollbars(); }
+
+function attachTopScrollbars() {
+    document.querySelectorAll('.table-wrapper').forEach(wrapper => {
+        if (wrapper.previousElementSibling?.classList.contains('top-scroll')) return;
+        const top = document.createElement('div');
+        top.className = 'top-scroll';
+        const inner = document.createElement('div');
+        inner.className = 'top-scroll-inner';
+        top.appendChild(inner);
+        wrapper.parentNode.insertBefore(top, wrapper);
+        let syncing = false;
+        top.addEventListener('scroll', () => {
+            if (syncing) return; syncing = true;
+            wrapper.scrollLeft = top.scrollLeft;
+            syncing = false;
+        });
+        wrapper.addEventListener('scroll', () => {
+            if (syncing) return; syncing = true;
+            top.scrollLeft = wrapper.scrollLeft;
+            syncing = false;
+        });
+        const ro = new ResizeObserver(() => {
+            inner.style.width = wrapper.scrollWidth + 'px';
+        });
+        ro.observe(wrapper);
+    });
+}
 
 function renderSchuljahrSelector() {
     const el = document.getElementById('schuljahr-selector');
@@ -1840,7 +1898,8 @@ function renderSidebar() {
     const listU = document.getElementById('class-list-u');
     const listO = document.getElementById('class-list-o');
     const classItem = cls => `
-        <div class="class-item ${cls.id===activeClassId?'active':''}" data-id="${cls.id}" onclick="selectClass('${cls.id}')">
+        <div class="class-item ${cls.id===activeClassId?'active':''}" data-id="${cls.id}" draggable="true" onclick="selectClass('${cls.id}')">
+            <span class="drag-handle" onclick="event.stopPropagation()"><i class="bi bi-grip-vertical"></i></span>
             <div class="fw-semibold">${esc(cls.name)}</div>
             <div class="class-item-actions">
                 <button class="btn btn-xs btn-outline-secondary" onclick="event.stopPropagation();openEditClass('${cls.id}')" title="Umbenennen"><i class="bi bi-pencil"></i></button>
@@ -1855,6 +1914,50 @@ function renderSidebar() {
     listU.innerHTML = uClasses.length ? uClasses.map(classItem).join('') : empty;
     listO.innerHTML = oClasses.length ? oClasses.map(classItem).join('') : empty;
     if (listS) listS.innerHTML = sClasses.length ? sClasses.map(classItem).join('') : empty;
+    [listU, listO, listS].filter(Boolean).forEach(attachDragDrop);
+}
+
+function attachDragDrop(list) {
+    let dragId = null;
+    list.querySelectorAll('.class-item').forEach(el => {
+        el.addEventListener('dragstart', e => {
+            dragId = el.dataset.id;
+            el.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        el.addEventListener('dragend', () => {
+            dragId = null;
+            list.querySelectorAll('.class-item').forEach(i =>
+                i.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom'));
+        });
+        el.addEventListener('dragover', e => {
+            if (!dragId || dragId === el.dataset.id) return;
+            e.preventDefault();
+            const rect = el.getBoundingClientRect();
+            const mid = rect.top + rect.height / 2;
+            list.querySelectorAll('.class-item').forEach(i =>
+                i.classList.remove('drag-over-top', 'drag-over-bottom'));
+            el.classList.add(e.clientY < mid ? 'drag-over-top' : 'drag-over-bottom');
+        });
+        el.addEventListener('dragleave', () => {
+            el.classList.remove('drag-over-top', 'drag-over-bottom');
+        });
+        el.addEventListener('drop', e => {
+            e.preventDefault();
+            if (!dragId || dragId === el.dataset.id) return;
+            const insertBefore = el.classList.contains('drag-over-top');
+            el.classList.remove('drag-over-top', 'drag-over-bottom');
+            const classes = activeClasses();
+            const fromIdx = classes.findIndex(c => c.id === dragId);
+            const toIdx   = classes.findIndex(c => c.id === el.dataset.id);
+            if (fromIdx === -1 || toIdx === -1) return;
+            const [moved] = classes.splice(fromIdx, 1);
+            const newTo = classes.findIndex(c => c.id === el.dataset.id);
+            classes.splice(insertBefore ? newTo : newTo + 1, 0, moved);
+            saveData();
+            renderSidebar();
+        });
+    });
 }
 
 function renderContent() {
@@ -1932,12 +2035,13 @@ function renderTabContent() {
         case 'jahr':     area.innerHTML = renderTabJahresnote(cls);     attachJahrListeners();     break;
         case 'schueler': area.innerHTML = renderTabSchueler(cls);       attachSchuelerListeners(); break;
     }
+    attachTopScrollbars();
 }
 
 function renderTabSchueler(cls) {
     const rows = cls.students.map(s => `
         <tr>
-            <td>${esc(s.name)}</td>
+            <td>${esc(s.name)}${s.legasthenie ? ' <span class="badge text-bg-warning ms-1" style="font-size:.65em;">Legasthenie</span>' : ''}</td>
             <td class="text-end">
                 <button class="btn btn-sm btn-outline-secondary btn-icon me-1" onclick="openEditStudent('${s.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
                 <button class="btn btn-sm btn-outline-danger btn-icon" onclick="openDeleteStudent('${s.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
@@ -2003,7 +2107,7 @@ function renderTabSA(cls, sem) {
                     <tr>
                         <th class="sticky-col" style="min-width:180px;">Name</th>
                         <th class="text-center th-sa1" title="Aufgabenstellung (max. 8)">Aufgaben&shy;stellung<br><span style="opacity:.7">0–8</span></th>
-                        <th class="text-center th-sa1" title="Fehler (Eingabe)">Fehler<br><span style="opacity:.7;font-weight:normal;font-size:.75em">÷<input type="number" id="fpp-inp" min="1" max="20" step="1" value="${fpp}" style="width:36px;padding:0 2px;text-align:center;" class="cell-input" onchange="updateFehlerProPunkt(this.value)" onclick="event.stopPropagation()" title="Fehler pro Punkt Abzug">− 1 Pkt</span></th>
+                        <th class="text-center th-sa1" title="Fehler (Eingabe)">Fehler<br><span style="opacity:.7;font-weight:normal;font-size:.75em;text-transform:none;">pro <input type="number" id="fpp-inp" min="1" max="20" step="1" value="${fpp}" style="width:36px;padding:0 2px;text-align:center;" class="cell-input" onchange="updateFehlerProPunkt(this.value)" onclick="event.stopPropagation()" title="Fehler pro Punkt Abzug"> −1 Pkt.</span></th>
                         <th class="text-center th-sa1" title="Sprachrichtigkeit (auto)">Sprach&shy;richtigkeit<br><span style="opacity:.7">auto *</span></th>
                         <th class="text-center th-sa1" title="Wortschatz (max. 8)">Wort&shy;schatz<br><span style="opacity:.7">0–8</span></th>
                         <th class="text-center th-sa1" title="Textorganisation (max. 8)">Text&shy;organisation<br><span style="opacity:.7">0–8</span></th>
@@ -2019,7 +2123,7 @@ function renderTabSA(cls, sem) {
             </table>
         </div>
         <div class="mt-3 d-flex align-items-start gap-4 flex-wrap">
-            <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i>* Sprachrichtigkeit: wird automatisch berechnet.</p>
+            <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i>* Sprachrichtigkeit: wird automatisch berechnet. Bei Schüler:innen mit Legasthenie (einstellbar in der Schülerliste) wird der Wert manuell eingegeben.</p>
             <table class="small mb-0" style="border-collapse:collapse;line-height:1.4;">
                 <thead><tr>
                     <th class="text-muted fw-normal pe-3" style="white-space:nowrap;">Note</th>
@@ -2061,15 +2165,25 @@ function renderSARowOberstufe(sd, s, saId) {
 
 function renderSARow(sd, s, saId, fehlerProPunkt) {
     const sa = sd.schularbeiten?.[saId] || {aufgabenstellung:null,fehler:null,wortschatz:null,textorganisation:null,kommentar:''};
-    const sp = calcSprachrichtigkeit(sa.fehler, fehlerProPunkt);
-    const g  = calcGesamt(sa, fehlerProPunkt);
+    const leg = !!s.legasthenie;
+    const spAuto = calcSprachrichtigkeit(sa.fehler, fehlerProPunkt);
+    const g  = calcGesamt(sa, fehlerProPunkt, leg);
     const n  = calcNote(g);
+    const fehlerInp = leg
+        ? `<input class="cell-input" type="number" min="0" step="1" value="" disabled style="opacity:.4;cursor:not-allowed;">`
+        : numInp(s.id, saId, 'fehler', sa.fehler, 0, null);
+    const spCell = leg
+        ? `<div class="d-flex flex-column align-items-center gap-1">
+             <input class="cell-input sa-inp" type="number" min="0" max="8" step="1" value="${sa.sprachrichtigkeitManuell??''}" data-sid="${s.id}" data-sa="${saId}" data-field="sprachrichtigkeitManuell" style="width:52px;" id="sp-${s.id}">
+             <span class="badge text-bg-warning" style="font-size:.65em;font-weight:500;">Legasthenie</span>
+           </div>`
+        : `<span class="cell-ro" id="sp-${s.id}">${spAuto??'—'}</span>`;
     return `
     <tr data-sid="${s.id}">
         <td class="sticky-col">${studentNameCell(s)}</td>
         <td class="td-sa1 text-center">${numInp(s.id, saId, 'aufgabenstellung', sa.aufgabenstellung, 0, 8)}</td>
-        <td class="td-sa1 text-center">${numInp(s.id, saId, 'fehler', sa.fehler, 0, null)}</td>
-        <td class="td-sa1 text-center"><span class="cell-ro" id="sp-${s.id}">${sp??'—'}</span></td>
+        <td class="td-sa1 text-center">${fehlerInp}</td>
+        <td class="td-sa1 text-center">${spCell}</td>
         <td class="td-sa1 text-center">${numInp(s.id, saId, 'wortschatz', sa.wortschatz, 0, 8)}</td>
         <td class="td-sa1 text-center">${numInp(s.id, saId, 'textorganisation', sa.textorganisation, 0, 8)}</td>
         <td class="td-sa1 text-center"><span class="cell-ro" id="g-${s.id}">${g??'—'}</span></td>
@@ -2107,10 +2221,13 @@ function updateSACells(sem, s, saId) {
     const sa = sd.schularbeiten?.[saId] || {};
     const saDef = sem.schularbeiten.find(x=>x.id===saId);
     const fpp = saDef?.fehlerProPunkt ?? 3;
-    const sp = calcSprachrichtigkeit(sa.fehler, fpp);
-    const g  = calcGesamt(sa, fpp);
+    const leg = !!s.legasthenie;
+    const g  = calcGesamt(sa, fpp, leg);
     const n  = calcNote(g);
-    setTxt('sp-'+s.id, sp??'—');
+    if (!leg) {
+        const sp = calcSprachrichtigkeit(sa.fehler, fpp);
+        setTxt('sp-'+s.id, sp??'—');
+    }
     setTxt('g-'+s.id,  g??'—');
     setBadgeSA('n-'+s.id, n);
 }
@@ -2272,13 +2389,13 @@ function renderTabHA(cls, sem) {
                 <p class="small">Füge eine Hausübung über den Button oben hinzu.</p>
             </div>` : `
         <div class="table-wrapper">
-            <table class="grade-table table table-bordered table-sm mb-0">
+            <table class="grade-table table table-bordered table-sm mb-0 ha-table">
                 <thead>
                     <tr>
-                        <th class="sticky-col" style="">Name</th>
+                        <th class="sticky-col" style="width:210px">Name</th>
                         ${has.map(h=>`
-                            <th class="text-center th-ha" style="min-width:90px">
-                                <div>${esc(h.name)}</div>
+                            <th class="text-center th-ha">
+                                <div class="ha-title" style="font-size:${haTitleFs(h.name)}">${esc(h.name)}</div>
                                 <div class="d-flex justify-content-center gap-1 mt-1">
                                     <button class="btn btn-xs btn-outline-light" onclick="openEditHA('${h.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
                                     <button class="btn btn-xs btn-outline-danger" onclick="openDeleteHA('${h.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
@@ -2404,7 +2521,7 @@ function hasPositiveSA(sem, s) {
             return +saData.note <= 4;
         }
         // Unterstufe: Punkte-basiert
-        const n = calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3));
+        const n = calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3, s.legasthenie));
         return n !== null && n.note <= 4;
     });
 }
@@ -2513,7 +2630,7 @@ function renderTabGesamt(cls, sem) {
                         const pr  = calcPraesTeilnote(sem, s.id);
                         const ha  = calcHATeilnote(sem, s.id);
                         const mm  = calcMMTeilnote(sem, s.id);
-                        const saGesamt = calcSATeilnote(sem, s.id);
+                        const saGesamt = calcSATeilnote(sem, s.id, s.legasthenie);
                         const ges = calcGesamtnote(cls, sem, s);
                         const zpAdj = sd.zwischenpruefung ?? null;
                         const gesAdj = (ges !== null && zpAdj !== null) ? ges + zpAdj : ges;
@@ -2544,7 +2661,7 @@ function renderTabGesamt(cls, sem) {
                                         ? `<td class="td-sa1 text-center"><span class="note-badge note-${noteVal}" id="${saId2}">${noteVal}</span></td>`
                                         : `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}">—</span></td>`;
                                 }
-                                const n = saData ? calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3)) : null;
+                                const n = saData ? calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3, s.legasthenie)) : null;
                                 return n
                                     ? `<td class="td-sa1 text-center"><span class="note-badge note-${n.note}" id="${saId2}">${fmtNoteModifier(n.decimal)}</span></td>`
                                     : `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}">—</span></td>`;
@@ -2743,7 +2860,7 @@ function updateGesamtColumn(cls, sem) {
         const forced    = cls.type !== 'oberstufe' && hasSAData && !hasPositiveSA(sem, s);
         const intNote   = forced ? 5 : (gesAdj !== null ? noteInt(gesAdj) : null);
 
-        const saGesamt = calcSATeilnote(sem, s.id);
+        const saGesamt = calcSATeilnote(sem, s.id, s.legasthenie);
         const saGesamtInt = saGesamt !== null ? noteInt(saGesamt) : null;
         const saEl = document.getElementById('gesamt-sa-'+sid);
         if (saEl) {
@@ -2838,6 +2955,7 @@ function openEditStudent(id) {
         const s=cls.students.find(s=>s.id===id); if(!s) continue;
         document.getElementById('inp-edit-student-name').value=s.name;
         document.getElementById('inp-edit-student-id').value=id;
+        document.getElementById('inp-edit-student-leg').checked=!!s.legasthenie;
         showModal('modalEditStudent'); return;
     }
 }
@@ -2988,7 +3106,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btn-save-edit-student').addEventListener('click', ()=>{
         const id=document.getElementById('inp-edit-student-id').value;
         const n=document.getElementById('inp-edit-student-name').value.trim(); if(!n) return;
-        hideModal('modalEditStudent'); editStudent(id, n);
+        const leg=document.getElementById('inp-edit-student-leg').checked;
+        hideModal('modalEditStudent'); editStudent(id, n, leg);
     });
     onEnter('inp-edit-student-name','btn-save-edit-student');
 
