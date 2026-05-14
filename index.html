@@ -2267,21 +2267,22 @@ function renderTabWDH(cls, sem) {
                     </tr>
                 </thead>
                 <tbody id="wdh-tbody">
-                    ${cls.students.map(s => {
+                    ${cls.students.map((s, sIdx) => {
                         const tn = calcWdhTeilnote(sem, s.id);
                         return `<tr data-sid="${s.id}">
                             <td class="sticky-col">${studentNameCell(s)}</td>
-                            ${wdhs.map(w => {
+                            ${wdhs.map((w, wIdx) => {
                                 const val = getSData(sem, s.id).wiederholungen?.[w.id];
                                 const absent = val === 'abwesend';
                                 const numVal = (!absent && val!==null && val!==undefined && val!=='') ? val : '';
                                 const pct = (!absent && numVal!=='') ? ((parseFloat(numVal)/w.maxPunkte)*100) : null;
                                 const note = pct!==null ? pctToNote(pct) : null;
                                 const tooltip = note!==null ? `title="${fmtPct(pct)} → Note ${note}"` : '';
+                                const tabIdx = wIdx * cls.students.length + sIdx + 1;
                                 return `<td class="td-wdh text-center">
                                     <div class="d-flex align-items-center justify-content-center gap-1">
                                         <input class="cell-input wdh-inp" type="number" min="0" max="${w.maxPunkte}" step="0.5"
-                                               value="${numVal}"
+                                               value="${numVal}" tabindex="${tabIdx}"
                                                data-sid="${s.id}" data-wid="${w.id}" ${tooltip}${absent?' disabled style="opacity:.35"':''}>
                                         ${note!==null ? `<span style="font-size:.7rem;color:#666;white-space:nowrap">${fmtPct(pct)}</span><span class="note-badge note-${note}" >${note}</span>` : ''}
                                         <label class="d-flex align-items-center gap-1 mb-0" style="font-size:.7rem;color:#888;cursor:pointer;white-space:nowrap">
@@ -2300,7 +2301,27 @@ function renderTabWDH(cls, sem) {
 
 function attachWDHListeners() {
     document.querySelectorAll('.wdh-inp').forEach(inp => {
-        inp.addEventListener('change', function() { updateWdhField(this.dataset.sid, this.dataset.wid, this.value); });
+        inp._wdhTabbing = false;
+        inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const wid = this.dataset.wid;
+                const allSameCol = Array.from(document.querySelectorAll('.wdh-inp[data-wid="' + wid + '"]:not([disabled])'));
+                const idx = allSameCol.indexOf(this);
+                const next = e.shiftKey ? allSameCol[idx - 1] : allSameCol[idx + 1];
+                const nextTabIdx = next ? next.tabIndex : null;
+                this._wdhTabbing = true;
+                updateWdhField(this.dataset.sid, this.dataset.wid, this.value);
+                if (nextTabIdx !== null) {
+                    const target = document.querySelector('.wdh-inp[tabindex="' + nextTabIdx + '"]');
+                    if (target) { target.focus(); target.select(); }
+                }
+            }
+        });
+        inp.addEventListener('change', function() {
+            if (!this._wdhTabbing) updateWdhField(this.dataset.sid, this.dataset.wid, this.value);
+            this._wdhTabbing = false;
+        });
     });
     document.querySelectorAll('.wdh-absent').forEach(cb => {
         cb.addEventListener('change', function() {
@@ -2830,6 +2851,7 @@ function copyWeightsFromSem1() {
     dst.wiederholung  = src.wiederholung;
     dst.praesentation = src.praesentation;
     dst.hausaufgaben  = src.hausaufgaben;
+    dst.muendlich     = src.muendlich;
     saveDataWithUndo();
     render();
 }
@@ -2949,7 +2971,7 @@ function openDeleteClass(id) {
     document.getElementById('confirm-delete-msg').innerHTML=`Klasse <strong>${esc(cls.name)}</strong> mit allen ${cls.students.length} Schüler:innen wirklich löschen?`;
     pendingDelete=()=>deleteClass(id); showModal('modalConfirmDelete');
 }
-function openAddStudent() { document.getElementById('inp-student-name').value=''; showModal('modalAddStudent'); }
+function openAddStudent() { document.getElementById('inp-student-name').value=''; showModal('modalAddStudent'); setTimeout(() => document.getElementById('inp-student-name').focus(), 50); }
 function openEditStudent(id) {
     for (const cls of activeClasses()) {
         const s=cls.students.find(s=>s.id===id); if(!s) continue;
@@ -3019,6 +3041,7 @@ function openAddHA() {
     document.getElementById('inp-ha-name').value='';
     document.getElementById('inp-ha-id').value='';
     showModal('modalHA');
+    setTimeout(() => document.getElementById('inp-ha-name').focus(), 50);
 }
 function openEditHA(id) {
     const cls=activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
@@ -3209,6 +3232,16 @@ const SPRUECHE = {
     'Gerüchten zufolge sind Deutschlehrkräfte die besten Menschen überhaupt. ❤️',
     'Irgendwo da draußen lernt gerade jemand für deine Schularbeit. Viel Glück dabei. 😇',
     'Die Klassenliste schaut heute wieder gut aus. Zumindest die Namen. 📋',
+    'Heute Noten eingeben? Mutig. Ich bewundere das. 🫡',
+    'Rechtschreibfehler korrigieren — das eigentliche Heldenwerk. 🦸',
+    'Weißt du, was Schüler*innen am meisten hassen? Noten. Weißt du, was du jetzt machst? 😈',
+    'Ich frag mich gerade: Wie viele Tippexflecken überlebt ein Notenbuch? 🤔',
+    'Du schaust so konzentriert aus. Oder du schläfst mit offenen Augen. Beides okay. 😴',
+    'Laut Statistik verbringen Lehrpersonen 40% ihrer Zeit mit Noteneingabe. Die anderen 60%? Kaffee. ☕',
+    'Die Schüler*innen wissen noch nicht, was sie erwartet. Nur du weißt es. Genieß die Macht. 😎',
+    'Ohne dich wäre das hier nur eine leere Tabelle. Du gibst ihr Bedeutung. Und Fünfer. 📊',
+    'Tipp: Laut lesen beim Eingeben macht es dramatischer. "Und Florian erhält… eine DREI!" 🎭',
+    'Schönen guten Tag! Ich hoffe, dein Rotstift hat heute Pause. 🖊️',
   ],
   note_1: [
     'Streber! 🤓',
@@ -3221,6 +3254,12 @@ const SPRUECHE = {
     'So eine 1 sieht man selten. Fast so selten wie dich. 🦄',
     'Das Notenbuch jubelt innerlich. 📖✨',
     'Wenn alle so wären, wärst du arbeitslos. Zum Glück sind sie\'s nicht. 😅',
+    'Eine 1! Muss ich mir den Namen merken für die Weihnachtskarte? 🎄',
+    'Beeindruckend. Sogar die Kommasetzung war korrekt. Fast schon verdächtig. 🕵️',
+    'Diese Person liest nachts heimlich Grammatikbücher. Man sieht\'s. 📚',
+    'Note 1. Familie darf aufatmen. Zumindest kurz. 😮‍💨',
+    'Für diese Leistung gibt\'s theoretisch Applaus. Ich klatschen ja nicht — ich bin ein Avatar. 👏',
+    'Top-Note! Die Zukunft ist gerettet. Zumindest für dieses Schuljahr. 🚀',
   ],
   note_5: [
     'Hat die Person das wirklich verdient? 🤔',
@@ -3233,6 +3272,13 @@ const SPRUECHE = {
     'Eine 5 ist auch eine Note. Irgendwie. 🤷',
     'Manche brauchen einfach mehr Zeit. Viel mehr Zeit. ⏳',
     'Ich sag jetzt nichts. Aber ich denke viel. 🧐',
+    'Das war… ein Versuch. Ein sehr mutiger Versuch. 🫣',
+    'Die Eltern werden das Gespräch "interessant" finden. 💬',
+    'Jemand hat den Lernzettel verwechselt. Mit dem Einkaufszettel. 🛒',
+    'Nicht aufgeben! Auch Kaktuspflanzen brauchen lang zum Blühen. 🌵',
+    'Ich schlage vor: Wiederholen, üben, hoffen. In dieser Reihenfolge. 🔄',
+    '"Kreative Interpretation" des Aufsatzthemas. Sehr kreativ. Leider Deutsch. ✍️',
+    'Auf der Skala von 1 bis 5 hat diese Person das Maximum erreicht. Leider falsch herum. 📉',
   ],
 };
 
