@@ -1,4 +1,4 @@
-data.json
+﻿data.json
 __pycache__/
 *.pyc
 .env
@@ -16,7 +16,9 @@ index_Alt.html
 # Misc artefacts
 Resources/
 *.xlsx
-Notenbuch*
+Notenbuch Design.html
+Notenbuch.zip
+!Notenbuch-v1.1.1-build/
 avatar_b64.txt
 design-canvas.jsx
 pixel-header.jsx

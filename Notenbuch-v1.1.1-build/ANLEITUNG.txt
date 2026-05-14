@@ -1,0 +1,38 @@
+NOTENBUCH v1.1.1 - Anleitung zum Erstellen der Mac-App
+=======================================================
+
+Was du brauchst:
+- Einen Mac mit macOS 12 (Monterey) oder neuer
+- Internetverbindung (nur beim ersten Mal)
+
+Schritte:
+---------
+
+1. Diesen Ordner auf deinen Mac kopieren
+   (z.B. per USB-Stick, AirDrop, WhatsApp oder E-Mail)
+
+2. ZIP-Datei entpacken (Doppelklick)
+
+3. Terminal oeffnen
+   Spotlight (Cmd+Leertaste) -> "Terminal" eintippen -> Enter
+
+4. In diesen Ordner wechseln - diesen Befehl eintippen und Enter:
+   cd [Ordner aus Finder ins Terminal ziehen]
+
+5. App bauen und installieren - diesen Befehl eintippen und Enter:
+   bash build_mac.sh
+
+   Das dauert 1-3 Minuten. Am Ende erscheint:
+   "Fertig! Notenbuch ist unter Programme installiert."
+
+6. Fertig! Die App ist jetzt unter Programme installiert.
+   Finder -> Programme -> Notenbuch -> Doppelklick
+
+   Beim ersten Start: Rechtsklick -> "Oeffnen" (wegen macOS-Sicherheitswarnung)
+
+Hinweise:
+---------
+- Die App oeffnet automatisch den Browser (Safari/Chrome)
+- Daten werden gespeichert unter:
+  ~/Library/Application Support/Notenbuch/data.json
+- Die App funktioniert komplett offline, ohne Internet
