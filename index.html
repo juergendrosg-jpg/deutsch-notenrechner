@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -3049,6 +3049,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Menüs schließen bei Klick außerhalb
     document.addEventListener('click', () => closeSjMenus());
 });
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const icon = document.getElementById('sidebar-toggle-icon');
+    const collapsed = sidebar.classList.toggle('sidebar-collapsed');
+    icon.className = collapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left';
+    if (collapsed) {
+        localStorage.setItem('sidebarCollapsed', '1');
+    } else {
+        localStorage.removeItem('sidebarCollapsed');
+    }
+}
 </script>
 <!-- PixelGuy ─────────────────────────────────────────────────── -->
 <script>
