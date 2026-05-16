@@ -388,6 +388,7 @@
             .semester-tab.jahr-tab.active { background: var(--leaf-200); color: var(--leaf-500); }
             .semester-tab.schueler-tab { margin-left: auto; }
             .semester-tab.schueler-tab.active { background: var(--paper-soft); color: var(--ink); border: 1px solid var(--paper-line); }
+            .semester-tab.sem-locked { opacity: .7; font-style: italic; }
 
             /* Weight card */
             .weight-card {
@@ -1994,8 +1995,16 @@ function renderContent() {
             <small class="text-muted">${cls.students.length} Schüler:in${cls.students.length!==1?'nen':''}</small>
         </div>
         <div class="semester-tab-bar">
-            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester1'?'active':''}" onclick="selectSemester('semester1')">1. Semester</div>
-            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester2'?'active':''}" onclick="selectSemester('semester2')">2. Semester</div>
+            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester1'?'active':''} ${isSemesterLocked(cls,'semester1')?'sem-locked':''}" onclick="selectSemester('semester1')">
+                ${isSemesterLocked(cls,'semester1') ? '<i class="bi bi-lock-fill" style="font-size:.8em;margin-right:3px;opacity:.7"></i>' : (activeSemester==='semester1'&&activeTab!=='jahr'&&activeTab!=='schueler' ? '<i class="bi bi-unlock" style="font-size:.8em;margin-right:3px;opacity:.4;cursor:pointer" onclick="event.stopPropagation();toggleSemesterLock(\'semester1\')" title="Semester sperren"></i>' : '')}
+                1. Semester
+                ${isSemesterLocked(cls,'semester1') ? `<i class="bi bi-lock-fill" onclick="event.stopPropagation();toggleSemesterLock('semester1')" title="Sperre aufheben" style="font-size:.85em;margin-left:4px;cursor:pointer;opacity:.8"></i>` : ''}
+            </div>
+            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester2'?'active':''} ${isSemesterLocked(cls,'semester2')?'sem-locked':''}" onclick="selectSemester('semester2')">
+                ${isSemesterLocked(cls,'semester2') ? '<i class="bi bi-lock-fill" style="font-size:.8em;margin-right:3px;opacity:.7"></i>' : (activeSemester==='semester2'&&activeTab!=='jahr'&&activeTab!=='schueler' ? '<i class="bi bi-unlock" style="font-size:.8em;margin-right:3px;opacity:.4;cursor:pointer" onclick="event.stopPropagation();toggleSemesterLock(\'semester2\')" title="Semester sperren"></i>' : '')}
+                2. Semester
+                ${isSemesterLocked(cls,'semester2') ? `<i class="bi bi-lock-fill" onclick="event.stopPropagation();toggleSemesterLock('semester2')" title="Sperre aufheben" style="font-size:.85em;margin-left:4px;cursor:pointer;opacity:.8"></i>` : ''}
+            </div>
             <div class="semester-tab jahr-tab ${activeTab==='jahr'?'active':''}" onclick="selectTab('jahr');return false;">Jahresnote</div>
             <div class="semester-tab schueler-tab ${activeTab==='schueler'?'active':''}" onclick="selectTab('schueler');return false;">Schüler:innen</div>
         </div>
