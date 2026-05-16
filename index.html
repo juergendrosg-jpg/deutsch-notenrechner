@@ -991,8 +991,8 @@ function toggleSemesterLock(semKey) {
     const isLocked = isSemesterLocked(cls, semKey);
     const semLabel = semKey === 'semester1' ? '1. Semester' : '2. Semester';
     const msg = isLocked
-        ? Sperre für  aufheben?
-        : ${semLabel} sperren? Alle Eingaben werden schreibgeschützt.;
+        ? `Sperre für ${semLabel} aufheben?`
+        : `${semLabel} sperren? Alle Eingaben werden schreibgeschützt.`;
     if (!confirm(msg)) return;
     cls[semKey].locked = !isLocked;
     saveData();
