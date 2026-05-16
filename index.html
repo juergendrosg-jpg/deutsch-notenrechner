@@ -2109,6 +2109,7 @@ function attachSchuelerListeners() {}
 // RENDER – Tab Schularbeiten
 // ================================================================
 function renderTabSA(cls, sem) {
+    const locked = isSemesterLocked(cls, activeSemester);
     const sas = sem.schularbeiten || [];
     if (!activeSaId || !sas.find(sa=>sa.id===activeSaId)) {
         activeSaId = sas[0]?.id ?? null;
@@ -2120,9 +2121,9 @@ function renderTabSA(cls, sem) {
             ${sas.map(sa => `
                 <div class="sa-tab ${sa.id===activeSaId?'active':''}">
                     <span onclick="selectSA('${sa.id}')">${esc(sa.name)}</span>
-                    ${isOberstufe && sas.length > 1 ? `<button class="sa-tab-del" onclick="deleteSA('${sa.id}')" title="Entfernen">×</button>` : ''}
+                    ${isOberstufe && sas.length > 1 && !locked ? `<button class="sa-tab-del" onclick="deleteSA('${sa.id}')" title="Entfernen">×</button>` : ''}
                 </div>`).join('')}
-            ${isOberstufe && canAddSA ? `<button class="sa-tab-add" onclick="addSA()" title="2. Schularbeit hinzufügen">+</button>` : ''}
+            ${isOberstufe && canAddSA && !locked ? `<button class="sa-tab-add" onclick="addSA()" title="2. Schularbeit hinzufügen">+</button>` : ''}
         </div>`;
     if (!activeSaId || !cls.students.length) {
         return tabBar + (cls.students.length ? '' : emptyStudents());
@@ -2139,7 +2140,7 @@ function renderTabSA(cls, sem) {
                     </tr>
                 </thead>
                 <tbody id="sa-tbody">
-                    ${cls.students.map(s => renderSARowOberstufe(getSData(sem, s.id), s, activeSaId)).join('')}
+                    ${cls.students.map(s => renderSARowOberstufe(getSData(sem, s.id), s, activeSaId, locked)).join('')}
                 </tbody>
             </table>
         </div>`;
@@ -2153,7 +2154,7 @@ function renderTabSA(cls, sem) {
                     <tr>
                         <th class="sticky-col" style="min-width:180px;">Name</th>
                         <th class="text-center th-sa1" title="Aufgabenstellung (max. 8)">Aufgaben&shy;stellung<br><span style="opacity:.7">0–8</span></th>
-                        <th class="text-center th-sa1" title="Fehler (Eingabe)">Fehler<br><span style="opacity:.7;font-weight:normal;font-size:.75em;text-transform:none;">pro <input type="number" id="fpp-inp" min="1" max="20" step="1" value="${fpp}" style="width:36px;padding:0 2px;text-align:center;" class="cell-input" onchange="updateFehlerProPunkt(this.value)" onclick="event.stopPropagation()" title="Fehler pro Punkt Abzug"> −1 Pkt.</span></th>
+                        <th class="text-center th-sa1" title="Fehler (Eingabe)">Fehler<br><span style="opacity:.7;font-weight:normal;font-size:.75em;text-transform:none;">pro <input type="number" id="fpp-inp" min="1" max="20" step="1" value="${fpp}" style="width:36px;padding:0 2px;text-align:center;" class="cell-input" onchange="updateFehlerProPunkt(this.value)" onclick="event.stopPropagation()" title="Fehler pro Punkt Abzug" ${locked?'disabled':''}> −1 Pkt.</span></th>
                         <th class="text-center th-sa1" title="Sprachrichtigkeit (auto)">Sprach&shy;richtigkeit<br><span style="opacity:.7">auto *</span></th>
                         <th class="text-center th-sa1" title="Wortschatz (max. 8)">Wort&shy;schatz<br><span style="opacity:.7">0–8</span></th>
                         <th class="text-center th-sa1" title="Textorganisation (max. 8)">Text&shy;organisation<br><span style="opacity:.7">0–8</span></th>
@@ -2164,7 +2165,7 @@ function renderTabSA(cls, sem) {
                     </tr>
                 </thead>
                 <tbody id="sa-tbody">
-                    ${cls.students.map(s => renderSARow(getSData(sem, s.id), s, activeSaId, fpp)).join('')}
+                    ${cls.students.map(s => renderSARow(getSData(sem, s.id), s, activeSaId, fpp, locked)).join('')}
                 </tbody>
             </table>
         </div>
@@ -2191,7 +2192,7 @@ function renderTabSA(cls, sem) {
         </div>`;
 }
 
-function renderSARowOberstufe(sd, s, saId) {
+function renderSARowOberstufe(sd, s, saId, locked=false) {
     const sa = sd.schularbeiten?.[saId] || {note: null, kommentar: ''};
     const note = sa.note ?? '';
     const noteClass = note ? `note-${note}` : 'note-empty';
@@ -2199,17 +2200,17 @@ function renderSARowOberstufe(sd, s, saId) {
     <tr data-sid="${s.id}">
         <td class="sticky-col">${studentNameCell(s)}</td>
         <td class="td-sa1 text-center">
-            <select class="cell-input ost-note-sel" data-sid="${s.id}" data-said="${saId}">
+            <select class="cell-input ost-note-sel" data-sid="${s.id}" data-said="${saId}" ${locked?'disabled':''}>
                 <option value="">—</option>
                 ${[1,2,3,4,5].map(n => `<option value="${n}" ${note==n?'selected':''}>${n}</option>`).join('')}
             </select>
         </td>
-        <td class="td-sa1"><textarea class="komm-input" data-sid="${s.id}" data-said="${saId}" placeholder="Kommentar...">${esc(sa.kommentar||'')}</textarea></td>
+        <td class="td-sa1"><textarea class="komm-input" data-sid="${s.id}" data-said="${saId}" placeholder="Kommentar..." ${locked?'disabled':''}>${esc(sa.kommentar||'')}</textarea></td>
     </tr>`;
 }
 
 
-function renderSARow(sd, s, saId, fehlerProPunkt) {
+function renderSARow(sd, s, saId, fehlerProPunkt, locked=false) {
     const sa = sd.schularbeiten?.[saId] || {aufgabenstellung:null,fehler:null,wortschatz:null,textorganisation:null,kommentar:''};
     const leg = !!s.legasthenie;
     const spAuto = calcSprachrichtigkeit(sa.fehler, fehlerProPunkt);
@@ -2217,32 +2218,32 @@ function renderSARow(sd, s, saId, fehlerProPunkt) {
     const n  = calcNote(g);
     const fehlerInp = leg
         ? `<input class="cell-input" type="number" min="0" step="1" value="" disabled style="opacity:.4;cursor:not-allowed;">`
-        : numInp(s.id, saId, 'fehler', sa.fehler, 0, null);
+        : numInp(s.id, saId, 'fehler', sa.fehler, 0, null, locked);
     const spCell = leg
         ? `<div class="d-flex flex-column align-items-center gap-1">
-             <input class="cell-input sa-inp" type="number" min="0" max="8" step="1" value="${sa.sprachrichtigkeitManuell??''}" data-sid="${s.id}" data-sa="${saId}" data-field="sprachrichtigkeitManuell" style="width:52px;" id="sp-${s.id}">
+             <input class="cell-input sa-inp" type="number" min="0" max="8" step="1" value="${sa.sprachrichtigkeitManuell??''}" data-sid="${s.id}" data-sa="${saId}" data-field="sprachrichtigkeitManuell" style="width:52px;" id="sp-${s.id}" ${locked?'disabled':''}>
              <span class="badge text-bg-warning" style="font-size:.65em;font-weight:500;">Legasthenie</span>
            </div>`
         : `<span class="cell-ro" id="sp-${s.id}">${spAuto??'—'}</span>`;
     return `
     <tr data-sid="${s.id}">
         <td class="sticky-col">${studentNameCell(s)}</td>
-        <td class="td-sa1 text-center">${numInp(s.id, saId, 'aufgabenstellung', sa.aufgabenstellung, 0, 8)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'aufgabenstellung', sa.aufgabenstellung, 0, 8, locked)}</td>
         <td class="td-sa1 text-center">${fehlerInp}</td>
         <td class="td-sa1 text-center">${spCell}</td>
-        <td class="td-sa1 text-center">${numInp(s.id, saId, 'wortschatz', sa.wortschatz, 0, 8)}</td>
-        <td class="td-sa1 text-center">${numInp(s.id, saId, 'textorganisation', sa.textorganisation, 0, 8)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'wortschatz', sa.wortschatz, 0, 8, locked)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'textorganisation', sa.textorganisation, 0, 8, locked)}</td>
         <td class="td-sa1 text-center"><span class="cell-ro" id="g-${s.id}">${g??'—'}</span></td>
         <td class="td-sa1 text-center">${noteBadgeSAInt(n, 'n-'+s.id)}</td>
         <td class="td-sa1 text-center">${noteBadgeSADec(n, 'nd-'+s.id)}</td>
-        <td class="td-sa1"><textarea class="komm-input" data-sid="${s.id}" data-said="${saId}" placeholder="Kommentar...">${esc(sa.kommentar||'')}</textarea></td>
+        <td class="td-sa1"><textarea class="komm-input" data-sid="${s.id}" data-said="${saId}" placeholder="Kommentar..." ${locked?'disabled':''}>${esc(sa.kommentar||'')}</textarea></td>
     </tr>`;
 }
 
-function numInp(sid, sa, field, val, min, max) {
+function numInp(sid, sa, field, val, min, max, disabled=false) {
     const v = val!==null?val:'';
     const maxA = max!==null?`max="${max}"`:'';
-    return `<input class="cell-input sa-inp" type="number" min="${min}" ${maxA} step="1" value="${v}" data-sid="${sid}" data-sa="${sa}" data-field="${field}">`;
+    return `<input class="cell-input sa-inp" type="number" min="${min}" ${maxA} step="1" value="${v}" data-sid="${sid}" data-sa="${sa}" data-field="${field}" ${disabled?'disabled':''}>`;
 }
 
 function studentNameCell(s) {
