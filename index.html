@@ -2068,7 +2068,7 @@ function renderTabContent() {
     if (_semTabs.includes(activeTab) && isSemesterLocked(cls, activeSemester)) {
         const _semLabel = activeSemester === 'semester1' ? '1. Semester' : '2. Semester';
         const _banner = document.createElement('div');
-        _banner.innerHTML = `<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:.88rem;color:#854d0e;display:flex;align-items:center;gap:8px;"><i class="bi bi-lock-fill"></i> <span>Das <strong>\</strong> ist gesperrt — keine Änderungen möglich. <button onclick="toggleSemesterLock('\')" style="background:none;border:none;color:#92400e;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit">Entsperren</button></span></div>`;
+        _banner.innerHTML = '<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:.88rem;color:#854d0e;display:flex;align-items:center;gap:8px;"><i class="bi bi-lock-fill"></i> <span>Das <strong>' + _semLabel + '</strong> ist gesperrt — keine Änderungen möglich. <button onclick="toggleSemesterLock(\'' + activeSemester + '\')" style="background:none;border:none;color:#92400e;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit">Entsperren</button></span></div>';
         area.insertBefore(_banner.firstElementChild, area.firstChild);
     }
     attachTopScrollbars();
