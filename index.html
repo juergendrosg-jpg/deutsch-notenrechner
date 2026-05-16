@@ -231,6 +231,7 @@
             .th-ha    { background: var(--leaf-200) !important; color: var(--leaf-500) !important; border-color: rgba(107,138,94,0.2) !important; width:90px; min-width:90px; max-width:90px; overflow:hidden; }
             .th-ha .ha-title { line-height:1.2; word-break:break-word; overflow-wrap:anywhere; white-space:normal; }
             .ha-table { table-layout:fixed; }
+            .th-ha-stat { overflow:visible; white-space:nowrap; }
             .th-komm  { background: var(--paper-soft) !important; color: var(--ink-mute) !important; border-color: var(--paper-line) !important; }
             .th-zp    { background: #ede7f6 !important; color: #6a1b9a !important; border-color: rgba(106,27,154,0.15) !important; }
 
@@ -980,6 +981,23 @@ function saveData() {
     }).then(() => showToast()).catch(e => console.error('saveData failed', e));
 }
 
+function isSemesterLocked(cls, sem) {
+    return cls?.[sem]?.locked === true;
+}
+
+function toggleSemesterLock(semKey) {
+    const cls = activeClasses().find(c => c.id === activeClassId);
+    if (!cls) return;
+    const isLocked = isSemesterLocked(cls, semKey);
+    const semLabel = semKey === 'semester1' ? '1. Semester' : '2. Semester';
+    const msg = isLocked
+        ? Sperre für  aufheben?
+        : ${semLabel} sperren? Alle Eingaben werden schreibgeschützt.;
+    if (!confirm(msg)) return;
+    cls[semKey].locked = !isLocked;
+    saveData();
+    render();
+}
 function exportData() {
     const date = new Date().toISOString().slice(0, 10);
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
@@ -2026,6 +2044,7 @@ function renderTabContent() {
     const cls = activeClasses().find(c=>c.id===activeClassId);
     if (!cls) return;
     const sem = cls[activeSemester];
+    const savedScroll = area.querySelector('.table-wrapper')?.scrollLeft ?? 0;
     switch(activeTab) {
         case 'sa':     area.innerHTML = renderTabSA(cls, sem);     attachSAListeners();    break;
         case 'wdh':    area.innerHTML = renderTabWDH(cls, sem);    attachWDHListeners();   break;
@@ -2037,6 +2056,16 @@ function renderTabContent() {
         case 'schueler': area.innerHTML = renderTabSchueler(cls);       attachSchuelerListeners(); break;
     }
     attachTopScrollbars();
+    if (savedScroll > 0) {
+        requestAnimationFrame(() => {
+            const wrapper = area.querySelector('.table-wrapper');
+            if (wrapper) {
+                wrapper.scrollLeft = savedScroll;
+                const topBar = wrapper.previousElementSibling;
+                if (topBar?.classList.contains('top-scroll')) topBar.scrollLeft = savedScroll;
+            }
+        });
+    }
 }
 
 function renderTabSchueler(cls) {
@@ -2423,9 +2452,9 @@ function renderTabHA(cls, sem) {
                                     <button class="btn btn-xs btn-outline-danger" onclick="openDeleteHA('${h.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
                                 </div>
                             </th>`).join('')}
-                        <th class="text-center" style="">Punkte</th>
-                        <th class="text-center" style="">Prozent</th>
-                        <th class="text-center" style="">Note</th>
+                        <th class="text-center th-ha-stat" style="width:110px;min-width:110px;max-width:110px;">Punkte</th>
+                        <th class="text-center th-ha-stat" style="width:90px;min-width:90px;max-width:90px;">Prozent</th>
+                        <th class="text-center th-ha-stat" style="width:70px;min-width:70px;max-width:70px;">Note</th>
                     </tr>
                 </thead>
                 <tbody id="ha-tbody">
