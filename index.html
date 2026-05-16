@@ -2283,12 +2283,13 @@ function updateSACells(sem, s, saId) {
 // RENDER – Tab Wiederholungen
 // ================================================================
 function renderTabWDH(cls, sem) {
+    const locked = isSemesterLocked(cls, activeSemester);
     const wdhs = sem.wiederholungen;
     const hasStudents = cls.students.length > 0;
     return `
         <div class="mb-3">
             <div class="fw-semibold text-muted mb-1">Wiederholungen verwalten</div>
-            <button class="btn btn-sm btn-primary" onclick="openAddWdh()"><i class="bi bi-plus-lg me-1"></i>Wiederholung</button>
+            ${!locked ? `<button class="btn btn-sm btn-primary" onclick="openAddWdh()"><i class="bi bi-plus-lg me-1"></i>Wiederholung</button>` : ''}
         </div>
         ${!hasStudents ? emptyStudents() : !wdhs.length ? `
             <div class="empty-state border rounded bg-white">
@@ -2306,8 +2307,8 @@ function renderTabWDH(cls, sem) {
                                 <div>${esc(w.name)}</div>
                                 <div class="small" style="opacity:.75">max ${w.maxPunkte} Pkt.</div>
                                 <div class="d-flex justify-content-center gap-1 mt-1">
-                                    <button class="btn btn-xs btn-outline-light" onclick="openEditWdh('${w.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-xs btn-outline-danger" onclick="openDeleteWdh('${w.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+                                    ${!locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditWdh('${w.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
+                                    ${!locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeleteWdh('${w.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
                                 </div>
                             </th>`).join('')}
                         <th class="text-center" style="">Teilnote</th>
@@ -2330,10 +2331,10 @@ function renderTabWDH(cls, sem) {
                                     <div class="d-flex align-items-center justify-content-center gap-1">
                                         <input class="cell-input wdh-inp" type="number" min="0" max="${w.maxPunkte}" step="0.5"
                                                value="${numVal}" tabindex="${tabIdx}"
-                                               data-sid="${s.id}" data-wid="${w.id}" ${tooltip}${absent?' disabled style="opacity:.35"':''}>
+                                               data-sid="${s.id}" data-wid="${w.id}" ${tooltip}${absent||locked?' disabled style="opacity:.35"':''}>
                                         ${note!==null ? `<span style="font-size:.7rem;color:#666;white-space:nowrap">${fmtPct(pct)}</span><span class="note-badge note-${note}" >${note}</span>` : ''}
                                         <label class="d-flex align-items-center gap-1 mb-0" style="font-size:.7rem;color:#888;cursor:pointer;white-space:nowrap">
-                                            <input type="checkbox" class="wdh-absent" data-sid="${s.id}" data-wid="${w.id}" ${absent?'checked':''} title="Abwesend">Abw.
+                                            <input type="checkbox" class="wdh-absent" data-sid="${s.id}" data-wid="${w.id}" ${absent?'checked':''} ${locked?'disabled':''} title="Abwesend">Abw.
                                         </label>
                                     </div>
                                 </td>`;
@@ -2381,12 +2382,13 @@ function attachWDHListeners() {
 // RENDER – Tab Präsentationen
 // ================================================================
 function renderTabPraes(cls, sem) {
+    const locked = isSemesterLocked(cls, activeSemester);
     const praes = sem.praesentationen;
     const hasStudents = cls.students.length > 0;
     return `
         <div class="mb-3">
             <div class="fw-semibold text-muted mb-1">Präsentationen verwalten</div>
-            <button class="btn btn-sm btn-primary" onclick="openAddPraes()"><i class="bi bi-plus-lg me-1"></i>Präsentation</button>
+            ${!locked ? `<button class="btn btn-sm btn-primary" onclick="openAddPraes()"><i class="bi bi-plus-lg me-1"></i>Präsentation</button>` : ''}
         </div>
         ${!hasStudents ? emptyStudents() : !praes.length ? `
             <div class="empty-state border rounded bg-white">
@@ -2404,8 +2406,8 @@ function renderTabPraes(cls, sem) {
                                 <div>${esc(p.name)}</div>
                                 <div class="small" style="opacity:.75">Note 1–5</div>
                                 <div class="d-flex justify-content-center gap-1 mt-1">
-                                    <button class="btn btn-xs btn-outline-light" onclick="openEditPraes('${p.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-xs btn-outline-danger" onclick="openDeletePraes('${p.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+                                    ${!locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditPraes('${p.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
+                                    ${!locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeletePraes('${p.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
                                 </div>
                             </th>`).join('')}
                         <th class="text-center" style="">Teilnote Ø</th>
@@ -2419,7 +2421,7 @@ function renderTabPraes(cls, sem) {
                             ${praes.map(p => {
                                 const val = getSData(sem, s.id).praesentationen?.[p.id] ?? '';
                                 return `<td class="td-praes text-center">
-                                    <select class="praes-select" data-sid="${s.id}" data-pid="${p.id}">
+                                    <select class="praes-select" data-sid="${s.id}" data-pid="${p.id}" ${locked?'disabled':''}>
                                         <option value="">—</option>
                                         ${[1,2,3,4,5].map(n=>`<option value="${n}" ${+val===n?'selected':''}>${n}</option>`).join('')}
                                     </select>
@@ -2443,12 +2445,13 @@ function attachPraesListeners() {
 // RENDER – Tab Hausübungen
 // ================================================================
 function renderTabHA(cls, sem) {
+    const locked = isSemesterLocked(cls, activeSemester);
     const has = sem.hausaufgaben;
     const hasStudents = cls.students.length > 0;
     return `
         <div class="mb-3">
             <div class="fw-semibold text-muted mb-1">Hausübungen verwalten</div>
-            <button class="btn btn-sm btn-primary" onclick="openAddHA()"><i class="bi bi-plus-lg me-1"></i>Hausübung</button>
+            ${!locked ? `<button class="btn btn-sm btn-primary" onclick="openAddHA()"><i class="bi bi-plus-lg me-1"></i>Hausübung</button>` : ''}
         </div>
         ${!hasStudents ? emptyStudents() : !has.length ? `
             <div class="empty-state border rounded bg-white">
@@ -2465,8 +2468,8 @@ function renderTabHA(cls, sem) {
                             <th class="text-center th-ha">
                                 <div class="ha-title" style="font-size:${haTitleFs(h.name)}">${esc(h.name)}</div>
                                 <div class="d-flex justify-content-center gap-1 mt-1">
-                                    <button class="btn btn-xs btn-outline-light" onclick="openEditHA('${h.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
-                                    <button class="btn btn-xs btn-outline-danger" onclick="openDeleteHA('${h.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+                                    ${!locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditHA('${h.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
+                                    ${!locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeleteHA('${h.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
                                 </div>
                             </th>`).join('')}
                         <th class="text-center th-ha-stat" style="width:110px;min-width:110px;max-width:110px;">Punkte</th>
@@ -2484,7 +2487,7 @@ function renderTabHA(cls, sem) {
                         </td>
                         ${has.map(h => `
                             <td class="text-center" style="background:#dbeafe;">
-                                <select class="ha-alle-select" data-hid="${h.id}" title="Wert für alle Schüler setzen">
+                                <select class="ha-alle-select" data-hid="${h.id}" title="Wert für alle Schüler setzen" ${locked?'disabled':''}>
                                     <option value="">—</option>
                                     <option value="k">k</option>
                                     <option value="0">0</option>
@@ -2507,7 +2510,7 @@ function renderTabHA(cls, sem) {
                             ${has.map(h => {
                                 const val = getSData(sem, s.id).hausaufgaben?.[h.id] ?? '';
                                 return `<td class="td-ha text-center">
-                                    <select class="ha-select" data-sid="${s.id}" data-hid="${h.id}">
+                                    <select class="ha-select" data-sid="${s.id}" data-hid="${h.id}" ${locked?'disabled':''}>
                                         <option value="">—</option>
                                         <option value="k"     ${val==='k' ?'selected':''}>k</option>
                                         <option value="0"     ${val===0||val==='0'?'selected':''}>0</option>
@@ -2598,6 +2601,7 @@ function hasPositiveSA(sem, s) {
 // RENDER – Tab Mündliche Mitarbeit
 // ================================================================
 function renderTabMM(cls, sem) {
+    const locked = isSemesterLocked(cls, activeSemester);
     if (!cls.students.length) return emptyStudents();
     return `
         <div class="table-wrapper">
@@ -2616,12 +2620,12 @@ function renderTabMM(cls, sem) {
                         return `<tr data-sid="${s.id}">
                             <td class="sticky-col">${studentNameCell(s)}</td>
                             <td class="td-sa1 text-center">
-                                <select class="cell-input mm-note-sel" data-sid="${s.id}">
+                                <select class="cell-input mm-note-sel" data-sid="${s.id}" ${locked?'disabled':''}>
                                     <option value="">—</option>
                                     ${[1,2,3,4,5].map(n => `<option value="${n}" ${note==n?'selected':''}>${n}</option>`).join('')}
                                 </select>
                             </td>
-                            <td class="td-sa1"><textarea class="komm-input mm-komm-ta" data-sid="${s.id}" placeholder="Kommentar...">${esc(mm.kommentar||'')}</textarea></td>
+                            <td class="td-sa1"><textarea class="komm-input mm-komm-ta" data-sid="${s.id}" placeholder="Kommentar..." ${locked?'disabled':''}>${esc(mm.kommentar||'')}</textarea></td>
                         </tr>`;
                     }).join('')}
                 </tbody>
