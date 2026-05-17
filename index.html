@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notenbuch v1.2.0</title>
+    <title>Notenbuch v1.2.1</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -471,11 +471,16 @@
                 padding: 10px 4px;
                 gap: 8px;
             }
+            .version-short { display: none; }
+            #sidebar.sidebar-collapsed #sidebar-version { margin-top: auto; }
+            #sidebar.sidebar-collapsed .version-full { display: none; }
+            #sidebar.sidebar-collapsed .version-short { display: inline; }
             #sidebar.sidebar-collapsed #schuljahr-selector,
             #sidebar.sidebar-collapsed .sidebar-group-label,
             #sidebar.sidebar-collapsed .sidebar-group-head button,
             #sidebar.sidebar-collapsed #sidebar-footer,
             #sidebar.sidebar-collapsed .class-item-actions,
+            #sidebar.sidebar-collapsed .drag-handle,
             #sidebar.sidebar-collapsed .fw-semibold {
                 display: none;
             }
@@ -497,7 +502,17 @@
                 padding: 8px 4px;
             }
             .class-item-icon { display: none; }
-            #sidebar.sidebar-collapsed .class-item-icon { display: inline; font-size: 16px; }
+            #sidebar.sidebar-collapsed .class-item-icon {
+                display: inline-flex; align-items: center; justify-content: center;
+                font-size: 11px; font-weight: 700; font-family: var(--font-serif);
+                width: 28px; height: 28px; border-radius: 6px;
+                background: var(--rose-50); color: var(--rose-500);
+                border: 1px solid var(--rose-200); flex-shrink: 0;
+                letter-spacing: -0.5px;
+            }
+            #sidebar.sidebar-collapsed .class-item.active .class-item-icon {
+                background: var(--rose-500); color: #fff; border-color: var(--rose-500);
+            }
             /* ── Schuljahr selector ── */
             #schuljahr-selector {
                 display: flex; flex-wrap: wrap; gap: 4px;
@@ -742,7 +757,7 @@
                 <i class="bi bi-upload"></i> Importieren
             </button>
         </div>
-        <div style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;">Notenbuch v1.2.0</div>
+        <div id="sidebar-version" style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;"><span class="version-full">Notenbuch v1.2.1</span><span class="version-short">v1.2.1</span></div>
     </div>
     <!-- Main -->
     <div id="main-content">
@@ -1921,6 +1936,7 @@ function renderSidebar() {
     const classItem = cls => `
         <div class="class-item ${cls.id===activeClassId?'active':''}" data-id="${cls.id}" draggable="true" onclick="selectClass('${cls.id}')">
             <span class="drag-handle" onclick="event.stopPropagation()"><i class="bi bi-grip-vertical"></i></span>
+            <span class="class-item-icon" title="${esc(cls.name)}">${esc(cls.name).slice(0,3)}</span>
             <div class="fw-semibold">${esc(cls.name)}</div>
             <div class="class-item-actions">
                 <button class="btn btn-xs btn-outline-secondary" onclick="event.stopPropagation();openEditClass('${cls.id}')" title="Umbenennen"><i class="bi bi-pencil"></i></button>
