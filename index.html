@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notenbuch v1.1.1</title>
+    <title>Notenbuch v1.2.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -742,7 +742,7 @@
                 <i class="bi bi-upload"></i> Importieren
             </button>
         </div>
-        <div style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;">Notenbuch v1.1.1</div>
+        <div style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;">Notenbuch v1.2.0</div>
     </div>
     <!-- Main -->
     <div id="main-content">
@@ -1593,6 +1593,7 @@ function addSA() {
 function selectSA(saId) {
     activeSaId = saId;
     renderTabContent();
+    pushHash();
 }
 
 function updateFehlerProPunkt(val) {
@@ -2021,14 +2022,24 @@ function renderContent() {
     renderTabContent();
 }
 
+function pushHash() {
+    const params = new URLSearchParams();
+    if (activeClassId) params.set('class', activeClassId);
+    params.set('sem', activeSemester);
+    params.set('tab', activeTab);
+    if (activeTab === 'sa' && activeSaId) params.set('sa', activeSaId);
+    history.replaceState(null, '', '#' + params.toString());
+}
+
 function selectClass(id) {
     activeClassId=id;
     const _selCls = activeClasses().find(c=>c.id===id);
     activeSaId = _selCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
     activeTab=_selCls?.type==='spanisch'?'wdh':'sa';
     renderSidebar(); renderContent();
+    pushHash();
 }
-function selectTab(tab)  { activeTab=tab; if (tab==='jahr'||tab==='schueler') { renderContent(); } else { renderTabContent(); updateTabLinks(); } }
+function selectTab(tab)  { activeTab=tab; if (tab==='jahr'||tab==='schueler') { renderContent(); } else { renderTabContent(); updateTabLinks(); } pushHash(); }
 function selectSemester(sem) {
     activeSemester = sem;
     const cls = activeClasses().find(c=>c.id===activeClassId);
@@ -2038,6 +2049,7 @@ function selectSemester(sem) {
     if (activeTab === 'jahr' || activeTab === 'schueler') activeTab = _isSpanisch ? 'wdh' : 'sa';
     else if (_isSpanisch && (activeTab === 'sa' || activeTab === 'ha')) activeTab = 'wdh';
     renderContent();
+    pushHash();
 }
 
 function updateTabLinks() {
@@ -3129,8 +3141,21 @@ function onEnter(inpId, btnId) {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
     activeClassId = activeClasses()[0]?.id ?? null;
-    const _initCls = activeClasses()[0];
-    activeSaId = _initCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+    const hash = location.hash.slice(1);
+    if (hash) {
+        const p = new URLSearchParams(hash);
+        const clsId = p.get('class');
+        if (clsId && activeClasses().find(c => c.id === clsId)) activeClassId = clsId;
+        if (p.get('sem') === 'semester2') activeSemester = 'semester2';
+        const tab = p.get('tab');
+        if (tab) activeTab = tab;
+        const saId = p.get('sa');
+        if (saId) activeSaId = saId;
+    }
+    if (!activeSaId) {
+        const _initCls = activeClasses().find(c => c.id === activeClassId);
+        activeSaId = _initCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+    }
     render();
 
     // Close dialog on backdrop click
