@@ -49,7 +49,11 @@ This is an Austrian school grade management tool ("Deutsch Notenrechner") for a 
 } ] }
 ```
 
+**Schülerprofile** (`data.profile[pid]`): person-level data spanning classes and school years (Gespräche with optional reminder date, Kommentar, Legasthenie, Förderung; Verhalten + Beobachtungen per school year in `jahre[sjId]`). Each class student carries `profilId`; student `id`s are regenerated on every class transfer, so `profilId` is the stable identity. `migrateData()` links students by normalized name (`pfAttach`), never twice in the same class. Profile code lives in the `SCHÜLERPROFILE` section of `index.html` (`pf*` functions).
+
 Semester 2 `gewichtung` contains an extra key `semester1Note` (weight of S1 final grade in S2 calculation).
+
+**Matura** (tab `matura`, only for `oberstufe` classes whose name starts with `8`): `cls.matura = { pruefer, students: { [sid]: { knr, locked, t: [ {m, c}, {m, c} ] } } }` — one SRDP Beurteilungsraster per text. `m` = highlighted cells (`'<row>:<col>'`), `c` = ticked boxes (`inh|struk|k|stil|norm|k3` → column 0–4, note = 5 − column). K1/K2 = `c.k` of text 1/2, K3 = Ø of `c.k3` of both texts, Gesamtnote = Ø K1, K2, K3; any negative Teilnote (K3: Ø ≥ 4,5) forces 5. At exactly x,50 the teacher picks the note manually (`ms.grenz = {ges, note}`, only valid while Ø is unchanged) — see `mrEndnote()`. The tab has two sub-views (`maturaView`: `liste` | `raster`); the printed footer "Gesamtnote:" gets the final note as a word. `ms.tp` = chosen Themenpaket (1–3, not printed). Locking requires every checkbox row ticked in both texts, a Themenpaket, a Kandidatennummer and a decided Grenzfall (`mrMissing()`); printing is only possible for locked students. Raster texts are in `MR_RASTER`; printing (`mrPrint`) renders A4-landscape pages in an iframe that reproduce the official Word form — keep its layout unchanged (legally prescribed). Code lives in the `MATURA` section (`mr*` functions).
 
 ### JavaScript architecture (`index.html`, line ~648 onward)
 

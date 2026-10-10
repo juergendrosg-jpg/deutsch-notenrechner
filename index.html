@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notenbuch v1.2.1</title>
+    <title>Notenbuch v1.3.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,6 +100,7 @@
             .mt-3 { margin-top: 0.75rem; }
             .me-1 { margin-right: 0.25rem; }
             .me-2 { margin-right: 0.5rem; }
+            .ms-auto { margin-left: auto; }
             .rounded { border-radius: var(--r-sm); }
             .border { border: 1px solid var(--paper-line); }
             .bg-white { background: #fff !important; }
@@ -222,6 +223,15 @@
                 will-change: transform;
             }
             .grade-table thead .sticky-col { z-index: 3; background: var(--paper) !important; }
+
+            /* Durchschnittszeile (Schularbeiten) */
+            .grade-table tr.avg-row td, .grade-table tbody tr.avg-row:hover td { background: var(--paper-soft) !important; color: var(--ink-soft); font-weight: 600; border-bottom: 3px double var(--paper-line); }
+            .grade-table tr.avg-row td.sticky-col { font-style: italic; }
+
+            /* Abwesend bei Schularbeit */
+            .sa-absent-lbl { font-size: .7rem; color: var(--ink-mute); cursor: pointer; white-space: nowrap; font-weight: normal; }
+            .grade-table tr.sa-absent td, .grade-table tbody tr.sa-absent:hover td { background: #eeeeee !important; color: #999; }
+            .grade-table tr.sa-absent td:not(.sticky-col):not(:last-child) { opacity: .45; }
 
             /* Column header colors — warm pastel palette */
             .th-sa1   { background: #e8eaf6 !important; color: #3949ab !important; border-color: rgba(57,73,171,0.12) !important; }
@@ -356,6 +366,11 @@
             .sa-tab:hover { background: rgba(255,255,255,0.7); color: var(--ink-soft); }
             .sa-tab.active { background: #fff; border-color: var(--paper-line); border-bottom-color: #fff; color: var(--ink); }
             .sa-tab span { cursor: pointer; }
+            .sa-tab.sa-locked span { font-style: italic; opacity: .75; }
+            .sa-tab-lock { font-size: .8em; cursor: pointer; opacity: .8; }
+            .sa-tab-lock.unlocked { opacity: .4; }
+            .sa-tab-lock:hover { opacity: 1; }
+            th.item-locked > div:first-child { font-style: italic; }
             .sa-tab-del {
                 background: none; border: none; color: inherit;
                 opacity: .5; font-size: .9rem; padding: 0 2px;
@@ -370,6 +385,53 @@
                 transition: background 0.12s;
             }
             .sa-tab-add:hover { background: var(--leaf-200); }
+
+            /* ── Schularbeit abschließen ─────────────────────── */
+            .sa-close-bar {
+                display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+                padding: 10px 14px; margin-bottom: 12px; border-radius: 8px;
+                background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; font-size: .88rem;
+            }
+            .sa-close-bar.ready {
+                background: #ecfdf5; border: 2px solid #10b981; color: #065f46;
+                animation: sa-ready-pulse 2s ease-in-out 3;
+            }
+            @keyframes sa-ready-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,.25); } }
+            .sa-close-bar .btn-close-sa {
+                margin-left: auto; padding: 6px 16px; border-radius: 6px; font-weight: 600;
+                background: #1d4ed8; color: #fff; border: 1px solid #1d4ed8; cursor: pointer; white-space: nowrap;
+            }
+            .sa-close-bar.ready .btn-close-sa { background: #059669; border-color: #059669; }
+            .sa-close-bar .btn-close-sa:hover { filter: brightness(1.1); }
+
+            /* ── Frühwarnung ─────────────────────────────────── */
+            .name-cell { display: inline-flex; align-items: center; gap: 5px; min-width: 0; max-width: 100%; }
+            .fw-mark {
+                flex-shrink: 0; font-size: .68rem; font-weight: 700; line-height: 1;
+                padding: 2px 5px; border-radius: 4px; cursor: pointer;
+                background: #dc2626; color: #fff; white-space: nowrap;
+            }
+            .fw-mark:hover { background: #b91c1c; }
+            .fw-done { flex-shrink: 0; font-size: .68rem; color: var(--ink-mute); white-space: nowrap; opacity: .7; cursor: pointer; }
+            .fw-later {
+                flex-shrink: 0; font-size: .68rem; font-weight: 600; line-height: 1;
+                padding: 2px 5px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+                background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+            }
+            .fw-new { font-size: .65rem; font-weight: 700; color: #fff; background: #2563eb; border-radius: 4px; padding: 1px 4px; }
+            .fw-actions { display: flex; flex-direction: column; gap: 8px; }
+            .fw-actions > div { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+            .fw-actions label { min-width: 110px; margin: 0; }
+            .fw-actions input[type=date] { width: auto; }
+            .fw-banner {
+                background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 8px 14px;
+                margin-bottom: 12px; font-size: .88rem; color: #991b1b; display: flex; align-items: center; gap: 8px;
+            }
+            .fw-banner button { background: none; border: none; color: #991b1b; text-decoration: underline; cursor: pointer; padding: 0; font-size: inherit; font-weight: 600; }
+            .fw-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #dc2626; margin-left: 6px; vertical-align: middle; }
+            .fw-table { width: 100%; font-size: .88rem; border-collapse: collapse; }
+            .fw-table td { padding: 4px 6px; border-bottom: 1px solid var(--paper-line); vertical-align: middle; }
+            .fw-table tr.fw-row-done td { color: var(--ink-mute); }
 
             /* ── Semester tabs ───────────────────────────────── */
             .semester-tab-bar {
@@ -386,6 +448,7 @@
             .semester-tab:hover { background: var(--paper-soft); color: var(--ink-soft); }
             .semester-tab.active { background: var(--rose-50); color: var(--rose-500); }
             .semester-tab.jahr-tab.active { background: var(--leaf-200); color: var(--leaf-500); }
+            .semester-tab.matura-tab.active { background: var(--sun-200); color: #7a6320; }
             .semester-tab.schueler-tab { margin-left: auto; }
             .semester-tab.schueler-tab.active { background: var(--paper-soft); color: var(--ink); border: 1px solid var(--paper-line); }
             .semester-tab.sem-locked { opacity: .7; font-style: italic; }
@@ -438,6 +501,241 @@
                 letter-spacing: -0.01em;
             }
             #app-navbar .brand svg { flex-shrink: 0; }
+            #app-navbar .brand { cursor: pointer; user-select: none; }
+            #app-navbar .brand:hover { color: var(--rose-500); }
+
+            /* ── Landing Page ────────────────────────────── */
+            .lp-wrap { max-width: 1040px; margin: 0 auto; padding-top: .5rem; }
+            .lp-head {
+                display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+                margin-bottom: 1.75rem; padding-bottom: .9rem; border-bottom: 1px solid var(--paper-line);
+            }
+            .lp-title { font-family: var(--font-serif); color: var(--ink); margin: 0; font-weight: 600; font-size: 1.9rem; }
+            .lp-sj { font-weight: 400; color: var(--ink-mute); font-size: .6em; margin-left: 8px; }
+            .lp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+            /* Gruppenfarben: Unterstufe = Lila, Oberstufe = Rose, Spanisch = Beere */
+            .lp-group { --acc: var(--rose-500); --acc-soft: var(--rose-50); --acc-line: var(--rose-200); margin-bottom: 2.25rem; }
+            .lp-unterstufe { --acc: #7d65b0; --acc-soft: #f6f2fb; --acc-line: #dcd0ee; }
+            .lp-spanisch   { --acc: #a8508f; --acc-soft: #fbf1f7; --acc-line: #ecc8df; }
+            .lp-group-label {
+                display: flex; align-items: center; gap: 10px;
+                font-size: .78rem; font-weight: 600; letter-spacing: .1em;
+                text-transform: uppercase; color: var(--acc); margin: 0 0 .85rem;
+            }
+            .lp-group-label::after { content: ''; flex: 1; height: 1px; background: var(--acc-line); }
+
+            .lp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+            @media (max-width: 900px) { .lp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+            @media (max-width: 520px) { .lp-grid { grid-template-columns: 1fr; } }
+
+            .lp-card {
+                position: relative; overflow: hidden; cursor: pointer;
+                min-height: 150px; padding: 18px 22px;
+                display: flex; flex-direction: column; justify-content: flex-end;
+                background: linear-gradient(135deg, #fff 0%, #fff 45%, var(--acc-soft) 100%);
+                border: 1px solid var(--paper-line); border-left: 5px solid var(--acc);
+                border-radius: var(--r-lg); box-shadow: var(--shadow-sm);
+                transition: box-shadow .18s, border-color .18s, transform .18s;
+            }
+            .lp-card::before {
+                content: ''; position: absolute; right: -40px; bottom: -40px;
+                width: 150px; height: 150px; border-radius: 50%;
+                background: var(--acc); opacity: .06; transition: opacity .18s, transform .25s;
+            }
+            .lp-card:hover { box-shadow: var(--shadow-lg); border-color: var(--acc-line); border-left-color: var(--acc); transform: translateY(-3px); }
+            .lp-card:hover::before { opacity: .12; transform: scale(1.15); }
+            .lp-card-name {
+                position: relative; font-family: var(--font-serif); font-size: 2.6rem; line-height: 1;
+                font-weight: 600; color: var(--ink); letter-spacing: -.01em;
+            }
+            .lp-card:hover .lp-card-name { color: var(--acc); }
+            .lp-card-count {
+                position: absolute; top: 14px; right: 16px;
+                font-size: .78rem; font-weight: 600; color: var(--acc);
+                background: #fff; border: 1px solid var(--acc-line); border-radius: 999px; padding: 2px 9px;
+            }
+            .lp-card-btn { position: relative; width: 100%; margin-top: 12px; justify-content: center; }
+
+            /* ── Archiv ──────────────────────────────────── */
+            .arch-year { margin-bottom: 2rem; padding-bottom: .5rem; border-bottom: 1px solid var(--paper-line); }
+            .arch-year-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: .75rem; }
+            .arch-year-title { font-family: var(--font-serif); margin: 0; color: var(--ink); }
+            .arch-year .lp-card { background: var(--paper); }
+
+            /* ── Dialoge: Schuljahr abschließen / Klasse übernehmen ── */
+            dialog.dialog-wide { max-width: 520px; }
+            .cy-list { max-height: 260px; overflow-y: auto; border: 1px solid var(--paper-line); border-radius: var(--r-sm); padding: 6px 10px; background: #fff; }
+            .cy-group + .cy-group { margin-top: 6px; }
+            .cy-group-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-mute); margin: 4px 0 2px; }
+            .cy-item { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: .88rem; cursor: pointer; }
+            .cy-item small { margin-left: auto; }
+            .tr-grid { display: grid; grid-template-columns: 1fr 140px; gap: 10px; margin-top: 12px; }
+            .tr-list { max-height: 280px; overflow-y: auto; border: 1px solid var(--paper-line); border-radius: var(--r-sm); background: #fff; }
+            .tr-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 10px; font-size: .86rem; border-bottom: 1px solid var(--paper-line); }
+            .tr-row:last-child { border-bottom: none; }
+            .tr-row.removed .tr-name { text-decoration: line-through; color: var(--ink-faint); }
+            .tr-row.is-new { background: var(--leaf-200); }
+            .tr-new-badge { font-size: .65em; font-weight: 600; color: var(--leaf-500); text-transform: uppercase; letter-spacing: .05em; }
+            .tr-add { display: flex; gap: 6px; margin-top: 8px; }
+            .form-control.is-invalid { border-color: var(--rose-500); box-shadow: 0 0 0 2px var(--rose-100); }
+
+            /* ── Schülerprofile ──────────────────────────── */
+            .pf-name { cursor: pointer; }
+            .pf-name:hover { color: var(--rose-500); text-decoration: underline; text-underline-offset: 2px; }
+            .pf-top { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+            .pf-back { background: none; border: none; color: var(--ink-mute); cursor: pointer; font-size: .84rem; padding: 0; display: inline-flex; align-items: center; gap: 4px; }
+            .pf-back:hover { color: var(--rose-500); }
+            .pf-head {
+                display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+                background: #fff; border: 1px solid var(--paper-line); border-radius: var(--r-lg);
+                padding: 18px 20px; box-shadow: var(--shadow-sm); margin-bottom: 16px;
+            }
+            .pf-avatar {
+                width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+                background: var(--rose-100); color: var(--rose-500); border: 1px solid var(--rose-200);
+                display: flex; align-items: center; justify-content: center;
+                font-family: var(--font-serif); font-weight: 600; font-size: 1.25rem;
+            }
+            .pf-title { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 600; margin: 0; color: var(--ink); line-height: 1.15; display: flex; align-items: center; gap: 8px; }
+            .pf-title .btn { font-family: var(--font-sans); }
+            .pf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+            .pf-chip {
+                font-size: .72rem; padding: 2px 8px; border-radius: 999px; white-space: nowrap; line-height: 1.5;
+                background: var(--paper-soft); border: 1px solid var(--paper-line); color: var(--ink-soft);
+            }
+            .pf-chip.cur { background: var(--rose-50); border-color: var(--rose-200); color: var(--rose-500); font-weight: 600; cursor: pointer; }
+            .pf-chip.cur:hover { background: var(--rose-100); }
+            .pf-chip.old { color: var(--ink-mute); }
+            .pf-chip.leg { background: var(--sun-200); border-color: #e6d48f; color: #7a6420; font-weight: 600; }
+            .pf-chip.fw-offen { background: #dc2626; border-color: #dc2626; color: #fff; font-weight: 600; }
+            .pf-chip.fw-verschoben { background: #fef3c7; border-color: #fcd34d; color: #92400e; font-weight: 600; }
+            .pf-chip.fw-ausgeteilt { background: var(--note-5); border-color: var(--rose-300); color: var(--note-5-fg); font-weight: 600; }
+            .pf-chip.fw-ok { background: var(--leaf-200); border-color: #b9cbad; color: var(--leaf-500); }
+            .pf-chip.due { background: #fef2f2; border-color: #fca5a5; color: #991b1b; font-weight: 600; }
+            .pf-stats { display: flex; margin-left: auto; flex-wrap: wrap; }
+            .pf-stat { text-align: center; padding: 4px 14px; border-left: 1px solid var(--paper-line); min-width: 88px; }
+            .pf-stat-label { font-size: .64rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-mute); margin-bottom: 5px; white-space: nowrap; }
+            .pf-stat-val { font-size: .88rem; font-weight: 600; color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 24px; }
+            .pf-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(290px, 1fr); gap: 16px; align-items: start; }
+            @media (max-width: 1100px) { .pf-grid { grid-template-columns: minmax(0, 1fr); } }
+            .pf-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+            .pf-card { background: #fff; border: 1px solid var(--paper-line); border-radius: var(--r-md); padding: 14px 16px; box-shadow: var(--shadow-sm); }
+            .pf-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+            .pf-card-head > .btn { margin-left: auto; }
+            .pf-card-title { font-family: var(--font-serif); font-size: 1rem; font-weight: 600; margin: 0; color: var(--ink); display: flex; align-items: center; gap: 7px; }
+            .pf-card-title i { color: var(--rose-400); font-size: .95em; }
+            .pf-ta { width: 100%; field-sizing: content; min-height: 4.4em; resize: vertical; font-family: var(--font-sans); font-size: .85rem; line-height: 1.45; }
+            .pf-hint { font-size: .74rem; color: var(--ink-mute); margin: 4px 0 0; }
+            .pf-field + .pf-field { margin-top: 10px; }
+            .pf-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+            .pf-switch { display: flex; align-items: center; gap: 8px; font-size: .86rem; cursor: pointer; font-weight: 500; }
+            .pf-empty { font-size: .82rem; color: var(--ink-mute); font-style: italic; margin: 0; }
+
+            /* Noten je Schuljahr */
+            .pf-trend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+            .pf-trend-item { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--ink-mute); background: var(--paper); border: 1px solid var(--paper-line); border-radius: var(--r-sm); padding: 3px 8px; }
+            .pf-year { border: 1px solid var(--paper-line); border-radius: var(--r-md); padding: 12px 14px; background: var(--paper); }
+            .pf-year + .pf-year { margin-top: 12px; }
+            .pf-year.cur { background: #fff; border-color: var(--rose-200); }
+            .pf-year-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+            .pf-year-title { font-family: var(--font-serif); font-weight: 600; font-size: 1.05rem; color: var(--ink); }
+            .pf-year-jn { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: .74rem; color: var(--ink-mute); text-transform: uppercase; letter-spacing: .05em; }
+            .pf-ntable { width: 100%; border-collapse: collapse; font-size: .82rem; }
+            .pf-ntable th { font-weight: 500; font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-mute); text-align: center; padding: 3px 6px; }
+            .pf-ntable td { padding: 4px 6px; border-top: 1px solid var(--paper-line); text-align: center; }
+            .pf-ntable th:first-child, .pf-ntable td:first-child { text-align: left; }
+            .pf-ntable td small { color: var(--ink-mute); font-size: .72rem; margin-left: 4px; }
+            .pf-ntable tr.pf-sum td { font-weight: 600; border-top: 2px solid var(--paper-line); }
+            .pf-ntable tr.pf-avg td { color: var(--ink-mute); font-size: .74rem; border-top: none; padding-top: 0; }
+            .pf-sa-list { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .78rem; color: var(--ink-soft); }
+            .pf-sa { display: inline-flex; align-items: center; gap: 5px; }
+            .pf-sub { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-mute); margin: 12px 0 4px; font-weight: 600; }
+            .pf-komm { font-size: .8rem; color: var(--ink-soft); margin: 3px 0; white-space: pre-wrap; }
+            .pf-komm b { font-weight: 500; color: var(--ink-mute); }
+            .pf-note { display: inline-grid; grid-template-columns: 2.6rem auto 2.6rem; align-items: center; gap: 4px; }
+            .pf-ntable td .pf-note small { margin-left: 0; text-align: left; }
+            .pf-sj + .pf-sj { border-top: 1px solid var(--paper-line); margin-top: 12px; padding-top: 12px; }
+            .pf-sj > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 2px 0 10px; user-select: none; }
+            .pf-sj > summary::-webkit-details-marker { display: none; }
+            .pf-sj:not([open]) > summary { padding-bottom: 2px; }
+            .pf-chev { color: var(--ink-mute); font-size: .8rem; transition: transform .15s; }
+            .pf-sj[open] > summary .pf-chev { transform: rotate(90deg); }
+            .pf-sj > summary:hover .pf-sj-title { color: var(--rose-500); }
+            .pf-sj-title { font-family: var(--font-serif); font-weight: 600; font-size: 1.1rem; color: var(--ink); }
+            .pf-sj-sum { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--ink-mute); }
+            .pf-sj-sum small { font-size: .72rem; }
+            .pf-verh { margin-top: 12px; border: 1px solid var(--paper-line); border-radius: var(--r-md); padding: 12px 14px; background: #fff; }
+
+            /* Frühwarnung im Profil */
+            .pf-fw-line { display: flex; align-items: flex-start; gap: 8px; font-size: .82rem; padding: 6px 0; border-top: 1px solid var(--paper-line); color: var(--ink-soft); }
+            .pf-fw-line:first-child { border-top: none; padding-top: 0; }
+            .pf-fw-line > i { margin-top: 2px; }
+            .pf-fw-line .i-red { color: #dc2626; } .pf-fw-line .i-amber { color: #b45309; }
+            .pf-fw-line .i-rose { color: var(--rose-500); } .pf-fw-line .i-green { color: var(--leaf-500); }
+            .pf-fw-line .i-grey { color: var(--ink-faint); }
+            .pf-fw-hint { margin-top: 6px; padding: 7px 10px; border-radius: var(--r-sm); background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; font-size: .78rem; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+            /* Gespräche */
+            .pf-talk { border-left: 3px solid var(--rose-300); padding: 8px 12px; background: var(--paper); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+            .pf-talk + .pf-talk { margin-top: 10px; }
+            .pf-talk-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .78rem; color: var(--ink-mute); }
+            .pf-talk-date { font-weight: 600; color: var(--ink); font-size: .84rem; }
+            .pf-talk-actions { margin-left: auto; display: flex; gap: 4px; }
+            .pf-talk-anlass { font-weight: 600; font-size: .88rem; margin: 5px 0 2px; color: var(--ink); }
+            .pf-talk-text { font-size: .84rem; white-space: pre-wrap; color: var(--ink-soft); margin: 3px 0; }
+            .pf-talk-agree { font-size: .82rem; white-space: pre-wrap; color: var(--ink-soft); margin-top: 6px; padding: 6px 10px; background: #fff; border: 1px solid var(--paper-line); border-radius: var(--r-sm); }
+            .pf-talk-agree b { display: block; font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; color: var(--leaf-500); margin-bottom: 2px; }
+            .pf-wv { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: .78rem; color: var(--ink-soft); cursor: pointer; }
+            .pf-wv.due { color: #991b1b; font-weight: 600; }
+            .pf-wv.done { color: var(--ink-mute); text-decoration: line-through; }
+
+            /* Beobachtungen */
+            .pf-obs-add { display: grid; grid-template-columns: 128px 104px minmax(0, 1fr) auto; gap: 6px; margin-top: 10px; }
+            .pf-obs { display: flex; gap: 8px; font-size: .83rem; padding: 6px 0; border-top: 1px solid var(--paper-line); align-items: flex-start; }
+            .pf-obs-date { color: var(--ink-mute); font-size: .76rem; min-width: 74px; padding-top: 2px; }
+            .pf-obs-text { flex: 1; white-space: pre-wrap; color: var(--ink-soft); }
+            .pf-obs-sym { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .8rem; }
+            .pf-obs-sym.plus  { background: var(--leaf-200); color: var(--leaf-500); }
+            .pf-obs-sym.minus { background: var(--note-5); color: var(--note-5-fg); }
+            .pf-obs-sym.info  { background: var(--paper-soft); color: var(--ink-mute); }
+            .pf-obs .btn { opacity: 0; }
+            .pf-obs:hover .btn { opacity: 1; }
+            .pf-links { display: flex; flex-direction: column; gap: 4px; }
+            .pf-link-row { display: flex; align-items: center; gap: 8px; font-size: .82rem; }
+            .pf-link-row .btn { margin-left: auto; }
+
+            /* Übersicht */
+            .pf-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+            .pf-search { max-width: 300px; }
+            .pf-list { background: #fff; border: 1px solid var(--paper-line); border-radius: var(--r-md); overflow: hidden; margin-bottom: 1.25rem; }
+            .pf-lrow { display: grid; grid-template-columns: minmax(150px, 260px) minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 14px; border-top: 1px solid var(--paper-line); cursor: pointer; font-size: .86rem; }
+            .pf-lrow:first-child { border-top: none; }
+            .pf-lrow:hover { background: var(--rose-50); }
+            .pf-lrow-name { font-weight: 500; color: var(--ink); }
+            .pf-lrow-cls { display: flex; gap: 4px; flex-wrap: wrap; }
+            .pf-lrow-tags { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+            .pf-due-box { background: #fff; border: 1px solid #fcd34d; border-radius: var(--r-md); padding: 10px 14px; margin-bottom: 1.25rem; }
+            .pf-due-item { display: flex; align-items: center; gap: 10px; font-size: .84rem; padding: 4px 0; }
+            .pf-due-item + .pf-due-item { border-top: 1px solid var(--paper-line); }
+            .pf-due-date { min-width: 78px; font-weight: 600; color: var(--ink-soft); }
+            .pf-due-date.over { color: #b91c1c; }
+            .lp-due { display: flex; align-items: center; gap: 8px; background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; border-radius: 8px; padding: 8px 14px; margin-bottom: 1rem; font-size: .86rem; }
+            .lp-due button { background: none; border: none; color: #92400e; text-decoration: underline; cursor: pointer; padding: 0; font-size: inherit; font-weight: 600; }
+            #nav-profiles.active { background: var(--rose-50); border-color: var(--rose-200); }
+            #nav-profiles.active .fw-semibold { color: var(--rose-500); }
+            #nav-profiles .class-item-icon { font-size: 14px; }
+
+            /* Drucken (Profil als Gesprächsunterlage) */
+            @media print {
+                #app-navbar, #sidebar, .toast-container, #pixelguy-overlay, .pf-noprint { display: none !important; }
+                html, body { background: #fff; }
+                #main-content { padding: 0; }
+                .pf-grid { grid-template-columns: minmax(0, 1fr); }
+                .pf-card, .pf-head, .pf-year { box-shadow: none; break-inside: avoid; }
+                .pf-ta, .pf-card .form-control { border: none; padding: 0; resize: none; }
+                #content-area > * { animation: none; }
+            }
             #app-navbar .subtitle {
                 font-size: 0.72rem; color: var(--ink-mute);
                 font-weight: 400; letter-spacing: 0.03em;
@@ -696,7 +994,7 @@
 
 <!-- ═══ NAVBAR ═══════════════════════════════════════════════ -->
 <nav id="app-navbar">
-    <div class="brand">
+    <div class="brand" onclick="goHome()" title="Zur Übersicht">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="4" y="3" width="16" height="22" rx="2" fill="#f4efe6" stroke="#ece5d8" stroke-width="1.5"/>
             <rect x="6" y="6" width="10" height="1.5" rx="0.75" fill="#c9c5d3"/>
@@ -748,6 +1046,12 @@
             </div>
             <div id="class-list-s"></div>
         </div>
+        <div>
+            <div class="class-item" id="nav-profiles" onclick="openProfiles()" title="Schülerprofile">
+                <span class="class-item-icon"><i class="bi bi-people"></i></span>
+                <div class="fw-semibold"><i class="bi bi-person-vcard me-2" style="font-size:.9em;color:var(--rose-400)"></i>Schülerprofile</div>
+            </div>
+        </div>
         <div id="sidebar-footer">
             <button type="button" class="btn btn-xs btn-outline-secondary w-50" onclick="exportData()" title="Daten als JSON-Datei herunterladen">
                 <i class="bi bi-download"></i> Exportieren
@@ -757,7 +1061,7 @@
                 <i class="bi bi-upload"></i> Importieren
             </button>
         </div>
-        <div id="sidebar-version" style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;"><span class="version-full">Notenbuch v1.2.1</span><span class="version-short">v1.2.1</span></div>
+        <div id="sidebar-version" style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;"><span class="version-full">Notenbuch v1.3.0</span><span class="version-short">v1.3.0</span></div>
     </div>
     <!-- Main -->
     <div id="main-content">
@@ -913,6 +1217,72 @@
     </div>
 </dialog>
 
+<!-- Schularbeit abschließen? (beim Verlassen einer vollständig eingetragenen SA) -->
+<dialog id="modalSALeave" onclose="saLeaveClosed()">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-lock"></i>Schularbeit abschließen?</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalSALeave')">×</button>
+    </div>
+    <div class="modal-body">
+        Bei <strong id="sa-leave-name"></strong> sind alle Felder eingetragen.<br>
+        Jetzt abschließen? Die Eingaben werden gesperrt und die Frühwarnungen ermittelt.
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalSALeave')">Später</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="saLeaveLock()"><i class="bi bi-lock-fill me-1"></i>Jetzt abschließen</button>
+    </div>
+</dialog>
+
+<!-- Frühwarnungen -->
+<dialog id="modalFruehwarnung" style="min-width:min(520px,95vw)">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-exclamation-triangle"></i>Frühwarnungen <span id="fw-class-name"></span></h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalFruehwarnung')">×</button>
+    </div>
+    <div class="modal-body" id="fw-body"></div>
+    <div class="modal-footer py-2" id="fw-footer"></div>
+</dialog>
+
+<!-- Gespräch erfassen / bearbeiten (Schülerprofil) -->
+<dialog id="modalGespraech" class="dialog-wide">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-chat-square-text"></i><span id="gs-title">Gespräch erfassen</span></h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalGespraech')">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="pf-row2">
+            <div>
+                <label class="form-label form-label-sm">Datum</label>
+                <input type="date" class="form-control form-control-sm" id="gs-datum">
+            </div>
+            <div>
+                <label class="form-label form-label-sm">Art</label>
+                <select class="form-control form-control-sm" id="gs-art"></select>
+            </div>
+        </div>
+        <label class="form-label form-label-sm" style="margin-top:10px">Teilnehmende</label>
+        <input type="text" class="form-control form-control-sm" id="gs-teilnehmer" placeholder="z.B. Mutter, Vater, KV" maxlength="120">
+        <label class="form-label form-label-sm" style="margin-top:10px">Anlass / Thema</label>
+        <input type="text" class="form-control form-control-sm" id="gs-anlass" placeholder="z.B. Leistungsabfall nach der 1. Schularbeit" maxlength="160">
+        <label class="form-label form-label-sm" style="margin-top:10px">Gesprächsnotizen</label>
+        <textarea class="form-control form-control-sm pf-ta" id="gs-notizen" rows="5" placeholder="Was wurde besprochen?"></textarea>
+        <label class="form-label form-label-sm" style="margin-top:10px">Vereinbarungen / nächste Schritte</label>
+        <textarea class="form-control form-control-sm pf-ta" id="gs-vereinbarungen" rows="3" placeholder="z.B. Lesetagebuch wöchentlich, Rückmeldung per Mitteilungsheft"></textarea>
+        <div class="pf-row2" style="margin-top:10px">
+            <div>
+                <label class="form-label form-label-sm">Erinnerung am (optional)</label>
+                <input type="date" class="form-control form-control-sm" id="gs-wv">
+            </div>
+            <p class="pf-hint" style="align-self:end;margin-bottom:6px">Z.B. um nachzufragen, ob die Vereinbarungen klappen. Fällige Erinnerungen erscheinen auf der Startseite.</p>
+        </div>
+        <input type="hidden" id="gs-pid"><input type="hidden" id="gs-id">
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalGespraech')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="pfSaveGespraech()"><i class="bi bi-check2 me-1"></i>Speichern</button>
+    </div>
+</dialog>
+
 <!-- Neues Schuljahr -->
 <dialog id="modalAddSchuljahr">
     <div class="modal-header">
@@ -926,6 +1296,63 @@
     <div class="modal-footer py-2">
         <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalAddSchuljahr')">Abbrechen</button>
         <button type="button" class="btn btn-sm btn-primary" id="btn-save-add-sj">Erstellen</button>
+    </div>
+</dialog>
+
+<!-- Schuljahr abschließen -->
+<dialog id="modalCloseYear" class="dialog-wide">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-archive"></i>Schuljahr <span id="close-year-name"></span> abschließen</h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalCloseYear')">×</button>
+    </div>
+    <div class="modal-body">
+        <p class="small text-muted" style="margin-top:0">Das Schuljahr wird ins Archiv verschoben. Alle Noten bleiben erhalten, können dort aber nur noch angesehen werden.</p>
+        <label class="form-label form-label-sm">Neues Schuljahr</label>
+        <input type="text" class="form-control form-control-sm" id="inp-close-new-sj" placeholder="z.B. 2026/27" maxlength="20">
+        <label class="form-label form-label-sm" style="margin-top:14px">Welche Klassen sollen ins neue Schuljahr weitergeführt werden?</label>
+        <div id="close-year-classes" class="cy-list"></div>
+        <p class="small text-muted mb-0" style="margin-top:8px">Für jede gewählte Klasse kannst du danach den neuen Namen eingeben und die Schüler:innen anpassen.</p>
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalCloseYear')">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="confirmCloseYear()"><i class="bi bi-archive me-1"></i>Abschließen</button>
+    </div>
+</dialog>
+
+<!-- Klasse übernehmen -->
+<dialog id="modalTransfer" class="dialog-wide">
+    <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-box-arrow-in-right"></i>Klasse übernehmen nach <span id="tr-target-sj"></span></h6>
+        <button type="button" class="btn-close" onclick="hideModal('modalTransfer')">×</button>
+    </div>
+    <div class="modal-body">
+        <label class="form-label form-label-sm">Ausgangsklasse</label>
+        <select class="form-control form-control-sm" id="tr-source" onchange="loadTransferSource()"></select>
+        <div class="tr-grid">
+            <div>
+                <label class="form-label form-label-sm">Name der neuen Klasse</label>
+                <input type="text" class="form-control form-control-sm" id="tr-name" maxlength="20">
+            </div>
+            <div>
+                <label class="form-label form-label-sm">Typ</label>
+                <select class="form-control form-control-sm" id="tr-type">
+                    <option value="unterstufe">Unterstufe</option>
+                    <option value="oberstufe">Oberstufe</option>
+                    <option value="spanisch">Spanisch</option>
+                </select>
+            </div>
+        </div>
+        <label class="form-label form-label-sm" style="margin-top:14px">Schüler:innen <span class="text-muted" id="tr-count" style="font-weight:400"></span></label>
+        <div id="tr-students" class="tr-list"></div>
+        <div class="tr-add">
+            <input type="text" class="form-control form-control-sm" id="tr-new-student" placeholder="Neue:n Schüler:in hinzufügen, z.B. Muster Maria" maxlength="60">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTransferStudent()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        <p class="small text-muted mb-0" id="tr-queue-info" style="margin-top:8px"></p>
+    </div>
+    <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" id="tr-cancel" onclick="cancelTransfer()">Abbrechen</button>
+        <button type="button" class="btn btn-sm btn-primary" onclick="confirmTransfer()">Klasse erstellen</button>
     </div>
 </dialog>
 
@@ -971,7 +1398,10 @@ const GRADE_TABLE = (() => {
 // ================================================================
 let data = {schuljahre: [], activeSchuljahrId: null};
 let activeClassId = null;
-let activeTab = 'sa'; // 'sa' | 'wdh' | 'praes' | 'ha' | 'gesamt'
+let showArchive = false; // true → Archiv-Ansicht statt Landing Page
+let activeTab = 'sa'; // 'sa' | 'wdh' | 'praes' | 'ha' | 'gesamt' | 'jahr' | 'matura' | 'schueler'
+let maturaSid = null; // im Matura-Tab ausgewählte:r Schüler:in
+let maturaView = 'liste'; // Matura-Untertab: 'liste' | 'raster'
 let activeSaId = null;
 let activeSemester = 'semester1'; // 'semester1' | 'semester2'
 let pendingDelete = null;
@@ -990,6 +1420,8 @@ async function loadData() {
 }
 
 function saveData() {
+    pfCleanup();
+    fwAfterChange();
     fetch('/api/data', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -998,12 +1430,12 @@ function saveData() {
 }
 
 function isSemesterLocked(cls, sem) {
-    return cls?.[sem]?.locked === true;
+    return cls?.[sem]?.locked === true || isArchivedView();
 }
 
 function toggleSemesterLock(semKey) {
     const cls = activeClasses().find(c => c.id === activeClassId);
-    if (!cls) return;
+    if (!cls || isArchivedView()) return;
     const isLocked = isSemesterLocked(cls, semKey);
     const semLabel = semKey === 'semester1' ? '1. Semester' : '2. Semester';
     const msg = isLocked
@@ -1013,6 +1445,399 @@ function toggleSemesterLock(semKey) {
     cls[semKey].locked = !isLocked;
     saveData();
     render();
+}
+
+// Sperre für einzelne Einträge (listKey: 'schularbeiten'|'wiederholungen'|'praesentationen'|'hausaufgaben')
+function toggleItemLock(listKey, itemId) {
+    const cls = activeClasses().find(c => c.id === activeClassId);
+    if (!cls || isSemesterLocked(cls, activeSemester)) return;
+    const item = (cls[activeSemester][listKey] || []).find(x => x.id === itemId);
+    if (!item) return;
+    const msg = item.locked
+        ? `Sperre für „${item.name}" aufheben?`
+        : `„${item.name}" sperren? Alle Eingaben dazu werden schreibgeschützt.`;
+    if (!confirm(msg)) return;
+    item.locked = !item.locked;
+    saveData();
+    renderTabContent();
+}
+
+function toggleSALock(saId) {
+    const cls = activeClasses().find(c => c.id === activeClassId);
+    if (!cls || isSemesterLocked(cls, activeSemester)) return;
+    const sem = cls[activeSemester];
+    const sa = (sem.schularbeiten || []).find(x => x.id === saId);
+    if (!sa) return;
+    if (sa.locked) {
+        if (!confirm(`„${sa.name}" wieder öffnen?\n\nSolange sie offen ist, zählt sie nicht für die Frühwarnung. Bereits ausgeteilte Frühwarnungen bleiben vermerkt.`)) return;
+        sa.locked = false;
+        saveData(); render();
+        return;
+    }
+    const {done, total} = saCompletion(cls, sem, sa);
+    const msg = done < total
+        ? `Bei ${total - done} Schüler:in${total - done !== 1 ? 'nen' : ''} fehlen noch Einträge.\n\n„${sa.name}" trotzdem abschließen?`
+        : `„${sa.name}" abschließen?\n\nAlle Eingaben werden gesperrt und die Frühwarnungen ermittelt.`;
+    if (!confirm(msg)) return;
+    lockSA(cls, sa);
+    render();
+}
+
+// ================================================================
+// SCHULARBEIT ABSCHLIESSEN + FRÜHWARNUNG
+// ================================================================
+// Eine Schularbeit gilt pro Schüler:in als vollständig, wenn alle Bewertungsfelder
+// (ohne Kommentar) ausgefüllt sind oder „abwesend" gesetzt ist.
+function saStudentComplete(cls, s, saData) {
+    if (!saData) return false;
+    if (saData.abwesend) return true;
+    const filled = v => v !== null && v !== undefined && v !== '';
+    if (cls.type === 'oberstufe') return filled(saData.note);
+    const sp = s.legasthenie ? saData.sprachrichtigkeitManuell : saData.fehler;
+    return [saData.aufgabenstellung, sp, saData.wortschatz, saData.textorganisation].every(filled);
+}
+
+function saCompletion(cls, sem, sa) {
+    const total = cls.students.length;
+    const done = cls.students.filter(s => saStudentComplete(cls, s, sem.studentData?.[s.id]?.schularbeiten?.[sa.id])).length;
+    return {done, total};
+}
+
+function allSAsOrdered(cls) {
+    return ['semester1', 'semester2'].flatMap(k => (cls[k]?.schularbeiten || []).map(sa => ({semKey: k, sa})));
+}
+
+// ── Frühwarnung ──────────────────────────────────────────────────
+// Prüfung läuft bei jeder Änderung (siehe saveData), sobald in der Klasse
+// mindestens eine Schularbeit abgeschlossen ist.
+// Gefährdet = mit einer zusätzlichen theoretischen 5 auf eine Schularbeit im
+// aktuellen Semester ergäbe sich eine Jahresnote ≥ 4,5 (→ noteInt 5).
+//  · Nicht abgeschlossene Schularbeiten zählen nicht (Eintragen läuft noch).
+//  · Das 2. Semester zählt erst, wenn dort Noten eingetragen sind; ab dann ist
+//    es das aktuelle Semester für die theoretische 5.
+// Zustand: cls.fruehwarnung[semKey][sid] = {seit, ausgeteilt?, verschobenBis?}
+const FW_SEMS = ['semester1', 'semester2'];
+const FW_SIM_SA = '__fw_sim__';
+const todayISO = () => new Date().toLocaleDateString('sv-SE');
+const addDaysISO = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString('sv-SE'); };
+const fmtDateAT = iso => iso ? new Date(iso + 'T00:00').toLocaleDateString('de-AT') : '';
+const semShort = k => k === 'semester1' ? '1. Sem.' : '2. Sem.';
+
+function saAbgeschlossen(cls, semKey, sa) {
+    return sa.locked === true || cls[semKey]?.locked === true;
+}
+
+function fwAktiv(cls) {
+    return !!cls && cls.type !== 'spanisch'
+        && FW_SEMS.some(k => (cls[k]?.schularbeiten || []).some(sa => saAbgeschlossen(cls, k, sa)));
+}
+
+// {sid: {semKey, wert}} für alle gefährdeten Schüler:innen
+function fwGefaehrdet(cls) {
+    const res = {};
+    if (!fwAktiv(cls)) return res;
+    const sim = structuredClone(cls);
+    for (const k of FW_SEMS) {
+        const sem = sim[k];
+        const offen = (sem.schularbeiten || []).filter(sa => !saAbgeschlossen(cls, k, sa)).map(sa => sa.id);
+        for (const sd of Object.values(sem.studentData || {})) for (const id of offen) delete sd.schularbeiten?.[id];
+        sem.schularbeiten = (sem.schularbeiten || []).filter(sa => !offen.includes(sa.id));
+        sem.schularbeiten.push({id: FW_SIM_SA, name: 'theoretische 5'});
+        sem.studentData ??= {};
+    }
+    for (const s of sim.students) {
+        const semKey = calcGesamtnote(sim, sim.semester2, s) !== null ? 'semester2' : 'semester1';
+        const sd = sim[semKey].studentData[s.id] ??= {};
+        sd.schularbeiten ??= {};
+        sd.schularbeiten[FW_SIM_SA] = {note: 5};
+        const wert = calcJahresnote(sim, s);
+        if (wert !== null && noteInt(wert) === 5) res[s.id] = {semKey, wert};
+    }
+    return res;
+}
+
+// Frühwarnungen eines Kindes in einem Semester (chronologisch; die letzte ist die aktuelle)
+function fwList(cls, semKey, sid) {
+    const m = (cls.fruehwarnung ??= {})[semKey] ??= {};
+    if (m[sid] && !Array.isArray(m[sid])) m[sid] = [m[sid]];   // ältere Einzel-Einträge
+    return m[sid] ??= [];
+}
+
+// Gleicht den gespeicherten Zustand mit der aktuellen Berechnung ab.
+// Ablauf je Kind und Semester:
+//   gefährdet, keine aktuelle Frühwarnung → neue Frühwarnung (meldet „neu")
+//   nicht mehr gefährdet, noch nicht ausgeteilt → Frühwarnung entfällt
+//   nicht mehr gefährdet, bereits ausgeteilt → als „entspannt" erledigt;
+//     wird das Kind später wieder gefährdet, entsteht eine weitere Frühwarnung.
+// Liefert die Schüler-IDs, die neu gefährdet sind, und ob sich etwas geändert hat.
+function fwUpdate(cls) {
+    if (!cls || cls.type === 'spanisch') return {neu: [], changed: false};
+    const gef = fwGefaehrdet(cls);
+    const before = JSON.stringify(cls.fruehwarnung || {});
+    const neu = [];
+    for (const k of FW_SEMS) {
+        const m = (cls.fruehwarnung ??= {})[k] ??= {};
+        for (const sid of Object.keys(m)) {
+            if (!cls.students.some(s => s.id === sid)) { delete m[sid]; continue; }
+            const list = fwList(cls, k, sid);
+            const last = list[list.length - 1];
+            if (!last || gef[sid]?.semKey === k) continue;
+            if (!last.ausgeteilt) list.pop();
+            else if (!last.entspannt) last.entspannt = todayISO();
+            if (!list.length) delete m[sid];
+        }
+    }
+    for (const [sid, {semKey}] of Object.entries(gef)) {
+        const list = fwList(cls, semKey, sid);
+        const last = list[list.length - 1];
+        if (!last || last.entspannt) { list.push({seit: todayISO()}); neu.push(sid); }
+    }
+    for (const k of FW_SEMS) {
+        const m = cls.fruehwarnung[k];
+        for (const sid of Object.keys(m)) if (!m[sid].length) delete m[sid];
+    }
+    return {neu, changed: JSON.stringify(cls.fruehwarnung) !== before};
+}
+
+// Wird von saveData() aufgerufen: aktualisiert Zustand und UI, meldet Neues.
+function fwAfterChange() {
+    if (isArchivedView()) return;
+    const cls = activeClasses().find(c => c.id === activeClassId);
+    if (!cls) return;
+    const {neu, changed} = fwUpdate(cls);
+    if (!changed) return;
+    setTimeout(() => {
+        fwRefreshUI();
+        if (neu.length) openFruehwarnung(cls.id, neu);
+    }, 0);
+}
+
+function fwStatus(e) {
+    if (!e) return null;
+    if (e.ausgeteilt) return 'ausgeteilt';
+    if (e.verschobenBis && todayISO() < e.verschobenBis) return 'verschoben';
+    return 'offen';
+}
+
+// Alle Einträge einer Klasse: [{s, semKey, idx, e, status}]
+function fwEintraege(cls) {
+    if (!cls || isArchivedView()) return [];
+    const out = [];
+    for (const k of FW_SEMS) {
+        for (const [sid, v] of Object.entries(cls.fruehwarnung?.[k] || {})) {
+            const s = cls.students.find(st => st.id === sid);
+            if (!s) continue;
+            (Array.isArray(v) ? v : [v]).forEach((e, idx) => out.push({s, semKey: k, idx, e, status: fwStatus(e)}));
+        }
+    }
+    return out;
+}
+
+function fwOffen(cls) { return fwEintraege(cls).filter(x => x.status === 'offen'); }
+
+function fwMarkInner(cls, sid) {
+    const list = fwEintraege(cls).filter(x => x.s.id === sid);
+    const click = `onclick="event.stopPropagation();openFruehwarnung('${cls.id}')"`;
+    const offen = list.find(x => x.status === 'offen');
+    if (offen) return `<span class="fw-mark" ${click} title="Frühwarnung (${semShort(offen.semKey)}) noch nicht ausgeteilt – gefährdet seit ${fmtDateAT(offen.e.seit)}. Klicken zum Bestätigen.">⚠ FW</span>`;
+    const versch = list.find(x => x.status === 'verschoben');
+    if (versch) return `<span class="fw-later" ${click} title="Frühwarnung (${semShort(versch.semKey)}) verschoben bis ${fmtDateAT(versch.e.verschobenBis)}">FW ⏸</span>`;
+    const done = list.filter(x => x.status === 'ausgeteilt');
+    if (done.length) {
+        const t = done.map(x => `${semShort(x.semKey)}: ausgeteilt am ${fmtDateAT(x.e.ausgeteilt)}${x.e.entspannt ? ` (wieder unter 4,5 seit ${fmtDateAT(x.e.entspannt)})` : ''}`).join('\n');
+        return `<span class="fw-done" ${click} title="Frühwarnung${done.length > 1 ? 'en' : ''}\n${esc(t)}">FW ✓${done.length > 1 ? done.length : ''}</span>`;
+    }
+    return '';
+}
+
+// Vermerk beim Namen (Slot wird bei Änderungen ohne Neu-Rendern aktualisiert)
+function fwNameMark(s) {
+    const cls = activeClasses().find(c => c.id === activeClassId);
+    if (!cls || isArchivedView()) return '';
+    return `<span class="fw-slot" data-fw-sid="${s.id}">${fwMarkInner(cls, s.id)}</span>`;
+}
+
+function fwBannerHtml(cls) {
+    const n = fwOffen(cls).length;
+    if (!n) return '';
+    return `<div class="fw-banner"><i class="bi bi-exclamation-triangle-fill"></i>
+        <span><strong>${n} Frühwarnung${n !== 1 ? 'en' : ''}</strong> noch nicht ausgeteilt.
+        <button onclick="openFruehwarnung('${cls.id}')">Anzeigen &amp; bestätigen</button></span></div>`;
+}
+
+function fwRefreshUI() {
+    const cls = activeClasses().find(c => c.id === activeClassId);
+    if (cls) {
+        document.querySelectorAll('.fw-slot').forEach(el => { el.innerHTML = fwMarkInner(cls, el.dataset.fwSid); });
+        const b = document.getElementById('fw-banner-slot');
+        if (b) b.innerHTML = fwBannerHtml(cls);
+    }
+    renderSidebar();
+    if (activeProfileId || showProfiles) renderContent();
+}
+
+let fwModalClassId = null;
+function openFruehwarnung(clsId, neu = []) {
+    const cls = activeClasses().find(c => c.id === clsId);
+    if (!cls) return;
+    fwModalClassId = clsId;
+    const eintr = fwEintraege(cls);
+    const pending = eintr.filter(x => x.status !== 'ausgeteilt')
+        .sort((a, b) => (a.status === 'offen' ? 0 : 1) - (b.status === 'offen' ? 0 : 1));
+    const done = eintr.filter(x => x.status === 'ausgeteilt');
+    const gef = fwGefaehrdet(cls);
+    const neuNamen = neu.map(sid => cls.students.find(s => s.id === sid)?.name).filter(Boolean);
+    document.getElementById('fw-class-name').textContent = '– ' + cls.name;
+    const wert = sid => gef[sid] ? fmtNote2(gef[sid].wert) : '—';
+    const nr = x => x.idx > 0 ? ` <span class="small text-muted">(${x.idx + 1}. Frühwarnung)</span>` : '';
+    const row = x => `<tr>
+        <td style="width:28px"><input type="checkbox" class="fw-cb" data-sid="${x.s.id}" data-sem="${x.semKey}" data-idx="${x.idx}" ${x.status === 'offen' ? 'checked' : ''}></td>
+        <td><strong>${esc(x.s.name)}</strong>${nr(x)}${neu.includes(x.s.id) ? ' <span class="fw-new">neu</span>' : ''}</td>
+        <td class="small text-muted">${semShort(x.semKey)} · Jahresnote mit 5: <strong>${wert(x.s.id)}</strong></td>
+        <td class="small">${x.status === 'verschoben' ? `<span class="fw-later" style="cursor:default">bis ${fmtDateAT(x.e.verschobenBis)}</span>` : '<span class="fw-mark" style="cursor:default">offen</span>'}</td></tr>`;
+    const rowDone = x => `<tr class="fw-row-done">
+        <td></td><td>${esc(x.s.name)}${nr(x)}</td>
+        <td class="small" colspan="2">${semShort(x.semKey)} · ausgeteilt am ${fmtDateAT(x.e.ausgeteilt)}${x.e.entspannt ? ` · wieder unter 4,5 seit ${fmtDateAT(x.e.entspannt)}` : ''}
+            <button class="btn btn-xs btn-outline-secondary ms-1" onclick="fwZuruecknehmen('${x.semKey}','${x.s.id}',${x.idx})" title="Bestätigung zurücknehmen">↺</button></td></tr>`;
+    document.getElementById('fw-body').innerHTML = `
+        ${neuNamen.length ? `<div class="fw-banner"><i class="bi bi-bell-fill"></i><span><strong>Neu gefährdet:</strong> ${neuNamen.map(esc).join(', ')}</span></div>` : ''}
+        ${pending.length ? `
+            <p class="small mb-2">Mit einer theoretischen <strong>5 auf die nächste Schularbeit</strong> ergäbe sich eine Jahresnote ≥ 4,5:</p>
+            <table class="fw-table mb-3"><tbody>${pending.map(row).join('')}</tbody></table>
+            <div class="fw-actions small">
+                <div><label for="fw-datum">Ausgeteilt am</label>
+                    <input type="date" id="fw-datum" class="form-control form-control-sm" value="${todayISO()}">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="fwBestaetigen()"><i class="bi bi-check2 me-1"></i>Als ausgeteilt bestätigen</button></div>
+                <div><label for="fw-bis">Verschieben bis</label>
+                    <input type="date" id="fw-bis" class="form-control form-control-sm" value="${addDaysISO(7)}" min="${addDaysISO(1)}">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fwVerschieben()"><i class="bi bi-pause me-1"></i>Verschieben</button></div>
+            </div>
+            <p class="small text-muted mt-2 mb-0">Gilt jeweils für die angehakten Schüler:innen.</p>`
+          : '<p class="small mb-2"><i class="bi bi-check-circle me-1"></i>Keine offenen Frühwarnungen.</p>'}
+        ${done.length ? `<div class="small text-muted mt-3 mb-1">Bereits ausgeteilt</div>
+            <table class="fw-table"><tbody>${done.map(rowDone).join('')}</tbody></table>` : ''}`;
+    document.getElementById('fw-footer').innerHTML =
+        `<button type="button" class="btn btn-sm btn-secondary" onclick="hideModal('modalFruehwarnung')">Schließen</button>`;
+    const dlg = document.getElementById('modalFruehwarnung');
+    if (!dlg.open) showModal('modalFruehwarnung');
+}
+
+function fwApplyChecked(fn) {
+    const cls = activeClasses().find(c => c.id === fwModalClassId); if (!cls) return;
+    const cbs = [...document.querySelectorAll('#fw-body .fw-cb:checked')];
+    if (!cbs.length) { alert('Bitte zuerst Schüler:innen anhaken.'); return; }
+    snapshotForUndo();
+    for (const cb of cbs) {
+        const e = fwList(cls, cb.dataset.sem, cb.dataset.sid)[+cb.dataset.idx];
+        if (e) fn(e);
+    }
+    saveDataWithUndo();
+    hideModal('modalFruehwarnung');
+    fwRefreshUI();
+}
+
+function fwBestaetigen() {
+    const datum = document.getElementById('fw-datum')?.value || todayISO();
+    fwApplyChecked(e => { e.ausgeteilt = datum; delete e.verschobenBis; });
+}
+
+function fwVerschieben() {
+    const bis = document.getElementById('fw-bis')?.value;
+    if (!bis || bis <= todayISO()) { alert('Bitte ein Datum in der Zukunft wählen.'); return; }
+    fwApplyChecked(e => { e.verschobenBis = bis; });
+}
+
+function fwZuruecknehmen(semKey, sid, idx) {
+    const cls = activeClasses().find(c => c.id === fwModalClassId); if (!cls) return;
+    const list = fwList(cls, semKey, sid);
+    const e = list[idx];
+    if (!e?.ausgeteilt) return;
+    snapshotForUndo();
+    if (idx < list.length - 1) list.splice(idx, 1);   // ältere Frühwarnung → ganz entfernen
+    else { delete e.ausgeteilt; delete e.entspannt; }
+    saveDataWithUndo();   // fwUpdate entfernt die aktuelle, falls nicht mehr gefährdet
+    fwRefreshUI();
+    openFruehwarnung(cls.id);
+}
+
+function lockSA(cls, sa) {
+    sa.locked = true;
+    saveData();   // löst die Frühwarn-Prüfung aus
+}
+
+function fwFindSA(cls, semKey, saId) {
+    return (cls?.[semKey]?.schularbeiten || []).find(x => x.id === saId);
+}
+
+// ── Nachfrage beim Verlassen einer vollständig eingetragenen, offenen SA ──
+// Gibt true zurück, wenn sofort navigiert werden darf; sonst erscheint der Dialog
+// und retry() wird nach dessen Schließen aufgerufen.
+const saLeaveAsked = new Set();
+let pendingLeave = null;
+function saLeaveOk(retry) {
+    if (pendingLeave || activeTab !== 'sa' || !activeClassId || isArchivedView()) return true;
+    const cls = activeClasses().find(c => c.id === activeClassId);
+    if (!cls || !cls.students.length || isSemesterLocked(cls, activeSemester)) return true;
+    const sem = cls[activeSemester];
+    const sa = (sem.schularbeiten || []).find(x => x.id === activeSaId);
+    if (!sa || sa.locked || saLeaveAsked.has(sa.id)) return true;
+    const {done, total} = saCompletion(cls, sem, sa);
+    if (done < total) return true;
+    saLeaveAsked.add(sa.id);
+    pendingLeave = {retry, clsId: cls.id, semKey: activeSemester, saId: sa.id, lock: false};
+    document.getElementById('sa-leave-name').textContent = `„${sa.name}" (${semShort(activeSemester)})`;
+    showModal('modalSALeave');
+    return false;
+}
+
+function saLeaveLock() {
+    if (pendingLeave) pendingLeave.lock = true;
+    hideModal('modalSALeave');
+}
+
+function saLeaveClosed() {
+    const p = pendingLeave;
+    pendingLeave = null;
+    if (!p) return;
+    if (p.lock) {
+        const cls = activeClasses().find(c => c.id === p.clsId);
+        const sa = fwFindSA(cls, p.semKey, p.saId);
+        if (sa) lockSA(cls, sa);
+    }
+    p.retry();
+}
+
+// Fortschrittsleiste „Schularbeit abschließen" über der SA-Tabelle
+function saCloseBarHtml(cls, sem, sa) {
+    const {done, total} = saCompletion(cls, sem, sa);
+    const ready = total > 0 && done === total;
+    const text = ready
+        ? `<strong>Alle ${total} Schüler:innen eingetragen.</strong> Bitte Schularbeit abschließen, damit die Frühwarnungen ermittelt werden.`
+        : `Eingetragen: <strong>${done} / ${total}</strong> Schüler:innen vollständig. Danach die Schularbeit abschließen.`;
+    return `<div class="sa-close-bar ${ready ? 'ready' : ''}" id="sa-close-bar">
+        <i class="bi ${ready ? 'bi-check-circle-fill' : 'bi-hourglass-split'}" style="font-size:1.1rem"></i>
+        <span>${text}</span>
+        <button class="btn-close-sa" onclick="toggleSALock('${sa.id}')"><i class="bi bi-lock-fill me-1"></i>Schularbeit abschließen</button>
+    </div>`;
+}
+
+function refreshSACloseBar(cls, sem, saId) {
+    const el = document.getElementById('sa-close-bar');
+    const sa = (sem.schularbeiten || []).find(x => x.id === saId);
+    if (!el || !sa) return;
+    const wasReady = el.classList.contains('ready');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = saCloseBarHtml(cls, sem, sa);
+    const neu = tmp.firstElementChild;
+    if (wasReady && neu.classList.contains('ready')) neu.style.animation = 'none';
+    el.replaceWith(neu);
+}
+
+function itemLockBtn(listKey, item, semLocked) {
+    if (semLocked) return '';
+    return item.locked
+        ? `<button class="btn btn-xs btn-outline-light" onclick="toggleItemLock('${listKey}','${item.id}')" title="Sperre aufheben"><i class="bi bi-lock-fill"></i></button>`
+        : `<button class="btn btn-xs btn-outline-light" style="opacity:.55" onclick="toggleItemLock('${listKey}','${item.id}')" title="Sperren"><i class="bi bi-unlock"></i></button>`;
 }
 function exportData() {
     const date = new Date().toISOString().slice(0, 10);
@@ -1220,6 +2045,12 @@ function migrateData() {
         // ── Ensure students list exists ──────────────────────────────
         if (!cls.students) cls.students = [];
     }} // closes for cls / for sj
+
+    // ── Schülerprofile: jede/r Schüler:in braucht ein Profil (gleicher Name → gleiches Profil)
+    data.profile ??= {};
+    for (const p of Object.values(data.profile)) pfNormalize(p);
+    for (const {cls, s} of allStudents()) pfAttach(s, cls);
+    pfMigrateLegacy(pfIndex());
 }
 
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -1230,6 +2061,16 @@ function activeClasses() {
 }
 function activeSchuljahr() {
     return data.schuljahre.find(s => s.id === data.activeSchuljahrId) ?? null;
+}
+function isSjArchived(sj) { return sj?.archived === true; }
+function isArchivedView() { return isSjArchived(activeSchuljahr()); }
+function currentSchuljahre() { return data.schuljahre.filter(sj => !isSjArchived(sj)); }
+// "2025/26" → "2026/27"
+function nextSchuljahrName(name) {
+    const m = /(\d{4})\s*\/\s*(\d{2,4})/.exec(name || '');
+    if (!m) return '';
+    const y = +m[1] + 1;
+    return `${y}/${String(y + 1).slice(2)}`;
 }
 
 // ================================================================
@@ -1247,6 +2088,7 @@ function calcSprachrichtigkeit(fehler, fehlerProPunkt) {
 
 // Gesamtpunkte Schularbeit (max 32)
 function calcGesamt(sa, fehlerProPunkt, legasthenie) {
+    if (sa.abwesend) return null;
     const sp = legasthenie
         ? parseOrNull(sa.sprachrichtigkeitManuell)
         : calcSprachrichtigkeit(sa.fehler, fehlerProPunkt ?? sa.fehlerProPunkt);
@@ -1522,8 +2364,8 @@ function editClass(id, name)     { const c=activeClasses().find(c=>c.id===id); i
 function deleteClass(id) {
     const sj = activeSchuljahr(); if(!sj) return;
     sj.classes = sj.classes.filter(c=>c.id!==id);
-    if (activeClassId===id) activeClassId = activeClasses()[0]?.id ?? null;
-    saveData(); render();
+    if (activeClassId===id) activeClassId = null;
+    saveData(); render(); pushHash();
 }
 
 function openAddSchuljahr() {
@@ -1538,7 +2380,7 @@ function addSchuljahr(name) {
         name: name.trim(),
         classes: activeClasses().map(cls => {
             const fresh = newClass(cls.name, cls.type);
-            fresh.students = cls.students.map(s => ({ id: genId(), name: s.name }));
+            fresh.students = cls.students.map(s => ({ id: genId(), name: s.name, profilId: s.profilId, ...(s.legasthenie ? {legasthenie: true} : {}) }));
             return fresh;
         })
     };
@@ -1594,6 +2436,184 @@ function editSchuljahr(sjId, name) {
     saveData(); renderSchuljahrSelector();
 }
 
+// ================================================================
+// SCHULJAHR ABSCHLIESSEN / ARCHIV / KLASSE ÜBERNEHMEN
+// ================================================================
+let transferQueue = []; // [{sjId, clsId}] – nach dem Abschließen der Reihe nach abarbeiten
+let transferState = null; // {students: [{id, name, legasthenie, removed, isNew}]}
+
+function openCloseYear() {
+    const sj = activeSchuljahr();
+    if (!sj || isSjArchived(sj)) return;
+    document.getElementById('close-year-name').textContent = sj.name;
+    document.getElementById('inp-close-new-sj').value = nextSchuljahrName(sj.name);
+    document.getElementById('close-year-classes').innerHTML = CLASS_GROUPS.map(([type, label]) => {
+        const list = sj.classes.filter(c => c.type === type);
+        if (!list.length) return '';
+        return `<div class="cy-group"><div class="cy-group-label">${label}</div>
+            ${list.map(c => `<label class="cy-item"><input type="checkbox" value="${c.id}" checked>
+                <span>${esc(c.name)}</span><small class="text-muted">${c.students.length} Schüler:innen</small></label>`).join('')}
+        </div>`;
+    }).join('');
+    showModal('modalCloseYear');
+    setTimeout(() => document.getElementById('inp-close-new-sj').focus(), 50);
+}
+
+function confirmCloseYear() {
+    const sj = activeSchuljahr(); if (!sj) return;
+    const newName = document.getElementById('inp-close-new-sj').value.trim();
+    if (!newName) { document.getElementById('inp-close-new-sj').focus(); return; }
+    const chosen = [...document.querySelectorAll('#close-year-classes input:checked')].map(i => i.value);
+    hideModal('modalCloseYear');
+    snapshotForUndo();
+    sj.archived = true;
+    sj.archivedAt = new Date().toISOString();
+    // Neues Schuljahr anlegen (oder ein bestehendes, nicht archiviertes gleichen Namens verwenden)
+    let target = data.schuljahre.find(s => !isSjArchived(s) && s.name === newName);
+    if (!target) {
+        target = {id: genId(), name: newName, classes: []};
+        data.schuljahre.push(target);
+    }
+    data.activeSchuljahrId = target.id;
+    showArchive = false;
+    activeClassId = null;
+    saveDataWithUndo();
+    render(); pushHash();
+    transferQueue = chosen.map(clsId => ({sjId: sj.id, clsId}));
+    nextTransfer();
+}
+
+function nextTransfer() {
+    const next = transferQueue.shift();
+    if (next) openTransfer(next.sjId, next.clsId, true);
+}
+
+function restoreSchuljahr(sjId) {
+    const sj = data.schuljahre.find(s => s.id === sjId); if (!sj) return;
+    if (!confirm(`Schuljahr ${sj.name} aus dem Archiv holen? Es ist danach wieder bearbeitbar.`)) return;
+    snapshotForUndo();
+    delete sj.archived;
+    delete sj.archivedAt;
+    if (!data.schuljahre.some(isSjArchived)) showArchive = false;
+    saveDataWithUndo();
+    render(); pushHash();
+}
+
+// Zielschuljahr für übernommene Klassen: das aktive, sonst das neueste nicht archivierte
+function transferTargetSj() {
+    const sj = activeSchuljahr();
+    if (sj && !isSjArchived(sj)) return sj;
+    const cur = currentSchuljahre();
+    return cur[cur.length - 1] ?? null;
+}
+
+function openTransfer(sjId, clsId, fromQueue = false) {
+    if (!fromQueue) transferQueue = [];
+    const target = transferTargetSj();
+    if (!target) { alert('Es gibt kein aktuelles Schuljahr. Lege zuerst ein neues Schuljahr an (+ in der Seitenleiste).'); return; }
+    // Quellen: alle Klassen aus anderen Schuljahren, neueste zuerst
+    const sources = data.schuljahre.filter(s => s.id !== target.id).slice().reverse();
+    if (!sources.some(s => s.classes.length)) { alert('Keine Klassen aus früheren Schuljahren vorhanden.'); return; }
+    const sel = document.getElementById('tr-source');
+    sel.innerHTML = sources.filter(s => s.classes.length).map(s => `<optgroup label="${esc(s.name)}${isSjArchived(s) ? ' (Archiv)' : ''}">
+        ${s.classes.map(c => `<option value="${s.id}|${c.id}">${esc(c.name)} · ${esc(s.name)}</option>`).join('')}
+    </optgroup>`).join('');
+    if (sjId && clsId) sel.value = `${sjId}|${clsId}`;
+    document.getElementById('tr-target-sj').textContent = target.name;
+    document.getElementById('tr-name').value = '';
+    document.getElementById('tr-new-student').value = '';
+    document.getElementById('tr-cancel').textContent = fromQueue ? 'Überspringen' : 'Abbrechen';
+    document.getElementById('tr-queue-info').textContent = fromQueue && transferQueue.length
+        ? `Danach noch ${transferQueue.length} weitere Klasse${transferQueue.length !== 1 ? 'n' : ''}.` : '';
+    loadTransferSource();
+    showModal('modalTransfer');
+    setTimeout(() => document.getElementById('tr-name').focus(), 50);
+}
+
+function transferSource() {
+    const [sjId, clsId] = (document.getElementById('tr-source').value || '').split('|');
+    const sj = data.schuljahre.find(s => s.id === sjId);
+    return sj?.classes.find(c => c.id === clsId) ?? null;
+}
+
+function loadTransferSource() {
+    const src = transferSource();
+    if (!src) return;
+    document.getElementById('tr-type').value = src.type || 'unterstufe';
+    document.getElementById('tr-name').placeholder = `z.B. Nachfolgeklasse von ${src.name}`;
+    transferState = {students: src.students.map(s => ({id: s.id, name: s.name, profilId: s.profilId, legasthenie: !!s.legasthenie, removed: false, isNew: false}))};
+    renderTransferStudents();
+}
+
+function renderTransferStudents() {
+    const list = transferState.students;
+    const kept = list.filter(s => !s.removed).length;
+    document.getElementById('tr-count').textContent = `${kept} Schüler:in${kept !== 1 ? 'nen' : ''} in der neuen Klasse`;
+    document.getElementById('tr-students').innerHTML = list.length ? list.map((s, i) => `
+        <div class="tr-row ${s.removed ? 'removed' : ''} ${s.isNew ? 'is-new' : ''}">
+            <span class="tr-name">${esc(s.name)}${s.legasthenie ? ' <span class="badge text-bg-warning" style="font-size:.65em;">Leg.</span>' : ''}${s.isNew ? ' <span class="tr-new-badge">neu</span>' : ''}</span>
+            ${s.removed
+                ? `<button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleTransferStudent(${i})" title="Wieder aufnehmen"><i class="bi bi-arrow-counterclockwise"></i></button>`
+                : `<button type="button" class="btn btn-xs btn-outline-danger" onclick="toggleTransferStudent(${i})" title="Nicht übernehmen"><i class="bi bi-x-lg"></i></button>`}
+        </div>`).join('') : '<p class="text-muted small mb-0">Keine Schüler:innen.</p>';
+}
+
+function toggleTransferStudent(i) {
+    const s = transferState.students[i]; if (!s) return;
+    if (s.isNew) transferState.students.splice(i, 1);
+    else s.removed = !s.removed;
+    renderTransferStudents();
+}
+
+function addTransferStudent() {
+    const inp = document.getElementById('tr-new-student');
+    const name = inp.value.trim(); if (!name) return;
+    transferState.students.push({id: genId(), name, legasthenie: false, removed: false, isNew: true});
+    inp.value = '';
+    renderTransferStudents();
+    const box = document.getElementById('tr-students');
+    box.scrollTop = box.scrollHeight;
+    inp.focus();
+}
+
+function confirmTransfer() {
+    const src = transferSource();
+    const target = transferTargetSj();
+    const nameInp = document.getElementById('tr-name');
+    const name = nameInp.value.trim();
+    if (!name) { nameInp.focus(); nameInp.classList.add('is-invalid'); return; }
+    nameInp.classList.remove('is-invalid');
+    if (!src || !target) return;
+    if (target.classes.some(c => c.name.toLowerCase() === name.toLowerCase())
+        && !confirm(`Im Schuljahr ${target.name} gibt es bereits eine Klasse „${name}". Trotzdem anlegen?`)) return;
+    const type = document.getElementById('tr-type').value;
+    const cls = newClass(name, type);
+    cls.students = transferState.students.filter(s => !s.removed)
+        .map(s => ({id: s.isNew ? s.id : genId(), name: s.name, profilId: s.profilId, ...(s.legasthenie ? {legasthenie: true} : {})}));
+    cls.students.forEach(s => pfAttach(s, cls));
+    sortStudents(cls);
+    // Gleicher Klassentyp → Gewichtungen übernehmen
+    if (type === src.type) {
+        for (const k of ['semester1', 'semester2']) {
+            if (src[k]?.gewichtung) cls[k].gewichtung = JSON.parse(JSON.stringify(src[k].gewichtung));
+        }
+        if (src.jahresnote?.gewichtung) cls.jahresnote.gewichtung = {...src.jahresnote.gewichtung};
+    }
+    target.classes.push(cls);
+    data.activeSchuljahrId = target.id;
+    showArchive = false;
+    activeClassId = null;
+    hideModal('modalTransfer');
+    saveData();
+    render(); pushHash();
+    nextTransfer();
+}
+
+function cancelTransfer() {
+    hideModal('modalTransfer');
+    nextTransfer(); // im Abschluss-Ablauf: Klasse überspringen, nächste anbieten
+}
+
 function addSA() {
     const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
     const sem = cls[activeSemester];
@@ -1606,6 +2626,7 @@ function addSA() {
 }
 
 function selectSA(saId) {
+    if (saId !== activeSaId && !saLeaveOk(() => selectSA(saId))) return;
     activeSaId = saId;
     renderTabContent();
     pushHash();
@@ -1662,12 +2683,17 @@ function sortStudents(cls) { cls.students.sort((a,b)=>a.name.localeCompare(b.nam
 
 function addStudent(classId, name) {
     const cls = activeClasses().find(c=>c.id===classId); if(!cls) return;
-    cls.students.push(newStudent(name)); sortStudents(cls); saveData(); renderTabContent();
+    const s = newStudent(name);
+    cls.students.push(s); pfAttach(s, cls); sortStudents(cls); saveData(); renderTabContent();
 }
 function editStudent(sid, name, legasthenie) {
     for (const cls of activeClasses()) {
         const s = cls.students.find(s=>s.id===sid);
-        if (s) { s.name=name.trim(); s.legasthenie=legasthenie; sortStudents(cls); saveData(); renderTabContent(); return; }
+        if (!s) continue;
+        s.name=name.trim(); s.legasthenie=legasthenie; sortStudents(cls);
+        const p = data.profile?.[s.profilId];
+        if (p) { p.name = s.name; pfSyncLeg(p.id, legasthenie); }
+        saveData(); renderTabContent(); return;
     }
 }
 function deleteStudent(sid) {
@@ -1687,6 +2713,8 @@ function updateSAField(sid, saId, field, val) {
     saveDataWithUndo();
     const s = cls.students.find(s=>s.id===sid);
     if (s) updateSACells(sem, s, saId);
+    refreshSAAvgRow(cls, sem, saId);
+    refreshSACloseBar(cls, sem, saId);
 }
 function updateKommentar(sid, saId, val) {
     const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
@@ -1701,6 +2729,16 @@ function updateKommentar(sid, saId, val) {
     sd.schularbeiten[saId].kommentar = val;
     saveDataWithUndo();
 }
+function updateSAAbwesend(sid, saId, checked) {
+    const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
+    const sem = cls[activeSemester];
+    const sd = getSData(sem, sid);
+    snapshotForUndo();
+    if (!sd.schularbeiten[saId]) sd.schularbeiten[saId] = {aufgabenstellung:null,fehler:null,wortschatz:null,textorganisation:null,kommentar:''};
+    if (checked) sd.schularbeiten[saId].abwesend = true;
+    else delete sd.schularbeiten[saId].abwesend;
+    saveDataWithUndo(); renderTabContent();
+}
 function updateOberstufeSANote(sid, saId, val) {
     const cls = activeClasses().find(c=>c.id===activeClassId); if(!cls) return;
     const sem = cls[activeSemester];
@@ -1709,6 +2747,8 @@ function updateOberstufeSANote(sid, saId, val) {
     if (!sd.schularbeiten[saId]) sd.schularbeiten[saId] = {note: null, kommentar: ''};
     sd.schularbeiten[saId].note = val === '' ? null : +val;
     saveDataWithUndo();
+    refreshSAAvgRow(cls, sem, saId);
+    refreshSACloseBar(cls, sem, saId);
 }
 
 // ================================================================
@@ -1872,6 +2912,750 @@ function updateGewichtung(key, val) {
 }
 
 // ================================================================
+// SCHÜLERPROFILE
+// ================================================================
+// Ein Profil fasst eine Person über Klassen und Schuljahre hinweg zusammen
+// (die Schüler-IDs werden bei jeder Klassenübernahme neu vergeben).
+// data.profile[pid] = {id, name, kommentar, foerderung, staerken, legasthenie: {aktiv, seit, notiz},
+//     gespraeche: [{id, datum, art, teilnehmer, anlass, notizen, vereinbarungen,
+//                   wiedervorlage (= „Erinnerung"), wvErledigt?}],
+//     jahre: {[sjId]: {verhalten, beobachtungen: [{id, datum, art: 'plus'|'minus'|'info', text}]}}}
+// Jede/r Schüler:in einer Klasse verweist per s.profilId auf ein Profil.
+const PF_ARTEN = ['Elterngespräch', 'Elternsprechtag', 'Frühwarngespräch', 'Telefonat', 'E-Mail / Mitteilungsheft',
+    'Gespräch mit Schüler:in', 'Gespräch mit KV / Kolleg:innen', 'Schulpsychologie / Schulsozialarbeit', 'Sonstiges'];
+const PF_OBS = {plus: ['+', 'positiv'], minus: ['−', 'negativ'], info: ['•', 'neutral']};
+const CLASS_TYPE_LABEL = {unterstufe: 'Unterstufe', oberstufe: 'Oberstufe', spanisch: 'Spanisch'};
+let activeProfileId = null;  // geöffnetes Profil (überlagert Klasse/Übersicht, „Zurück" kehrt dorthin zurück)
+let showProfiles = false;    // Profil-Übersicht
+let pfQuery = '';
+let pfShowAll = false;
+
+const pfNorm = n => (n || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('de');
+const pfShortSj = name => (name || '').replace(/^20(\d\d)/, '$1');
+
+function pfBlank(name) {
+    return {id: genId(), name: (name || '').trim(), kommentar: '', foerderung: '', staerken: '',
+        legasthenie: {aktiv: false, seit: '', notiz: ''}, gespraeche: [], jahre: {}};
+}
+
+function pfNormalize(p) {
+    const b = pfBlank(p.name);
+    for (const k of Object.keys(b)) if (p[k] === undefined) p[k] = b[k];
+    p.legasthenie = {...b.legasthenie, ...p.legasthenie};
+}
+
+// Frühere Profilversion: Verhalten/Beobachtungen ohne Schuljahr → ins jüngste Schuljahr des Profils
+function pfMigrateLegacy(idx) {
+    for (const p of Object.values(data.profile)) {
+        if (typeof p.verhalten !== 'string' && !Array.isArray(p.beobachtungen)) continue;
+        const sjId = (idx.get(p.id) || []).at(-1)?.sj.id ?? data.activeSchuljahrId;
+        if (sjId) {
+            const j = pfJahr(p, sjId);
+            if (p.verhalten?.trim()) j.verhalten = [j.verhalten, p.verhalten].filter(x => x?.trim()).join('\n\n');
+            j.beobachtungen.push(...(p.beobachtungen || []));
+        }
+        delete p.verhalten; delete p.beobachtungen;
+    }
+}
+
+function* allStudents() {
+    for (const sj of data.schuljahre) for (const cls of sj.classes) for (const s of cls.students) yield {sj, cls, s};
+}
+
+function pfFindClass(clsId) {
+    for (const sj of data.schuljahre) { const c = sj.classes.find(x => x.id === clsId); if (c) return c; }
+    return null;
+}
+
+// Verknüpft s mit dem Profil gleichen Namens (jüngster Treffer, nie zweimal in derselben Klasse)
+// oder legt ein neues an. Liefert die Profil-ID.
+function pfAttach(s, cls) {
+    data.profile ??= {};
+    if (s.profilId && data.profile[s.profilId]) return s.profilId;
+    const key = pfNorm(s.name);
+    const taken = pid => cls.students.some(o => o !== s && o.profilId === pid);
+    let pid = null;
+    for (const m of allStudents())
+        if (m.s !== s && data.profile[m.s.profilId] && pfNorm(m.s.name) === key && !taken(m.s.profilId)) pid = m.s.profilId;
+    if (!pid) {   // verwaistes Profil, z. B. Schüler:in gelöscht und neu angelegt
+        const used = new Set([...allStudents()].map(m => m.s.profilId));
+        pid = Object.values(data.profile).find(p => pfNorm(p.name) === key && !used.has(p.id))?.id ?? null;
+    }
+    if (!pid) { const p = pfBlank(s.name); data.profile[p.id] = p; pid = p.id; }
+    s.profilId = pid;
+    if (s.legasthenie) data.profile[pid].legasthenie.aktiv = true;
+    return pid;
+}
+
+function pfIsEmpty(p) {
+    return ![p.kommentar, p.foerderung, p.staerken, p.legasthenie?.seit, p.legasthenie?.notiz].some(v => v && v.trim())
+        && !p.gespraeche?.length
+        && !Object.values(p.jahre || {}).some(j => j.verhalten?.trim() || j.beobachtungen?.length);
+}
+
+// Profile ohne Klasse und ohne Inhalt entfernen (z. B. nach dem Löschen einer Klasse)
+function pfCleanup() {
+    if (!data.profile) return;
+    const used = new Set([...allStudents()].map(m => m.s.profilId));
+    for (const [pid, p] of Object.entries(data.profile)) if (!used.has(pid) && pfIsEmpty(p)) delete data.profile[pid];
+}
+
+// pid → [{sj, cls, s, current}] in der Reihenfolge der Schuljahre
+function pfIndex() {
+    const idx = new Map();
+    for (const {sj, cls, s} of allStudents()) {
+        if (!s.profilId) continue;
+        if (!idx.has(s.profilId)) idx.set(s.profilId, []);
+        idx.get(s.profilId).push({sj, cls, s, current: !isSjArchived(sj)});
+    }
+    return idx;
+}
+function pfMembers(pid) { return pfIndex().get(pid) || []; }
+
+// Legasthenie gilt fürs Profil und wird ins laufende Schuljahr übernommen (wirkt auf die Notenberechnung)
+function pfSyncLeg(pid, on) {
+    const p = data.profile[pid]; if (!p) return;
+    p.legasthenie.aktiv = !!on;
+    for (const m of pfMembers(pid)) if (m.current) m.s.legasthenie = !!on;
+}
+
+// ── Navigation ──────────────────────────────────────────────────
+function openProfile(pid) {
+    if (!data.profile?.[pid]) return;
+    if (!saLeaveOk(() => openProfile(pid))) return;
+    activeProfileId = pid;
+    renderSidebar(); renderContent(); pushHash();
+    window.scrollTo(0, 0);
+}
+
+function openProfileOf(sid) {
+    for (const cls of activeClasses()) {
+        const s = cls.students.find(x => x.id === sid);
+        if (!s) continue;
+        const had = s.profilId;
+        const pid = pfAttach(s, cls);
+        if (pid !== had) saveData();
+        openProfile(pid);
+        return;
+    }
+}
+
+function closeProfile() {
+    activeProfileId = null;
+    render(); pushHash();
+}
+
+function openProfiles() {
+    if (!saLeaveOk(openProfiles)) return;
+    showProfiles = true; activeProfileId = null;
+    showArchive = false; activeClassId = null;
+    renderSidebar(); renderContent(); pushHash();
+}
+
+function pfGotoClass(sjId, clsId) {
+    data.activeSchuljahrId = sjId;
+    selectClass(clsId);
+}
+
+// ── Frühwarnung je Profil ───────────────────────────────────────
+function pfFw(cls, sid) {
+    const out = [];
+    for (const k of FW_SEMS) {
+        const v = cls.fruehwarnung?.[k]?.[sid];
+        if (v) (Array.isArray(v) ? v : [v]).forEach((e, idx) => out.push({semKey: k, idx, e, status: fwStatus(e)}));
+    }
+    return out;
+}
+
+// Höchste laufende Frühwarnstufe im aktuellen Schuljahr: 'offen' | 'verschoben' | 'ausgeteilt' | null
+function pfFwLevel(members) {
+    const rank = {offen: 3, verschoben: 2, ausgeteilt: 1};
+    let lvl = null;
+    for (const m of members) {
+        if (!m.current || m.cls.type === 'spanisch') continue;
+        for (const x of pfFw(m.cls, m.s.id)) {
+            const st = x.status === 'ausgeteilt' && x.e.entspannt ? null : x.status;
+            if (st && (!lvl || rank[st] > rank[lvl])) lvl = st;
+        }
+    }
+    return lvl;
+}
+
+function pfFwChip(lvl) {
+    if (lvl === 'offen') return '<span class="pf-chip fw-offen" title="Frühwarnung noch nicht ausgeteilt">⚠ Frühwarnung offen</span>';
+    if (lvl === 'verschoben') return '<span class="pf-chip fw-verschoben">Frühwarnung verschoben</span>';
+    if (lvl === 'ausgeteilt') return '<span class="pf-chip fw-ausgeteilt">Frühwarnung ausgeteilt</span>';
+    return '';
+}
+
+function pfFwCard(p, members) {
+    const rel = members.filter(m => m.current && m.cls.type !== 'spanisch');
+    if (!rel.length) return '';
+    const lines = [];
+    const line = (icon, html) => lines.push(`<div class="pf-fw-line"><i class="bi ${icon}"></i><div>${html}</div></div>`);
+    for (const {sj, cls, s} of rel) {
+        const label = rel.length > 1 ? `<strong>${esc(cls.name)}</strong> · ` : '';
+        const editBtn = activeClasses().includes(cls)
+            ? ` <button class="btn btn-xs btn-outline-secondary pf-noprint" onclick="openFruehwarnung('${cls.id}')">Bearbeiten</button>` : '';
+        for (const x of pfFw(cls, s.id)) {
+            const sem = semShort(x.semKey);
+            if (x.status === 'offen') {
+                line('bi-exclamation-triangle-fill i-red', `${label}${sem}: <strong>Frühwarnung offen</strong> – gefährdet seit ${fmtDateAT(x.e.seit)}, noch nicht ausgeteilt.${editBtn}`);
+            } else if (x.status === 'verschoben') {
+                line('bi-pause-circle-fill i-amber', `${label}${sem}: Frühwarnung verschoben bis ${fmtDateAT(x.e.verschobenBis)}.${editBtn}`);
+            } else {
+                const talked = p.gespraeche.some(g => g.datum && g.datum >= x.e.ausgeteilt);
+                line('bi-envelope-check-fill i-rose', `${label}${sem}: Frühwarnung ausgeteilt am ${fmtDateAT(x.e.ausgeteilt)}${x.e.entspannt ? ` · wieder unter 4,5 seit ${fmtDateAT(x.e.entspannt)}` : ''}.
+                    ${!talked && !x.e.entspannt ? `<div class="pf-fw-hint pf-noprint"><span>Beratungsgespräch dazu noch nicht dokumentiert.</span>
+                        <button class="btn btn-xs btn-outline-secondary" onclick="pfOpenGespraech('${p.id}','','${cls.id}','${x.semKey}')"><i class="bi bi-plus-lg"></i> Gespräch erfassen</button></div>` : ''}`);
+            }
+        }
+        if (!fwAktiv(cls)) { line('bi-hourglass-split i-grey', `${label}Noch keine Schularbeit abgeschlossen – die Frühwarnprüfung ist noch nicht aktiv.`); continue; }
+        const gef = fwGefaehrdet(cls)[s.id];
+        if (gef) line('bi-graph-down-arrow i-red', `${label}Mit einer 5 auf die nächste Schularbeit ergäbe sich eine Jahresnote von <strong>${fmtNote2(gef.wert)}</strong>.`);
+        else line('bi-check-circle-fill i-green', `${label}Derzeit nicht gefährdet – auch mit einer 5 auf die nächste Schularbeit bliebe die Jahresnote unter 4,5.`);
+    }
+    return `<div class="pf-card">
+        <div class="pf-card-head"><h5 class="pf-card-title"><i class="bi bi-exclamation-triangle"></i>Frühwarnung</h5></div>
+        ${lines.join('')}
+    </div>`;
+}
+
+// ── Erinnerungen aus Gesprächen ─────────────────────────────────
+function pfErinnerungen() {
+    const out = [];
+    for (const p of Object.values(data.profile || {}))
+        for (const g of p.gespraeche || []) if (g.wiedervorlage && !g.wvErledigt) out.push({p, g});
+    return out.sort((a, b) => a.g.wiedervorlage.localeCompare(b.g.wiedervorlage));
+}
+
+function pfDueBanner() {
+    const due = pfErinnerungen().filter(x => x.g.wiedervorlage <= addDaysISO(7));
+    if (!due.length) return '';
+    const over = due.filter(x => x.g.wiedervorlage < todayISO()).length;
+    return `<div class="lp-due"><i class="bi bi-bell"></i>
+        <span><strong>${due.length} Erinnerung${due.length !== 1 ? 'en' : ''}</strong> aus Gesprächen in den nächsten 7 Tagen fällig${over ? ` (davon ${over} überfällig)` : ''}.
+        <button onclick="openProfiles()">Anzeigen</button></span></div>`;
+}
+
+function pfDueBox() {
+    const list = pfErinnerungen();
+    if (!list.length) return '';
+    return `<div class="pf-due-box">
+        <div class="pf-sub" style="margin-top:0"><i class="bi bi-bell me-1"></i>Offene Erinnerungen</div>
+        ${list.map(({p, g}) => `<div class="pf-due-item">
+            <span class="pf-due-date ${g.wiedervorlage < todayISO() ? 'over' : ''}">${fmtDateAT(g.wiedervorlage)}</span>
+            <span class="pf-name" onclick="openProfile('${p.id}')"><strong>${esc(p.name)}</strong></span>
+            <span class="text-muted small text-truncate">${esc(g.anlass || g.art)}</span>
+            <button class="btn btn-xs btn-outline-secondary ms-auto" onclick="pfToggleWv('${p.id}','${g.id}')" title="Als erledigt markieren"><i class="bi bi-check2"></i> erledigt</button>
+        </div>`).join('')}
+    </div>`;
+}
+
+function pfTabHints(s) {
+    const p = data.profile?.[s.profilId];
+    const n = p?.gespraeche.length;
+    return n ? `<span class="pf-chip me-1" title="${n} dokumentierte${n !== 1 ? '' : 's'} Gespräch${n !== 1 ? 'e' : ''}"><i class="bi bi-chat-square-text"></i> ${n}</span>` : '';
+}
+
+// ── Render: Profil ──────────────────────────────────────────────
+function pfInitials(name) {
+    const w = (name || '').trim().split(/\s+/).filter(Boolean);   // „Nachname Vorname"
+    return ((w[1]?.[0] || '') + (w[0]?.[0] || '')).toUpperCase() || '?';
+}
+
+// aligned: Badge bleibt in der Spaltenmitte, die Dezimalnote hängt rechts daneben
+function pfNote(dec, aligned = false) {
+    const badge = dec === null || dec === undefined ? '<span class="note-badge note-empty">—</span>'
+        : `<span class="note-badge note-${noteInt(dec)}">${noteInt(dec)}</span>`;
+    const small = dec === null || dec === undefined ? '' : `<small>${fmtNote2(dec)}</small>`;
+    return aligned ? `<span class="pf-note"><span></span>${badge}${small || '<span></span>'}</span>` : badge + small;
+}
+
+// Verhalten & Beobachtungen eines Schuljahres
+function pfJahr(p, sjId) { return (p.jahre ??= {})[sjId] ??= {verhalten: '', beobachtungen: []}; }
+
+function pfVerhaltenHtml(p, sj) {
+    const j = p.jahre?.[sj.id] || {verhalten: '', beobachtungen: []};
+    const obs = (j.beobachtungen || []).slice().sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
+    const k = sj.id;
+    return `<div class="pf-verh">
+        <div class="pf-card-title" style="font-size:.95rem;margin-bottom:8px"><i class="bi bi-emoji-smile"></i>Verhalten ${esc(sj.name)}</div>
+        <textarea class="form-control pf-ta" placeholder="Allgemeine Einschätzung: Arbeitshaltung, Sozialverhalten, Mitarbeit …" onchange="pfSetVerhalten('${p.id}','${k}',this.value)">${esc(j.verhalten)}</textarea>
+        <div class="pf-sub">Beobachtungen</div>
+        ${obs.map(o => `<div class="pf-obs">
+            <span class="pf-obs-date">${fmtDateAT(o.datum)}</span>
+            <span class="pf-obs-sym ${o.art}" title="${PF_OBS[o.art]?.[1] || ''}">${PF_OBS[o.art]?.[0] || '•'}</span>
+            <span class="pf-obs-text">${esc(o.text)}</span>
+            <button class="btn btn-xs btn-outline-danger pf-noprint" onclick="pfDelObs('${p.id}','${k}','${o.id}')" title="Löschen"><i class="bi bi-x-lg"></i></button>
+        </div>`).join('') || '<p class="pf-empty">Noch keine Beobachtungen.</p>'}
+        <div class="pf-obs-add pf-noprint">
+            <input type="date" class="form-control form-control-sm" id="pf-obs-date-${k}" value="${todayISO()}">
+            <select class="form-control form-control-sm" id="pf-obs-art-${k}" title="Art der Beobachtung">
+                ${Object.entries(PF_OBS).map(([key, [sym, lbl]]) => `<option value="${key}">${sym} ${lbl}</option>`).join('')}
+            </select>
+            <input type="text" class="form-control form-control-sm" id="pf-obs-text-${k}" placeholder="Beobachtung notieren, z.B. hilft Mitschüler:innen beim Lesen" maxlength="300"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();pfAddObs('${p.id}','${k}')}">
+            <button class="btn btn-sm btn-outline-secondary" onclick="pfAddObs('${p.id}','${k}')"><i class="bi bi-plus-lg"></i></button>
+        </div>
+    </div>`;
+}
+
+// Auf-/Zuklappen der Schuljahre merken (Standard: laufende offen, archivierte zu)
+const pfYearOpen = new Map();
+function pfYearToggle(sjId, open) { pfYearOpen.set(sjId, open); }
+
+function pfSjGroup(p, sj, ms) {
+    const open = pfYearOpen.get(sj.id) ?? !isSjArchived(sj);
+    return `<details class="pf-sj" ${open ? 'open' : ''} ontoggle="pfYearToggle('${sj.id}', this.open)">
+        <summary>
+            <i class="bi bi-chevron-right pf-chev"></i>
+            <span class="pf-sj-title">Schuljahr ${esc(sj.name)}</span>
+            ${isSjArchived(sj) ? '<span class="pf-chip old"><i class="bi bi-archive"></i> Archiv</span>' : ''}
+            <span class="pf-sj-sum">${ms.map(m => `${esc(m.cls.name)} ${pfNote(calcJahresnote(m.cls, m.s))}`).join('<span style="width:6px"></span>')}</span>
+        </summary>
+        ${ms.map(pfYearCard).join('')}
+        ${pfVerhaltenHtml(p, sj)}
+    </details>`;
+}
+
+const pfGet = (p, path) => path.split('.').reduce((o, k) => o?.[k], p) ?? '';
+
+function pfYearCard(m) {
+    const {sj, cls, s} = m;
+    const sp = cls.type === 'spanisch';
+    const comps = [
+        !sp && ['Schularbeiten',   sem => calcSATeilnote(sem, s.id, s.legasthenie)],
+        ['Wiederholungen',         sem => calcWdhTeilnote(sem, s.id)],
+        ['Präsentationen',         sem => calcPraesTeilnote(sem, s.id)],
+        !sp && ['Hausübungen',     sem => calcHATeilnote(sem, s.id)],
+        ['Mündl. Mitarbeit',       sem => calcMMTeilnote(sem, s.id)],
+    ].filter(Boolean)
+        .map(([label, fn]) => [label, FW_SEMS.map(k => cls[k] ? fn(cls[k]) : null)])
+        .filter(([, vals]) => vals.some(v => v !== null));
+    const semNotes = FW_SEMS.map(k => cls[k] ? effectiveSemesterNote(cls, cls[k], s) : null);
+    const avgs = FW_SEMS.map(k => cls[k] ? classSemStats(cls, k).avg : null);
+    const cell = v => `<td>${v === null ? '<span class="text-muted">—</span>' : noteBadgeDec(v, '')}</td>`;
+    const hasGrades = comps.length || semNotes.some(v => v !== null);
+
+    // Einzelne Schularbeiten
+    const sas = sp ? [] : FW_SEMS.flatMap(k => (cls[k]?.schularbeiten || []).map(sa => {
+        const d = cls[k].studentData?.[s.id]?.schularbeiten?.[sa.id];
+        if (!d) return '';
+        let val = '';
+        if (d.abwesend) val = '<span class="text-muted">abwesend</span>';
+        else if (d.note !== undefined && d.note !== null && d.note !== '') val = noteBadgeInt(+d.note, '');
+        else {
+            const g = calcGesamt(d, sa.fehlerProPunkt ?? 3, s.legasthenie);
+            const n = calcNote(g);
+            if (!n) return '';
+            val = `${noteBadgeSA(n, '')}<span class="text-muted">${g} P.</span>`;
+        }
+        return `<span class="pf-sa">${semShort(k)} · ${esc(sa.name)} ${val}</span>`;
+    })).filter(Boolean);
+
+    // Kommentare aus der Notenerfassung
+    const komm = [];
+    for (const k of FW_SEMS) {
+        const sem = cls[k]; if (!sem) continue;
+        const sd = sem.studentData?.[s.id];
+        for (const sa of sem.schularbeiten || []) {
+            const t = sd?.schularbeiten?.[sa.id]?.kommentar;
+            if (t?.trim()) komm.push([`${semShort(k)} · ${sa.name}`, t]);
+        }
+        const mm = sd?.muendlicheMitarbeit?.kommentar;
+        if (mm?.trim()) komm.push([`${semShort(k)} · Mündl. Mitarbeit`, mm]);
+    }
+
+    // Frühwarnungen früherer Jahre (das laufende Jahr steht in der Frühwarn-Karte)
+    const fwOld = m.current || sp ? [] : pfFw(cls, s.id);
+
+    return `<div class="pf-year ${m.current ? 'cur' : ''}">
+        <div class="pf-year-head">
+            <span class="pf-year-title">Klasse ${esc(cls.name)}</span>
+            <span class="pf-chip">${CLASS_TYPE_LABEL[cls.type] || ''}</span>
+            ${s.legasthenie ? '<span class="pf-chip leg">Legasthenie</span>' : ''}
+            <span class="pf-year-jn">Jahresnote ${pfNote(calcJahresnote(cls, s))}</span>
+            <button class="btn btn-xs btn-outline-secondary pf-noprint" onclick="pfGotoClass('${sj.id}','${cls.id}')" title="Klasse öffnen"><i class="bi bi-box-arrow-up-right"></i></button>
+        </div>
+        ${hasGrades ? `<table class="pf-ntable">
+            <thead><tr><th></th><th>1. Semester</th><th>2. Semester</th></tr></thead>
+            <tbody>
+                ${comps.map(([label, vals]) => `<tr><td>${label}</td>${vals.map(cell).join('')}</tr>`).join('')}
+                <tr class="pf-sum"><td>Semesternote</td>${semNotes.map(v => `<td>${pfNote(v, true)}</td>`).join('')}</tr>
+                <tr class="pf-avg"><td>Klassenschnitt</td>${avgs.map(v => `<td>${v === null ? '—' : fmtNote2(v)}</td>`).join('')}</tr>
+            </tbody>
+        </table>` : '<p class="pf-empty">Noch keine Noten eingetragen.</p>'}
+        ${sas.length ? `<div class="pf-sub">Schularbeiten</div><div class="pf-sa-list">${sas.join('')}</div>` : ''}
+        ${fwOld.length ? `<div class="pf-sub">Frühwarnungen</div>${fwOld.map(x => `<div class="pf-komm"><b>${semShort(x.semKey)}:</b> ${
+            x.e.ausgeteilt ? `ausgeteilt am ${fmtDateAT(x.e.ausgeteilt)}${x.e.entspannt ? `, wieder unter 4,5 seit ${fmtDateAT(x.e.entspannt)}` : ''}` : `gefährdet seit ${fmtDateAT(x.e.seit)}, nicht ausgeteilt`}</div>`).join('')}` : ''}
+        ${komm.length ? `<div class="pf-sub">Kommentare aus der Notenerfassung</div>${komm.map(([l, t]) => `<div class="pf-komm"><b>${esc(l)}:</b> ${esc(t)}</div>`).join('')}` : ''}
+    </div>`;
+}
+
+function pfTalkHtml(pid, g) {
+    const due = g.wiedervorlage && !g.wvErledigt && g.wiedervorlage <= todayISO();
+    return `<div class="pf-talk">
+        <div class="pf-talk-head">
+            <span class="pf-talk-date">${g.datum ? fmtDateAT(g.datum) : 'ohne Datum'}</span>
+            <span class="pf-chip">${esc(g.art)}</span>
+            ${g.teilnehmer ? `<span><i class="bi bi-people me-1"></i>${esc(g.teilnehmer)}</span>` : ''}
+            <span class="pf-talk-actions pf-noprint">
+                <button class="btn btn-xs btn-outline-secondary" onclick="pfOpenGespraech('${pid}','${g.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-xs btn-outline-danger" onclick="pfDeleteGespraech('${pid}','${g.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+            </span>
+        </div>
+        ${g.anlass ? `<div class="pf-talk-anlass">${esc(g.anlass)}</div>` : ''}
+        ${g.notizen ? `<div class="pf-talk-text">${esc(g.notizen)}</div>` : ''}
+        ${g.vereinbarungen ? `<div class="pf-talk-agree"><b>Vereinbarungen</b>${esc(g.vereinbarungen)}</div>` : ''}
+        ${g.wiedervorlage ? `<label class="pf-wv ${g.wvErledigt ? 'done' : due ? 'due' : ''}" title="Abhaken, wenn erledigt">
+            <input type="checkbox" class="pf-noprint" ${g.wvErledigt ? 'checked' : ''} onchange="pfToggleWv('${pid}','${g.id}')">
+            <i class="bi bi-bell"></i> Erinnerung ${fmtDateAT(g.wiedervorlage)}${due ? ' – fällig' : ''}</label>` : ''}
+    </div>`;
+}
+
+function renderProfile(area) {
+    const p = data.profile[activeProfileId];
+    const pid = p.id;
+    const idx = pfIndex();
+    const members = idx.get(pid) || [];
+    const cur = members.filter(m => m.current);
+    const talks = p.gespraeche.slice().sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
+    const years = [];   // [{sj, ms}] neuestes Schuljahr zuerst
+    for (const m of members) {
+        const y = years.find(x => x.sj === m.sj);
+        if (y) y.ms.push(m); else years.push({sj: m.sj, ms: [m]});
+    }
+    years.reverse();
+    const wv =p.gespraeche.filter(g => g.wiedervorlage && !g.wvErledigt).sort((a, b) => a.wiedervorlage.localeCompare(b.wiedervorlage))[0];
+    const backCls = activeClasses().find(c => c.id === activeClassId);
+    const backLabel = showProfiles ? 'Zurück zur Übersicht' : backCls ? `Zurück zur Klasse ${esc(backCls.name)}` : 'Zur Übersicht';
+    const ta = (field, ph) => `<textarea class="form-control pf-ta" placeholder="${ph}" onchange="pfSet('${pid}','${field}',this.value)">${esc(pfGet(p, field))}</textarea>`;
+    const inp = (field, ph, type = 'text') => `<input type="${type}" class="form-control form-control-sm" value="${esc(pfGet(p, field))}" placeholder="${ph}" onchange="pfSet('${pid}','${field}',this.value)">`;
+    const stat = (label, val) => `<div class="pf-stat"><div class="pf-stat-label">${label}</div><div class="pf-stat-val">${val}</div></div>`;
+
+    const others = Object.values(data.profile).filter(o => o.id !== pid).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    const otherLabel = o => {
+        const ms = idx.get(o.id) || [];
+        return `${o.name}${ms.length ? ' (' + ms.map(m => `${m.cls.name} ${pfShortSj(m.sj.name)}`).join(', ') + ')' : ' (ohne Klasse)'}`;
+    };
+
+    area.innerHTML = `
+        <div class="pf-top pf-noprint">
+            <button class="pf-back" onclick="closeProfile()"><i class="bi bi-arrow-left"></i> ${backLabel}</button>
+            <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="window.print()" title="Profil drucken, z. B. als Unterlage fürs Elterngespräch"><i class="bi bi-printer me-1"></i>Drucken</button>
+        </div>
+
+        <div class="pf-head">
+            <div class="pf-avatar">${esc(pfInitials(p.name))}</div>
+            <div style="min-width:0">
+                <h4 class="pf-title">${esc(p.name)}
+                    <button class="btn btn-xs btn-outline-secondary pf-noprint" onclick="pfRename('${pid}')" title="Namen ändern"><i class="bi bi-pencil"></i></button></h4>
+                <div class="pf-chips">
+                    ${cur.map(m => `<span class="pf-chip cur" onclick="pfGotoClass('${m.sj.id}','${m.cls.id}')" title="Klasse öffnen">${esc(m.cls.name)} · ${esc(m.sj.name)}</span>`).join('')}
+                    ${members.filter(m => !m.current).reverse().map(m => `<span class="pf-chip old">${esc(m.cls.name)} · ${esc(m.sj.name)}</span>`).join('')}
+                    ${!members.length ? '<span class="pf-chip old">derzeit keiner Klasse zugeordnet</span>' : ''}
+                    ${p.legasthenie.aktiv ? '<span class="pf-chip leg">Legasthenie</span>' : ''}
+                    ${pfFwChip(pfFwLevel(members))}
+                </div>
+            </div>
+            <div class="pf-stats">
+                ${cur.slice(0, 2).map(m => stat(`Jahresnote ${esc(m.cls.name)}`, pfNote(calcJahresnote(m.cls, m.s)))).join('')}
+                ${stat('Gespräche', talks.length)}
+                ${stat('Letzter Kontakt', talks[0]?.datum ? fmtDateAT(talks[0].datum) : '—')}
+                ${stat('Erinnerung', wv ? `<span style="${wv.wiedervorlage <= todayISO() ? 'color:#b91c1c' : ''}">${fmtDateAT(wv.wiedervorlage)}</span>` : '—')}
+            </div>
+        </div>
+
+        <div class="pf-grid">
+            <div class="pf-col">
+                <div class="pf-card">
+                    <div class="pf-card-head"><h5 class="pf-card-title"><i class="bi bi-mortarboard"></i>Noten nach Schuljahr</h5></div>
+                    ${members.length > 1 ? `<div class="pf-trend">${members.map(m => {
+                        const j = calcJahresnote(m.cls, m.s);
+                        return `<span class="pf-trend-item">${esc(pfShortSj(m.sj.name))} · ${esc(m.cls.name)} ${j === null ? '<span class="note-badge note-empty">—</span>' : `<span class="note-badge note-${noteInt(j)}">${noteInt(j)}</span>`}</span>`;
+                    }).join('<i class="bi bi-chevron-right text-muted" style="align-self:center;font-size:.7rem"></i>')}</div>` : ''}
+                    ${years.map(y => pfSjGroup(p, y.sj, y.ms)).join('') || '<p class="pf-empty">Keiner Klasse zugeordnet.</p>'}
+                </div>
+            </div>
+
+            <div class="pf-col">
+                ${pfFwCard(p, members)}
+
+                <div class="pf-card">
+                    <div class="pf-card-head">
+                        <h5 class="pf-card-title"><i class="bi bi-chat-square-text"></i>Gespräche</h5>
+                        <button class="btn btn-sm btn-primary pf-noprint" onclick="pfOpenGespraech('${pid}')"><i class="bi bi-plus-lg"></i> Erfassen</button>
+                    </div>
+                    ${talks.map(g => pfTalkHtml(pid, g)).join('') || '<p class="pf-empty">Noch keine Gespräche dokumentiert.</p>'}
+                </div>
+
+                <div class="pf-card">
+                    <div class="pf-card-head"><h5 class="pf-card-title"><i class="bi bi-journal-text"></i>Allgemeiner Kommentar</h5></div>
+                    ${ta('kommentar', 'Notizen zur Schülerin / zum Schüler …')}
+                </div>
+
+                <div class="pf-card">
+                    <div class="pf-card-head"><h5 class="pf-card-title"><i class="bi bi-spellcheck"></i>Legasthenie</h5></div>
+                    <label class="pf-switch"><input type="checkbox" ${p.legasthenie.aktiv ? 'checked' : ''} onchange="pfSetLeg('${pid}', this.checked)"> Legasthenie / LRS liegt vor</label>
+                    <p class="pf-hint">Wirkt im laufenden Schuljahr auf die Notenberechnung: die Sprachrichtigkeit bei Schularbeiten wird dann manuell vergeben.</p>
+                    ${p.legasthenie.aktiv || p.legasthenie.seit || p.legasthenie.notiz ? `
+                    <div class="pf-field" style="margin-top:10px"><label class="form-label">Befund / seit</label>${inp('legasthenie.seit', 'z.B. Gutachten 03/2024, Schulpsychologie')}</div>
+                    <div class="pf-field"><label class="form-label">Nachteilsausgleich &amp; Maßnahmen</label>${ta('legasthenie.notiz', 'z.B. mehr Zeit bei Schularbeiten, größere Schrift, Fehler nur markieren …')}</div>` : ''}
+                </div>
+
+                <div class="pf-card">
+                    <div class="pf-card-head"><h5 class="pf-card-title"><i class="bi bi-life-preserver"></i>Förderung &amp; Stärken</h5></div>
+                    <div class="pf-field"><label class="form-label">Förderbedarf &amp; Maßnahmen</label>${ta('foerderung', 'z.B. Förderkurs Deutsch, Lesepatenschaft, Nachhilfe …')}</div>
+                    <div class="pf-field"><label class="form-label">Stärken &amp; Interessen</label>${ta('staerken', 'Woran lässt sich anknüpfen?')}</div>
+                </div>
+
+                <div class="pf-card pf-noprint">
+                    <div class="pf-card-head"><h5 class="pf-card-title"><i class="bi bi-link-45deg"></i>Verknüpfte Klassen</h5></div>
+                    <p class="pf-hint" style="margin:0 0 8px">Klassen werden über den Namen automatisch zugeordnet. Falls zwei Personen gleich heißen, hier trennen – oder doppelte Profile zusammenführen.</p>
+                    <div class="pf-links">
+                        ${members.map(m => `<div class="pf-link-row"><span>${esc(m.cls.name)} · ${esc(m.sj.name)}</span>
+                            ${members.length > 1 ? `<button class="btn btn-xs btn-outline-secondary" onclick="pfSplit('${pid}','${m.s.id}')" title="Eigenes Profil für diese Klasse"><i class="bi bi-scissors"></i> Trennen</button>` : ''}</div>`).join('')
+                          || '<p class="pf-empty">Keine Klasse.</p>'}
+                    </div>
+                    ${others.length ? `<div class="pf-sub">Zusammenführen mit</div>
+                    <div class="d-flex gap-1">
+                        <select class="form-control form-control-sm" id="pf-merge-sel">${others.map(o => `<option value="${o.id}">${esc(otherLabel(o))}</option>`).join('')}</select>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="pfMerge('${pid}')">Übernehmen</button>
+                    </div>` : ''}
+                    ${!members.length ? `<button class="btn btn-sm btn-outline-danger mt-3" onclick="pfDelete('${pid}')"><i class="bi bi-trash"></i> Profil löschen</button>` : ''}
+                </div>
+            </div>
+        </div>`;
+}
+
+// ── Render: Übersicht ───────────────────────────────────────────
+function renderProfiles(area) {
+    const n = Object.keys(data.profile || {}).length;
+    area.innerHTML = `
+        <div class="lp-head">
+            <div>
+                <h4 class="lp-title"><i class="bi bi-person-vcard me-2" style="font-size:.85em"></i>Schülerprofile</h4>
+                <small class="text-muted">${n} Profil${n !== 1 ? 'e' : ''} · Noten aller Jahre, Gespräche, Frühwarnungen und Notizen</small>
+            </div>
+        </div>
+        ${pfDueBox()}
+        <div class="pf-toolbar">
+            <input type="search" class="form-control form-control-sm pf-search" id="pf-search" placeholder="Name suchen …" value="${esc(pfQuery)}" oninput="pfQuery=this.value;pfRenderList()">
+            <label class="pf-switch small"><input type="checkbox" ${pfShowAll ? 'checked' : ''} onchange="pfShowAll=this.checked;pfRenderList()"> auch frühere Schüler:innen</label>
+        </div>
+        <div id="pf-list-area"></div>`;
+    pfRenderList();
+}
+
+function pfRenderList() {
+    const el = document.getElementById('pf-list-area'); if (!el) return;
+    const idx = pfIndex();
+    const isCur = pid => (idx.get(pid) || []).some(m => m.current);
+    const byName = (a, b) => data.profile[a].name.localeCompare(data.profile[b].name, 'de');
+    const row = pid => {
+        const p = data.profile[pid], ms = idx.get(pid) || [];
+        const due = p.gespraeche.some(g => g.wiedervorlage && !g.wvErledigt && g.wiedervorlage <= todayISO());
+        return `<div class="pf-lrow" onclick="openProfile('${pid}')">
+            <span class="pf-lrow-name">${esc(p.name)}</span>
+            <span class="pf-lrow-cls">${ms.map(m => `<span class="pf-chip ${m.current ? '' : 'old'}">${esc(m.cls.name)} ${esc(pfShortSj(m.sj.name))}</span>`).join('')}</span>
+            <span class="pf-lrow-tags">
+                ${p.legasthenie.aktiv ? '<span class="pf-chip leg">Leg.</span>' : ''}
+                ${pfFwChip(pfFwLevel(ms))}
+                ${p.gespraeche.length ? `<span class="pf-chip" title="Gespräche"><i class="bi bi-chat-square-text"></i> ${p.gespraeche.length}</span>` : ''}
+                ${due ? '<span class="pf-chip due"><i class="bi bi-bell"></i> fällig</span>' : ''}
+            </span>
+        </div>`;
+    };
+    const q = pfNorm(pfQuery);
+    let html = '';
+    if (q) {
+        const ids = Object.keys(data.profile).filter(pid => pfNorm(data.profile[pid].name).includes(q) && (pfShowAll || isCur(pid))).sort(byName);
+        html = ids.length ? `<div class="pf-list">${ids.map(row).join('')}</div>` : '<p class="pf-empty">Keine Treffer.</p>';
+    } else {
+        const sjs = currentSchuljahre();
+        for (const sj of sjs) for (const [type, label] of CLASS_GROUPS) for (const cls of sj.classes.filter(c => c.type === type)) {
+            const list = cls.students.filter(s => data.profile[s.profilId]);
+            if (!list.length) continue;
+            html += `<h6 class="lp-group-label">${esc(cls.name)} <span style="font-weight:400">· ${label}${sjs.length > 1 ? ' · ' + esc(sj.name) : ''}</span></h6>
+                <div class="pf-list">${list.map(s => row(s.profilId)).join('')}</div>`;
+        }
+        if (pfShowAll) {
+            const old = Object.keys(data.profile).filter(pid => !isCur(pid)).sort(byName);
+            if (old.length) html += `<h6 class="lp-group-label">Frühere Schüler:innen</h6><div class="pf-list">${old.map(row).join('')}</div>`;
+        }
+        if (!html) html = '<div class="empty-state"><i class="bi bi-people"></i><h6 class="mt-3">Noch keine Schüler:innen</h6><p class="small">Profile entstehen automatisch, sobald Schüler:innen in einer Klasse eingetragen werden.</p></div>';
+    }
+    el.innerHTML = html;
+}
+
+// ── Profil bearbeiten ───────────────────────────────────────────
+function pfSet(pid, path, val) {
+    const p = data.profile[pid]; if (!p) return;
+    snapshotForUndo();
+    const keys = path.split('.'), last = keys.pop();
+    keys.reduce((o, k) => o[k], p)[last] = val;
+    saveDataWithUndo();
+}
+
+function pfSetLeg(pid, on) {
+    if (!data.profile[pid]) return;
+    snapshotForUndo();
+    pfSyncLeg(pid, on);
+    saveDataWithUndo(); renderContent();
+}
+
+function pfRename(pid) {
+    const p = data.profile[pid]; if (!p) return;
+    const n = prompt('Name (wird für das laufende Schuljahr übernommen):', p.name)?.trim();
+    if (!n || n === p.name) return;
+    snapshotForUndo();
+    p.name = n;
+    for (const m of pfMembers(pid)) if (m.current) { m.s.name = n; sortStudents(m.cls); }
+    saveDataWithUndo(); render();
+}
+
+function pfOpenGespraech(pid, gid = '', fwClsId = '', fwSem = '') {
+    const p = data.profile[pid]; if (!p) return;
+    const g = gid ? p.gespraeche.find(x => x.id === gid) : null;
+    let art = g?.art || 'Elterngespräch', anlass = g?.anlass || '';
+    if (!g && fwClsId) {
+        art = 'Frühwarngespräch';
+        anlass = `Frühwarnung ${pfFindClass(fwClsId)?.name || ''}, ${semShort(fwSem)}`;
+    }
+    const sel = document.getElementById('gs-art');
+    sel.innerHTML = [...new Set([...PF_ARTEN, art])].map(a => `<option>${esc(a)}</option>`).join('');
+    sel.value = art;
+    const set = (id, v) => { document.getElementById(id).value = v || ''; };
+    set('gs-pid', pid); set('gs-id', g?.id);
+    set('gs-datum', g ? g.datum : todayISO());
+    set('gs-teilnehmer', g?.teilnehmer); set('gs-anlass', anlass);
+    set('gs-notizen', g?.notizen); set('gs-vereinbarungen', g?.vereinbarungen); set('gs-wv', g?.wiedervorlage);
+    document.getElementById('gs-anlass').classList.remove('is-invalid');
+    document.getElementById('gs-title').textContent = (g ? 'Gespräch bearbeiten – ' : 'Gespräch erfassen – ') + p.name;
+    showModal('modalGespraech');
+}
+
+function pfSaveGespraech() {
+    const p = data.profile[document.getElementById('gs-pid').value]; if (!p) return;
+    const v = id => document.getElementById(id).value.trim();
+    const entry = {datum: v('gs-datum'), art: v('gs-art'), teilnehmer: v('gs-teilnehmer'), anlass: v('gs-anlass'),
+        notizen: v('gs-notizen'), vereinbarungen: v('gs-vereinbarungen'), wiedervorlage: v('gs-wv')};
+    if (!entry.anlass && !entry.notizen && !entry.vereinbarungen) {
+        const a = document.getElementById('gs-anlass');
+        a.classList.add('is-invalid'); a.focus();
+        return;
+    }
+    snapshotForUndo();
+    const gid = v('gs-id');
+    const g = gid && p.gespraeche.find(x => x.id === gid);
+    if (g) {
+        if (g.wiedervorlage !== entry.wiedervorlage) delete g.wvErledigt;
+        Object.assign(g, entry);
+    } else {
+        p.gespraeche.push({id: genId(), ...entry});
+    }
+    hideModal('modalGespraech');
+    saveDataWithUndo(); renderContent();
+}
+
+function pfDeleteGespraech(pid, gid) {
+    const p = data.profile[pid]; const g = p?.gespraeche.find(x => x.id === gid); if (!g) return;
+    document.getElementById('confirm-delete-msg').innerHTML =
+        `${esc(g.art)} vom <strong>${fmtDateAT(g.datum) || 'ohne Datum'}</strong> wirklich löschen?`;
+    pendingDelete = () => {
+        snapshotForUndo();
+        p.gespraeche = p.gespraeche.filter(x => x.id !== gid);
+        saveDataWithUndo(); renderContent();
+    };
+    showModal('modalConfirmDelete');
+}
+
+function pfToggleWv(pid, gid) {
+    const g = data.profile[pid]?.gespraeche.find(x => x.id === gid); if (!g) return;
+    snapshotForUndo();
+    if (g.wvErledigt) delete g.wvErledigt; else g.wvErledigt = todayISO();
+    saveDataWithUndo(); renderContent();
+}
+
+function pfSetVerhalten(pid, sjId, val) {
+    const p = data.profile[pid]; if (!p) return;
+    snapshotForUndo();
+    pfJahr(p, sjId).verhalten = val;
+    saveDataWithUndo();
+}
+
+function pfAddObs(pid, sjId) {
+    const p = data.profile[pid]; if (!p) return;
+    const t = document.getElementById('pf-obs-text-' + sjId);
+    const text = t.value.trim();
+    if (!text) { t.focus(); return; }
+    snapshotForUndo();
+    pfJahr(p, sjId).beobachtungen.push({id: genId(), datum: document.getElementById('pf-obs-date-' + sjId).value || todayISO(),
+        art: document.getElementById('pf-obs-art-' + sjId).value, text});
+    saveDataWithUndo(); renderContent();
+    document.getElementById('pf-obs-text-' + sjId)?.focus();
+}
+
+function pfDelObs(pid, sjId, oid) {
+    const j = data.profile[pid]?.jahre?.[sjId]; if (!j) return;
+    snapshotForUndo();
+    j.beobachtungen = j.beobachtungen.filter(o => o.id !== oid);
+    saveDataWithUndo(); renderContent();
+}
+
+function pfSplit(pid, sid) {
+    const p = data.profile[pid];
+    const m = pfMembers(pid).find(x => x.s.id === sid); if (!p || !m) return;
+    if (!confirm(`${m.cls.name} (${m.sj.name}) vom Profil „${p.name}" trennen?\n\nDiese Klasse bekommt ein eigenes, leeres Profil. Gespräche und Notizen bleiben hier.`)) return;
+    snapshotForUndo();
+    const np = pfBlank(m.s.name);
+    np.legasthenie.aktiv = !!m.s.legasthenie;
+    data.profile[np.id] = np;
+    m.s.profilId = np.id;
+    saveDataWithUndo(); renderContent();
+}
+
+function pfMerge(pid) {
+    const otherId = document.getElementById('pf-merge-sel')?.value;
+    const p = data.profile[pid], o = data.profile[otherId];
+    if (!p || !o || p === o) return;
+    const mine = pfMembers(pid), theirs = pfMembers(otherId);
+    if (theirs.some(t => mine.some(m => m.cls === t.cls))) {
+        alert('Beide Profile sind in derselben Klasse eingetragen – das sind zwei verschiedene Personen.');
+        return;
+    }
+    if (!confirm(`Profil „${o.name}" in dieses Profil übernehmen?\n\nKlassen, Gespräche, Beobachtungen und Notizen werden zusammengeführt.`)) return;
+    snapshotForUndo();
+    for (const t of theirs) t.s.profilId = pid;
+    const join = (a, b) => [a, b].filter(x => x && x.trim()).join('\n\n');
+    for (const k of ['kommentar', 'foerderung', 'staerken']) p[k] = join(p[k], o[k]);
+    p.legasthenie.aktiv = p.legasthenie.aktiv || !!o.legasthenie?.aktiv;
+    p.legasthenie.seit ||= o.legasthenie?.seit || '';
+    p.legasthenie.notiz = join(p.legasthenie.notiz, o.legasthenie?.notiz);
+    p.gespraeche.push(...(o.gespraeche || []));
+    for (const [sjId, oj] of Object.entries(o.jahre || {})) {
+        const j = pfJahr(p, sjId);
+        j.verhalten = join(j.verhalten, oj.verhalten);
+        j.beobachtungen.push(...(oj.beobachtungen || []));
+    }
+    delete data.profile[otherId];
+    saveDataWithUndo(); renderContent();
+}
+
+function pfDelete(pid) {
+    const p = data.profile[pid]; if (!p || pfMembers(pid).length) return;
+    document.getElementById('confirm-delete-msg').innerHTML = `Profil <strong>${esc(p.name)}</strong> mit allen Gesprächen und Notizen wirklich löschen?`;
+    pendingDelete = () => {
+        snapshotForUndo();
+        delete data.profile[pid];
+        activeProfileId = null; showProfiles = true;
+        saveDataWithUndo(); render(); pushHash();
+    };
+    showModal('modalConfirmDelete');
+}
+
+// ================================================================
 // RENDER – Hauptfunktionen
 // ================================================================
 function render() { renderSidebar(); renderContent(); attachTopScrollbars(); }
@@ -1907,38 +3691,50 @@ function renderSchuljahrSelector() {
     const el = document.getElementById('schuljahr-selector');
     if (!el) return;
     const canDelete = data.schuljahre.length > 1;
-    el.innerHTML = data.schuljahre.map(sj => `
+    // Archivierte Jahre nur zeigen, wenn gerade aktiv (sonst über den Archiv-Chip erreichbar)
+    const visible = data.schuljahre.filter(sj => !isSjArchived(sj) || sj.id === data.activeSchuljahrId);
+    const hasArchive = data.schuljahre.some(isSjArchived);
+    el.innerHTML = visible.map(sj => `
         <span class="sj-wrap">
-            <span class="sj-chip ${sj.id===data.activeSchuljahrId?'active':''}" onclick="selectSchuljahr('${sj.id}')">${esc(sj.name)}</span>
+            <span class="sj-chip ${sj.id===data.activeSchuljahrId&&!showArchive?'active':''}" onclick="selectSchuljahr('${sj.id}')">${isSjArchived(sj)?'<i class="bi bi-archive" style="font-size:.9em;margin-right:3px"></i>':''}${esc(sj.name)}</span>
             <button class="sj-menu-btn" onclick="event.stopPropagation();toggleSjMenu('${sj.id}')" title="Optionen">⋯</button>
             <div class="sj-dropdown" id="sj-menu-${sj.id}">
                 <button onclick="closeSjMenus();openEditSchuljahr('${sj.id}')"><i class="bi bi-pencil"></i>Umbenennen</button>
                 ${canDelete ? `<div class="sj-divider"></div><button class="danger" onclick="closeSjMenus();deleteSchuljahr('${sj.id}')"><i class="bi bi-trash"></i>Löschen</button>` : ''}
             </div>
         </span>`
-    ).join('') + `<button class="sj-add-btn" onclick="openAddSchuljahr()" title="Neues Schuljahr">+</button>`;
+    ).join('')
+    + (hasArchive ? `<span class="sj-chip sj-archive-chip ${showArchive?'active':''}" onclick="openArchive()" title="Archivierte Schuljahre"><i class="bi bi-archive" style="font-size:.9em;margin-right:3px"></i>Archiv</span>` : '')
+    + `<button class="sj-add-btn" onclick="openAddSchuljahr()" title="Neues Schuljahr">+</button>`;
 }
 
 function selectSchuljahr(sjId) {
+    if (!saLeaveOk(() => selectSchuljahr(sjId))) return;
     data.activeSchuljahrId = sjId;
-    activeClassId = activeClasses()[0]?.id ?? null;
-    const initCls = activeClasses()[0];
-    activeSaId = initCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
+    showArchive = false;
+    activeProfileId = null; showProfiles = false;
+    activeClassId = null;
+    activeSaId = null;
     activeTab = 'sa';
     saveData();
     render();
+    pushHash();
 }
 
 function renderSidebar() {
     renderSchuljahrSelector();
+    const ro = isArchivedView();
+    ['btn-add-class-u','btn-add-class-o','btn-add-class-s'].forEach(id => {
+        const b = document.getElementById(id); if (b) b.style.display = ro ? 'none' : '';
+    });
     const listU = document.getElementById('class-list-u');
     const listO = document.getElementById('class-list-o');
     const classItem = cls => `
-        <div class="class-item ${cls.id===activeClassId?'active':''}" data-id="${cls.id}" draggable="true" onclick="selectClass('${cls.id}')">
-            <span class="drag-handle" onclick="event.stopPropagation()"><i class="bi bi-grip-vertical"></i></span>
+        <div class="class-item ${cls.id===activeClassId&&!activeProfileId&&!showProfiles?'active':''}" data-id="${cls.id}" draggable="${!ro}" onclick="selectClass('${cls.id}')">
+            ${ro ? '' : `<span class="drag-handle" onclick="event.stopPropagation()"><i class="bi bi-grip-vertical"></i></span>`}
             <span class="class-item-icon" title="${esc(cls.name)}">${esc(cls.name).slice(0,3)}</span>
-            <div class="fw-semibold">${esc(cls.name)}</div>
-            <div class="class-item-actions">
+            <div class="fw-semibold">${esc(cls.name)}${fwOffen(cls).length ? `<span class="fw-dot" title="${fwOffen(cls).length} Frühwarnung(en) offen"></span>` : ''}</div>
+            <div class="class-item-actions" ${ro?'style="display:none"':''}>
                 <button class="btn btn-xs btn-outline-secondary" onclick="event.stopPropagation();openEditClass('${cls.id}')" title="Umbenennen"><i class="bi bi-pencil"></i></button>
                 <button class="btn btn-xs btn-outline-danger" onclick="event.stopPropagation();openDeleteClass('${cls.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
             </div>
@@ -1952,6 +3748,7 @@ function renderSidebar() {
     listO.innerHTML = oClasses.length ? oClasses.map(classItem).join('') : empty;
     if (listS) listS.innerHTML = sClasses.length ? sClasses.map(classItem).join('') : empty;
     [listU, listO, listS].filter(Boolean).forEach(attachDragDrop);
+    document.getElementById('nav-profiles')?.classList.toggle('active', showProfiles || !!activeProfileId);
 }
 
 function attachDragDrop(list) {
@@ -1997,14 +3794,136 @@ function attachDragDrop(list) {
     });
 }
 
-function renderContent() {
-    const area = document.getElementById('content-area');
-    if (!activeClassId || !activeClasses().length) {
-        area.innerHTML = `<div class="empty-state"><i class="bi bi-folder-plus"></i><h5 class="mt-3">Keine Klasse ausgewählt</h5><p>Lege eine Klasse über die Seitenleiste an.</p></div>`;
+// ================================================================
+// RENDER – Landing Page (Übersicht aller Klassen)
+// ================================================================
+function goHome() {
+    if (!saLeaveOk(goHome)) return;
+    showArchive = false;
+    activeProfileId = null; showProfiles = false;
+    // Aus einem archivierten Jahr zurück ins aktuelle Schuljahr
+    if (isArchivedView()) {
+        const cur = currentSchuljahre();
+        if (cur.length) data.activeSchuljahrId = cur[cur.length - 1].id;
+    }
+    activeClassId = null;
+    renderSidebar(); renderContent();
+    pushHash();
+}
+
+function openArchive() {
+    if (!saLeaveOk(openArchive)) return;
+    showArchive = true;
+    activeProfileId = null; showProfiles = false;
+    activeClassId = null;
+    renderSidebar(); renderContent();
+    pushHash();
+}
+
+function openArchivedClass(sjId, clsId) {
+    data.activeSchuljahrId = sjId;
+    showArchive = false;
+    selectClass(clsId);
+}
+
+function classSemStats(cls, semKey) {
+    const sem = cls[semKey];
+    const notes = cls.students.map(s => effectiveSemesterNote(cls, sem, s)).filter(v => v !== null);
+    const avg = notes.length ? notes.reduce((a, b) => a + b, 0) / notes.length : null;
+    const fuenfer = notes.filter(v => noteInt(v) === 5).length;
+    return {avg, fuenfer, graded: notes.length, locked: sem?.locked === true};
+}
+
+const CLASS_GROUPS = [['unterstufe', 'Unterstufe'], ['oberstufe', 'Oberstufe'], ['spanisch', 'Spanisch']];
+
+// Klassenkarte; onOpen = JS-Ausdruck beim Klick, extra = zusätzliches HTML unten
+function lpClassCard(cls, onOpen, extra = '') {
+    return `
+        <div class="lp-card" onclick="${onOpen}" title="Klasse ${esc(cls.name)} öffnen">
+            <span class="lp-card-count"><i class="bi bi-people"></i> ${cls.students.length}</span>
+            <span class="lp-card-name">${esc(cls.name)}</span>
+            ${extra}
+        </div>`;
+}
+
+function lpGroups(classes, cardFn) {
+    return CLASS_GROUPS.map(([type, label]) => {
+        const list = classes.filter(c => c.type === type);
+        if (!list.length) return '';
+        return `<section class="lp-group lp-${type}">
+            <h6 class="lp-group-label">${label}</h6>
+            <div class="lp-grid">${list.map(cardFn).join('')}</div>
+        </section>`;
+    }).join('');
+}
+
+function renderLanding(area) {
+    const sj = activeSchuljahr();
+    const classes = activeClasses();
+    const archived = isSjArchived(sj);
+    const hasArchive = data.schuljahre.some(isSjArchived);
+    const actions = archived ? '' : `
+        <div class="lp-actions">
+            ${hasArchive ? `<button class="btn btn-sm btn-outline-secondary" onclick="openTransfer()" title="Klasse aus einem früheren Schuljahr mit ihren Schüler:innen übernehmen"><i class="bi bi-box-arrow-in-right me-1"></i>Klasse übernehmen</button>` : ''}
+            ${classes.length ? `<button class="btn btn-sm btn-primary" onclick="openCloseYear()"><i class="bi bi-archive me-1"></i>Schuljahr abschließen</button>` : ''}
+        </div>`;
+    if (!classes.length) {
+        area.innerHTML = `
+            <div class="lp-head"><div><h4 class="lp-title">Übersicht${sj ? ` <span class="lp-sj">${esc(sj.name)}</span>` : ''}</h4></div>${actions}</div>
+            ${pfDueBanner()}
+            <div class="empty-state"><i class="bi bi-folder-plus"></i><h5 class="mt-3">Noch keine Klassen</h5><p>Lege eine Klasse über die Seitenleiste an${hasArchive ? ' oder übernimm eine Klasse aus dem Archiv' : ''}.</p></div>`;
         return;
     }
+    const cardFn = archived
+        ? cls => lpClassCard(cls, `openArchivedClass('${sj.id}','${cls.id}')`)
+        : cls => lpClassCard(cls, `selectClass('${cls.id}')`);
+    area.innerHTML = `
+        <div class="lp-wrap">
+            <div class="lp-head">
+                <h4 class="lp-title">Übersicht${sj ? ` <span class="lp-sj">${esc(sj.name)}${archived ? ' · archiviert' : ''}</span>` : ''}</h4>
+                ${actions}
+            </div>
+            ${archived ? '' : pfDueBanner()}
+            ${lpGroups(classes, cardFn)}
+        </div>`;
+}
+
+function renderArchive(area) {
+    const archived = data.schuljahre.filter(isSjArchived).slice().reverse();
+    if (!archived.length) {
+        area.innerHTML = `<div class="empty-state"><i class="bi bi-archive"></i><h5 class="mt-3">Archiv ist leer</h5><p>Abgeschlossene Schuljahre erscheinen hier.</p></div>`;
+        return;
+    }
+    const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('de-AT') : '';
+    area.innerHTML = `
+        <div class="lp-head">
+            <div>
+                <h4 class="lp-title"><i class="bi bi-archive me-2" style="font-size:.85em"></i>Archiv</h4>
+                <small class="text-muted">Abgeschlossene Schuljahre — nur Ansicht</small>
+            </div>
+        </div>
+        ${archived.map(sj => `
+            <div class="arch-year">
+                <div class="arch-year-head">
+                    <h5 class="arch-year-title">${esc(sj.name)}</h5>
+                    ${sj.archivedAt ? `<small class="text-muted">abgeschlossen am ${fmtDate(sj.archivedAt)}</small>` : ''}
+                    <button class="btn btn-xs btn-outline-secondary ms-auto" onclick="restoreSchuljahr('${sj.id}')" title="Schuljahr wieder bearbeitbar machen"><i class="bi bi-arrow-counterclockwise me-1"></i>Wiederherstellen</button>
+                </div>
+                ${sj.classes.length ? lpGroups(sj.classes, cls => lpClassCard(cls, `openArchivedClass('${sj.id}','${cls.id}')`,
+                    `<button class="btn btn-xs btn-outline-secondary lp-card-btn" onclick="event.stopPropagation();openTransfer('${sj.id}','${cls.id}')"><i class="bi bi-box-arrow-in-right me-1"></i>Als neue Klasse übernehmen</button>`))
+                  : '<p class="text-muted small">Keine Klassen.</p>'}
+            </div>`).join('')}`;
+}
+
+function renderContent() {
+    const area = document.getElementById('content-area');
+    if (activeProfileId && !data.profile?.[activeProfileId]) activeProfileId = null;
+    if (activeProfileId) { renderProfile(area); return; }
+    if (showProfiles) { renderProfiles(area); return; }
+    if (showArchive) { activeClassId = null; renderArchive(area); return; }
     const cls = activeClasses().find(c=>c.id===activeClassId);
-    if (!cls) return;
+    if (!cls) { activeClassId = null; renderLanding(area); return; }
+    if (activeTab === 'matura' && !hasMatura(cls)) activeTab = cls.type === 'spanisch' ? 'wdh' : 'sa';
 
     area.innerHTML = `
         <div class="mb-2">
@@ -2012,20 +3931,21 @@ function renderContent() {
             <small class="text-muted">${cls.students.length} Schüler:in${cls.students.length!==1?'nen':''}</small>
         </div>
         <div class="semester-tab-bar">
-            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester1'?'active':''} ${isSemesterLocked(cls,'semester1')?'sem-locked':''}" onclick="selectSemester('semester1')">
-                ${isSemesterLocked(cls,'semester1') ? '<i class="bi bi-lock-fill" style="font-size:.8em;margin-right:3px;opacity:.7"></i>' : (activeSemester==='semester1'&&activeTab!=='jahr'&&activeTab!=='schueler' ? '<i class="bi bi-unlock" style="font-size:.8em;margin-right:3px;opacity:.4;cursor:pointer" onclick="event.stopPropagation();toggleSemesterLock(\'semester1\')" title="Semester sperren"></i>' : '')}
+            <div class="semester-tab ${!isClassTab(activeTab)&&activeSemester==='semester1'?'active':''} ${isSemesterLocked(cls,'semester1')?'sem-locked':''}" onclick="selectSemester('semester1')">
+                ${isSemesterLocked(cls,'semester1') ? '<i class="bi bi-lock-fill" style="font-size:.8em;margin-right:3px;opacity:.7"></i>' : (activeSemester==='semester1'&&!isClassTab(activeTab) ? '<i class="bi bi-unlock" style="font-size:.8em;margin-right:3px;opacity:.4;cursor:pointer" onclick="event.stopPropagation();toggleSemesterLock(\'semester1\')" title="Semester sperren"></i>' : '')}
                 1. Semester
                 ${isSemesterLocked(cls,'semester1') ? `<i class="bi bi-lock-fill" onclick="event.stopPropagation();toggleSemesterLock('semester1')" title="Sperre aufheben" style="font-size:.85em;margin-left:4px;cursor:pointer;opacity:.8"></i>` : ''}
             </div>
-            <div class="semester-tab ${activeTab!=='jahr'&&activeTab!=='schueler'&&activeSemester==='semester2'?'active':''} ${isSemesterLocked(cls,'semester2')?'sem-locked':''}" onclick="selectSemester('semester2')">
-                ${isSemesterLocked(cls,'semester2') ? '<i class="bi bi-lock-fill" style="font-size:.8em;margin-right:3px;opacity:.7"></i>' : (activeSemester==='semester2'&&activeTab!=='jahr'&&activeTab!=='schueler' ? '<i class="bi bi-unlock" style="font-size:.8em;margin-right:3px;opacity:.4;cursor:pointer" onclick="event.stopPropagation();toggleSemesterLock(\'semester2\')" title="Semester sperren"></i>' : '')}
+            <div class="semester-tab ${!isClassTab(activeTab)&&activeSemester==='semester2'?'active':''} ${isSemesterLocked(cls,'semester2')?'sem-locked':''}" onclick="selectSemester('semester2')">
+                ${isSemesterLocked(cls,'semester2') ? '<i class="bi bi-lock-fill" style="font-size:.8em;margin-right:3px;opacity:.7"></i>' : (activeSemester==='semester2'&&!isClassTab(activeTab) ? '<i class="bi bi-unlock" style="font-size:.8em;margin-right:3px;opacity:.4;cursor:pointer" onclick="event.stopPropagation();toggleSemesterLock(\'semester2\')" title="Semester sperren"></i>' : '')}
                 2. Semester
                 ${isSemesterLocked(cls,'semester2') ? `<i class="bi bi-lock-fill" onclick="event.stopPropagation();toggleSemesterLock('semester2')" title="Sperre aufheben" style="font-size:.85em;margin-left:4px;cursor:pointer;opacity:.8"></i>` : ''}
             </div>
             <div class="semester-tab jahr-tab ${activeTab==='jahr'?'active':''}" onclick="selectTab('jahr');return false;">Jahresnote</div>
+            ${hasMatura(cls) ? `<div class="semester-tab matura-tab ${activeTab==='matura'?'active':''}" onclick="selectTab('matura');return false;">Matura</div>` : ''}
             <div class="semester-tab schueler-tab ${activeTab==='schueler'?'active':''}" onclick="selectTab('schueler');return false;">Schüler:innen</div>
         </div>
-        ${activeTab!=='jahr'&&activeTab!=='schueler' ? `<ul class="nav class-tabs" id="class-tabs">
+        ${!isClassTab(activeTab) ? `<ul class="nav class-tabs" id="class-tabs">
             ${cls.type !== 'spanisch' ? `<li class="nav-item"><a class="nav-link ${activeTab==='sa'?'active':''}" href="#" onclick="selectTab('sa');return false;"><i class="bi bi-pencil-square me-1"></i>Schularbeiten</a></li>` : ''}
             <li class="nav-item"><a class="nav-link ${activeTab==='wdh'?'active':''}" href="#" onclick="selectTab('wdh');return false;"><i class="bi bi-journal-check me-1"></i>Wiederholungen</a></li>
             <li class="nav-item"><a class="nav-link ${activeTab==='praes'?'active':''}" href="#" onclick="selectTab('praes');return false;"><i class="bi bi-mic me-1"></i>Präsentationen</a></li>
@@ -2039,6 +3959,10 @@ function renderContent() {
 }
 
 function pushHash() {
+    if (activeProfileId) { history.replaceState(null, '', '#profil=' + activeProfileId); return; }
+    if (showProfiles) { history.replaceState(null, '', '#schueler'); return; }
+    if (showArchive) { history.replaceState(null, '', '#archiv'); return; }
+    if (!activeClassId) { history.replaceState(null, '', location.pathname + location.search); return; }
     const params = new URLSearchParams();
     if (activeClassId) params.set('class', activeClassId);
     params.set('sem', activeSemester);
@@ -2048,6 +3972,9 @@ function pushHash() {
 }
 
 function selectClass(id) {
+    if (id !== activeClassId && !saLeaveOk(() => selectClass(id))) return;
+    showArchive = false;
+    activeProfileId = null; showProfiles = false;
     activeClassId=id;
     const _selCls = activeClasses().find(c=>c.id===id);
     activeSaId = _selCls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
@@ -2055,14 +3982,15 @@ function selectClass(id) {
     renderSidebar(); renderContent();
     pushHash();
 }
-function selectTab(tab)  { activeTab=tab; if (tab==='jahr'||tab==='schueler') { renderContent(); } else { renderTabContent(); updateTabLinks(); } pushHash(); }
+function selectTab(tab)  { if (tab !== activeTab && !saLeaveOk(() => selectTab(tab))) return; activeTab=tab; if (isClassTab(tab)) { renderContent(); } else { renderTabContent(); updateTabLinks(); } pushHash(); }
 function selectSemester(sem) {
+    if (sem !== activeSemester && !saLeaveOk(() => selectSemester(sem))) return;
     activeSemester = sem;
     const cls = activeClasses().find(c=>c.id===activeClassId);
     activeSaId = cls?.[activeSemester]?.schularbeiten?.[0]?.id ?? null;
     const _semCls = activeClasses().find(c=>c.id===activeClassId);
     const _isSpanisch = _semCls?.type === 'spanisch';
-    if (activeTab === 'jahr' || activeTab === 'schueler') activeTab = _isSpanisch ? 'wdh' : 'sa';
+    if (isClassTab(activeTab)) activeTab = _isSpanisch ? 'wdh' : 'sa';
     else if (_isSpanisch && (activeTab === 'sa' || activeTab === 'ha')) activeTab = 'wdh';
     renderContent();
     pushHash();
@@ -2090,15 +4018,24 @@ function renderTabContent() {
         case 'mm':       area.innerHTML = renderTabMM(cls, sem);        attachMMListeners();       break;
         case 'gesamt':   area.innerHTML = renderTabGesamt(cls, sem);    attachGesamtListeners();   break;
         case 'jahr':     area.innerHTML = renderTabJahresnote(cls);     attachJahrListeners();     break;
+        case 'matura':   area.innerHTML = renderTabMatura(cls);         break;
         case 'schueler': area.innerHTML = renderTabSchueler(cls);       attachSchuelerListeners(); break;
     }
     const _semTabs = ['sa','wdh','praes','ha','mm','gesamt'];
-    if (_semTabs.includes(activeTab) && isSemesterLocked(cls, activeSemester)) {
+    if (isArchivedView()) {
+        const _banner = document.createElement('div');
+        _banner.innerHTML = '<div style="background:var(--paper-soft);border:1px solid var(--paper-line);border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:.88rem;color:var(--ink-soft);display:flex;align-items:center;gap:8px;"><i class="bi bi-archive"></i> <span>Das Schuljahr <strong>' + esc(activeSchuljahr().name) + '</strong> ist archiviert — nur Ansicht. <button onclick="openArchive()" style="background:none;border:none;color:var(--ink-soft);text-decoration:underline;cursor:pointer;padding:0;font-size:inherit">Zurück zum Archiv</button></span></div>';
+        area.insertBefore(_banner.firstElementChild, area.firstChild);
+    } else if (_semTabs.includes(activeTab) && isSemesterLocked(cls, activeSemester)) {
         const _semLabel = activeSemester === 'semester1' ? '1. Semester' : '2. Semester';
         const _banner = document.createElement('div');
         _banner.innerHTML = '<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:.88rem;color:#854d0e;display:flex;align-items:center;gap:8px;"><i class="bi bi-lock-fill"></i> <span>Das <strong>' + _semLabel + '</strong> ist gesperrt — keine Änderungen möglich. <button onclick="toggleSemesterLock(\'' + activeSemester + '\')" style="background:none;border:none;color:#92400e;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit">Entsperren</button></span></div>';
         area.insertBefore(_banner.firstElementChild, area.firstChild);
     }
+    const _fwSlot = document.createElement('div');
+    _fwSlot.id = 'fw-banner-slot';
+    _fwSlot.innerHTML = fwBannerHtml(cls);
+    area.insertBefore(_fwSlot, area.firstChild);
     attachTopScrollbars();
     if (savedScroll > 0) {
         requestAnimationFrame(() => {
@@ -2113,18 +4050,21 @@ function renderTabContent() {
 }
 
 function renderTabSchueler(cls) {
+    const ro = isArchivedView();
     const rows = cls.students.map(s => `
         <tr>
-            <td>${esc(s.name)}${s.legasthenie ? ' <span class="badge text-bg-warning ms-1" style="font-size:.65em;">Legasthenie</span>' : ''}</td>
+            <td>${studentNameCell(s)}${s.legasthenie ? ' <span class="badge text-bg-warning ms-1" style="font-size:.65em;">Legasthenie</span>' : ''}</td>
             <td class="text-end">
-                <button class="btn btn-sm btn-outline-secondary btn-icon me-1" onclick="openEditStudent('${s.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
-                <button class="btn btn-sm btn-outline-danger btn-icon" onclick="openDeleteStudent('${s.id}')" title="Löschen"><i class="bi bi-trash"></i></button>
+                ${pfTabHints(s)}
+                <button class="btn btn-sm btn-outline-secondary btn-icon me-1" onclick="openProfileOf('${s.id}')" title="Profil öffnen"><i class="bi bi-person-vcard"></i></button>
+                ${ro ? '' : `<button class="btn btn-sm btn-outline-secondary btn-icon me-1" onclick="openEditStudent('${s.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger btn-icon" onclick="openDeleteStudent('${s.id}')" title="Löschen"><i class="bi bi-trash"></i></button>`}
             </td>
         </tr>`).join('');
     return `
         <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
             <span class="text-muted small">${cls.students.length} Schüler:in${cls.students.length!==1?'nen':''}</span>
-            <button class="btn btn-sm btn-primary" onclick="openAddStudent()"><i class="bi bi-person-plus me-1"></i>Schüler:in hinzufügen</button>
+            ${ro ? '' : `<button class="btn btn-sm btn-primary" onclick="openAddStudent()"><i class="bi bi-person-plus me-1"></i>Schüler:in hinzufügen</button>`}
         </div>
         <table class="table table-sm table-hover">
             <tbody>${rows || '<tr><td class="text-muted">Noch keine Schüler:innen eingetragen.</td><td></td></tr>'}</tbody>
@@ -2137,22 +4077,34 @@ function attachSchuelerListeners() {}
 // RENDER – Tab Schularbeiten
 // ================================================================
 function renderTabSA(cls, sem) {
-    const locked = isSemesterLocked(cls, activeSemester);
+    const semLocked = isSemesterLocked(cls, activeSemester);
     const sas = sem.schularbeiten || [];
     if (!activeSaId || !sas.find(sa=>sa.id===activeSaId)) {
         activeSaId = sas[0]?.id ?? null;
     }
+    const activeSa = sas.find(sa=>sa.id===activeSaId);
+    const saLocked = activeSa?.locked === true;
+    const locked = semLocked || saLocked;
     const isOberstufe = cls.type === 'oberstufe';
     const canAddSA = sas.length < 2;
+    const lockIcon = sa => {
+        if (semLocked) return '';
+        if (sa.locked) return `<i class="bi bi-lock-fill sa-tab-lock" onclick="toggleSALock('${sa.id}')" title="Abgeschlossen – wieder öffnen"></i>`;
+        return '';
+    };
+    const closeBar = (activeSa && !saLocked && !semLocked && cls.students.length) ? saCloseBarHtml(cls, sem, activeSa) : '';
     const tabBar = `
         <div class="sa-tab-bar">
             ${sas.map(sa => `
-                <div class="sa-tab ${sa.id===activeSaId?'active':''}">
+                <div class="sa-tab ${sa.id===activeSaId?'active':''} ${sa.locked?'sa-locked':''}">
                     <span onclick="selectSA('${sa.id}')">${esc(sa.name)}</span>
-                    ${isOberstufe && sas.length > 1 && !locked ? `<button class="sa-tab-del" onclick="deleteSA('${sa.id}')" title="Entfernen">×</button>` : ''}
+                    ${lockIcon(sa)}
+                    ${isOberstufe && sas.length > 1 && !semLocked && !sa.locked ? `<button class="sa-tab-del" onclick="deleteSA('${sa.id}')" title="Entfernen">×</button>` : ''}
                 </div>`).join('')}
-            ${isOberstufe && canAddSA && !locked ? `<button class="sa-tab-add" onclick="addSA()" title="2. Schularbeit hinzufügen">+</button>` : ''}
-        </div>`;
+            ${isOberstufe && canAddSA && !semLocked ? `<button class="sa-tab-add" onclick="addSA()" title="2. Schularbeit hinzufügen">+</button>` : ''}
+        </div>
+        ${saLocked && !semLocked ? `<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:.88rem;color:#854d0e;display:flex;align-items:center;gap:8px;"><i class="bi bi-lock-fill"></i> <span>Die Schularbeit <strong>${esc(activeSa.name)}</strong> ist abgeschlossen — keine Änderungen möglich. <button onclick="toggleSALock('${activeSa.id}')" style="background:none;border:none;color:#92400e;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit">Wieder öffnen</button></span></div>` : ''}
+        ${closeBar}`;
     if (!activeSaId || !cls.students.length) {
         return tabBar + (cls.students.length ? '' : emptyStudents());
     }
@@ -2167,6 +4119,7 @@ function renderTabSA(cls, sem) {
                         <th class="th-sa1">Kommentar</th>
                     </tr>
                 </thead>
+                <tbody id="sa-avg-tbody">${renderSAAvgRow(cls, sem, activeSaId)}</tbody>
                 <tbody id="sa-tbody">
                     ${cls.students.map(s => renderSARowOberstufe(getSData(sem, s.id), s, activeSaId, locked)).join('')}
                 </tbody>
@@ -2192,6 +4145,7 @@ function renderTabSA(cls, sem) {
                         <th class="text-center th-sa1">Kommentar</th>
                     </tr>
                 </thead>
+                <tbody id="sa-avg-tbody">${renderSAAvgRow(cls, sem, activeSaId)}</tbody>
                 <tbody id="sa-tbody">
                     ${cls.students.map(s => renderSARow(getSData(sem, s.id), s, activeSaId, fpp, locked)).join('')}
                 </tbody>
@@ -2241,31 +4195,90 @@ function renderSARowOberstufe(sd, s, saId, locked=false) {
 function renderSARow(sd, s, saId, fehlerProPunkt, locked=false) {
     const sa = sd.schularbeiten?.[saId] || {aufgabenstellung:null,fehler:null,wortschatz:null,textorganisation:null,kommentar:''};
     const leg = !!s.legasthenie;
-    const spAuto = calcSprachrichtigkeit(sa.fehler, fehlerProPunkt);
+    const absent = !!sa.abwesend;
+    const inpLocked = locked || absent;
+    const spAuto = absent ? null : calcSprachrichtigkeit(sa.fehler, fehlerProPunkt);
     const g  = calcGesamt(sa, fehlerProPunkt, leg);
     const n  = calcNote(g);
     const fehlerInp = leg
         ? `<input class="cell-input" type="number" min="0" step="1" value="" disabled style="opacity:.4;cursor:not-allowed;">`
-        : numInp(s.id, saId, 'fehler', sa.fehler, 0, null, locked);
+        : numInp(s.id, saId, 'fehler', sa.fehler, 0, null, inpLocked);
     const spCell = leg
         ? `<div class="d-flex flex-column align-items-center gap-1">
-             <input class="cell-input sa-inp" type="number" min="0" max="8" step="1" value="${sa.sprachrichtigkeitManuell??''}" data-sid="${s.id}" data-sa="${saId}" data-field="sprachrichtigkeitManuell" style="width:52px;" id="sp-${s.id}" ${locked?'disabled':''}>
+             <input class="cell-input sa-inp" type="number" min="0" max="8" step="1" value="${sa.sprachrichtigkeitManuell??''}" data-sid="${s.id}" data-sa="${saId}" data-field="sprachrichtigkeitManuell" style="width:52px;" id="sp-${s.id}" ${inpLocked?'disabled':''}>
              <span class="badge text-bg-warning" style="font-size:.65em;font-weight:500;">Legasthenie</span>
            </div>`
         : `<span class="cell-ro" id="sp-${s.id}">${spAuto??'—'}</span>`;
     return `
-    <tr data-sid="${s.id}">
-        <td class="sticky-col">${studentNameCell(s)}</td>
-        <td class="td-sa1 text-center">${numInp(s.id, saId, 'aufgabenstellung', sa.aufgabenstellung, 0, 8, locked)}</td>
+    <tr data-sid="${s.id}" class="${absent?'sa-absent':''}">
+        <td class="sticky-col">
+            <div class="d-flex align-items-center justify-content-between gap-2">
+                ${studentNameCell(s)}
+                <label class="d-flex align-items-center gap-1 mb-0 sa-absent-lbl">
+                    <input type="checkbox" class="sa-absent-cb" data-sid="${s.id}" data-said="${saId}" ${absent?'checked':''} ${locked?'disabled':''}>abwesend
+                </label>
+            </div>
+        </td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'aufgabenstellung', sa.aufgabenstellung, 0, 8, inpLocked)}</td>
         <td class="td-sa1 text-center">${fehlerInp}</td>
         <td class="td-sa1 text-center">${spCell}</td>
-        <td class="td-sa1 text-center">${numInp(s.id, saId, 'wortschatz', sa.wortschatz, 0, 8, locked)}</td>
-        <td class="td-sa1 text-center">${numInp(s.id, saId, 'textorganisation', sa.textorganisation, 0, 8, locked)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'wortschatz', sa.wortschatz, 0, 8, inpLocked)}</td>
+        <td class="td-sa1 text-center">${numInp(s.id, saId, 'textorganisation', sa.textorganisation, 0, 8, inpLocked)}</td>
         <td class="td-sa1 text-center"><span class="cell-ro" id="g-${s.id}">${g??'—'}</span></td>
         <td class="td-sa1 text-center">${noteBadgeSAInt(n, 'n-'+s.id)}</td>
         <td class="td-sa1 text-center">${noteBadgeSADec(n, 'nd-'+s.id)}</td>
         <td class="td-sa1"><textarea class="komm-input" data-sid="${s.id}" data-said="${saId}" placeholder="Kommentar..." ${locked?'disabled':''}>${esc(sa.kommentar||'')}</textarea></td>
     </tr>`;
+}
+
+// Durchschnittszeile über alle Schüler:innen mit eingetragenen Werten
+function renderSAAvgRow(cls, sem, saId) {
+    const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0) / arr.length : null;
+    const fmt = v => v === null ? '—' : v.toFixed(1).replace('.', ',');
+    const label = `<td class="sticky-col">Ø Klasse</td>`;
+    if (cls.type === 'oberstufe') {
+        const notes = cls.students
+            .map(s => parseOrNull(getSData(sem, s.id).schularbeiten?.[saId]?.note))
+            .filter(n => n !== null);
+        const a = avg(notes);
+        return `<tr class="avg-row">${label}
+            <td class="text-center">${a === null ? '—' : fmtNote2(a)}</td>
+            <td></td></tr>`;
+    }
+    const saDef = sem.schularbeiten.find(x=>x.id===saId);
+    const fpp = saDef?.fehlerProPunkt ?? 3;
+    const cols = {a:[], f:[], sp:[], w:[], t:[], g:[], note:[], dec:[]};
+    cls.students.forEach(s => {
+        const sa = getSData(sem, s.id).schularbeiten?.[saId];
+        if (!sa || sa.abwesend) return;
+        const leg = !!s.legasthenie;
+        const push = (k, v) => { if (v !== null) cols[k].push(v); };
+        push('a', parseOrNull(sa.aufgabenstellung));
+        if (!leg) push('f', parseOrNull(sa.fehler));
+        push('sp', leg ? parseOrNull(sa.sprachrichtigkeitManuell) : calcSprachrichtigkeit(sa.fehler, fpp));
+        push('w', parseOrNull(sa.wortschatz));
+        push('t', parseOrNull(sa.textorganisation));
+        const g = calcGesamt(sa, fpp, leg);
+        push('g', g);
+        const n = calcNote(g);
+        if (n) { cols.note.push(n.note); cols.dec.push(n.decimal); }
+    });
+    const avgNote = avg(cols.note);
+    return `<tr class="avg-row">${label}
+        <td class="text-center">${fmt(avg(cols.a))}</td>
+        <td class="text-center">${fmt(avg(cols.f))}</td>
+        <td class="text-center">${fmt(avg(cols.sp))}</td>
+        <td class="text-center">${fmt(avg(cols.w))}</td>
+        <td class="text-center">${fmt(avg(cols.t))}</td>
+        <td class="text-center">${fmt(avg(cols.g))}</td>
+        <td class="text-center">${avgNote === null ? '—' : fmtNote2(avgNote)}</td>
+        <td class="text-center">${fmtNote2(avg(cols.dec))}</td>
+        <td></td></tr>`;
+}
+
+function refreshSAAvgRow(cls, sem, saId) {
+    const el = document.getElementById('sa-avg-tbody');
+    if (el) el.innerHTML = renderSAAvgRow(cls, sem, saId);
 }
 
 function numInp(sid, sa, field, val, min, max, disabled=false) {
@@ -2275,13 +4288,19 @@ function numInp(sid, sa, field, val, min, max, disabled=false) {
 }
 
 function studentNameCell(s) {
-    return `<span class="text-truncate" title="${esc(s.name)}">${esc(s.name)}</span>`;
+    const mark = fwNameMark(s);
+    const name = `<span class="text-truncate pf-name" title="${esc(s.name)} – Profil öffnen" onclick="event.stopPropagation();openProfileOf('${s.id}')">${esc(s.name)}</span>`;
+    if (!mark) return name;
+    return `<span class="name-cell">${name}${mark}</span>`;
 }
 
 function attachSAListeners() {
     const tbody = document.getElementById('sa-tbody'); if(!tbody) return;
     tbody.querySelectorAll('.sa-inp').forEach(inp => {
         inp.addEventListener('change', function() { updateSAField(this.dataset.sid, this.dataset.sa, this.dataset.field, this.value); });
+    });
+    tbody.querySelectorAll('.sa-absent-cb').forEach(cb => {
+        cb.addEventListener('change', function() { updateSAAbwesend(this.dataset.sid, this.dataset.said, this.checked); });
     });
     tbody.querySelectorAll('.ost-note-sel').forEach(sel => {
         sel.addEventListener('change', function() { updateOberstufeSANote(this.dataset.sid, this.dataset.said, this.value); });
@@ -2331,12 +4350,13 @@ function renderTabWDH(cls, sem) {
                     <tr>
                         <th class="sticky-col" style="">Name</th>
                         ${wdhs.map(w=>`
-                            <th class="text-center th-wdh" style="min-width:110px">
-                                <div>${esc(w.name)}</div>
+                            <th class="text-center th-wdh ${w.locked?'item-locked':''}" style="min-width:110px">
+                                <div>${w.locked?'<i class="bi bi-lock-fill me-1" style="font-size:.8em"></i>':''}${esc(w.name)}</div>
                                 <div class="small" style="opacity:.75">max ${w.maxPunkte} Pkt.</div>
                                 <div class="d-flex justify-content-center gap-1 mt-1">
-                                    ${!locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditWdh('${w.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
-                                    ${!locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeleteWdh('${w.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
+                                    ${itemLockBtn('wiederholungen', w, locked)}
+                                    ${!locked && !w.locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditWdh('${w.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
+                                    ${!locked && !w.locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeleteWdh('${w.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
                                 </div>
                             </th>`).join('')}
                         <th class="text-center" style="">Teilnote</th>
@@ -2355,14 +4375,15 @@ function renderTabWDH(cls, sem) {
                                 const note = pct!==null ? pctToNote(pct) : null;
                                 const tooltip = note!==null ? `title="${fmtPct(pct)} → Note ${note}"` : '';
                                 const tabIdx = wIdx * cls.students.length + sIdx + 1;
+                                const wl = locked || w.locked;
                                 return `<td class="td-wdh text-center">
                                     <div class="d-flex align-items-center justify-content-center gap-1">
                                         <input class="cell-input wdh-inp" type="number" min="0" max="${w.maxPunkte}" step="0.5"
                                                value="${numVal}" tabindex="${tabIdx}"
-                                               data-sid="${s.id}" data-wid="${w.id}" ${tooltip}${absent||locked?' disabled style="opacity:.35"':''}>
+                                               data-sid="${s.id}" data-wid="${w.id}" ${tooltip}${absent||wl?' disabled style="opacity:.35"':''}>
                                         ${note!==null ? `<span style="font-size:.7rem;color:#666;white-space:nowrap">${fmtPct(pct)}</span><span class="note-badge note-${note}" >${note}</span>` : ''}
                                         <label class="d-flex align-items-center gap-1 mb-0" style="font-size:.7rem;color:#888;cursor:pointer;white-space:nowrap">
-                                            <input type="checkbox" class="wdh-absent" data-sid="${s.id}" data-wid="${w.id}" ${absent?'checked':''} ${locked?'disabled':''} title="Abwesend">Abw.
+                                            <input type="checkbox" class="wdh-absent" data-sid="${s.id}" data-wid="${w.id}" ${absent?'checked':''} ${wl?'disabled':''} title="Abwesend">Abw.
                                         </label>
                                     </div>
                                 </td>`;
@@ -2430,12 +4451,13 @@ function renderTabPraes(cls, sem) {
                     <tr>
                         <th class="sticky-col" style="">Name</th>
                         ${praes.map(p=>`
-                            <th class="text-center th-praes" style="min-width:120px">
-                                <div>${esc(p.name)}</div>
+                            <th class="text-center th-praes ${p.locked?'item-locked':''}" style="min-width:120px">
+                                <div>${p.locked?'<i class="bi bi-lock-fill me-1" style="font-size:.8em"></i>':''}${esc(p.name)}</div>
                                 <div class="small" style="opacity:.75">Note 1–5</div>
                                 <div class="d-flex justify-content-center gap-1 mt-1">
-                                    ${!locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditPraes('${p.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
-                                    ${!locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeletePraes('${p.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
+                                    ${itemLockBtn('praesentationen', p, locked)}
+                                    ${!locked && !p.locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditPraes('${p.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
+                                    ${!locked && !p.locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeletePraes('${p.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
                                 </div>
                             </th>`).join('')}
                         <th class="text-center" style="">Teilnote Ø</th>
@@ -2449,7 +4471,7 @@ function renderTabPraes(cls, sem) {
                             ${praes.map(p => {
                                 const val = getSData(sem, s.id).praesentationen?.[p.id] ?? '';
                                 return `<td class="td-praes text-center">
-                                    <select class="praes-select" data-sid="${s.id}" data-pid="${p.id}" ${locked?'disabled':''}>
+                                    <select class="praes-select" data-sid="${s.id}" data-pid="${p.id}" ${locked||p.locked?'disabled':''}>
                                         <option value="">—</option>
                                         ${[1,2,3,4,5].map(n=>`<option value="${n}" ${+val===n?'selected':''}>${n}</option>`).join('')}
                                     </select>
@@ -2493,11 +4515,12 @@ function renderTabHA(cls, sem) {
                     <tr>
                         <th class="sticky-col" style="width:210px">Name</th>
                         ${has.map(h=>`
-                            <th class="text-center th-ha">
-                                <div class="ha-title" style="font-size:${haTitleFs(h.name)}">${esc(h.name)}</div>
+                            <th class="text-center th-ha ${h.locked?'item-locked':''}">
+                                <div class="ha-title" style="font-size:${haTitleFs(h.name)}">${h.locked?'<i class="bi bi-lock-fill me-1" style="font-size:.8em"></i>':''}${esc(h.name)}</div>
                                 <div class="d-flex justify-content-center gap-1 mt-1">
-                                    ${!locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditHA('${h.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
-                                    ${!locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeleteHA('${h.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
+                                    ${itemLockBtn('hausaufgaben', h, locked)}
+                                    ${!locked && !h.locked ? `<button class="btn btn-xs btn-outline-light" onclick="openEditHA('${h.id}')" title="Bearbeiten"><i class="bi bi-pencil"></i></button>` : ''}
+                                    ${!locked && !h.locked ? `<button class="btn btn-xs btn-outline-danger" onclick="openDeleteHA('${h.id}')" title="Löschen"><i class="bi bi-trash"></i></button>` : ''}
                                 </div>
                             </th>`).join('')}
                         <th class="text-center th-ha-stat" style="width:110px;min-width:110px;max-width:110px;">Punkte</th>
@@ -2515,7 +4538,7 @@ function renderTabHA(cls, sem) {
                         </td>
                         ${has.map(h => `
                             <td class="text-center" style="background:#dbeafe;">
-                                <select class="ha-alle-select" data-hid="${h.id}" title="Wert für alle Schüler setzen" ${locked?'disabled':''}>
+                                <select class="ha-alle-select" data-hid="${h.id}" title="Wert für alle Schüler setzen" ${locked||h.locked?'disabled':''}>
                                     <option value="">—</option>
                                     <option value="k">k</option>
                                     <option value="0">0</option>
@@ -2538,7 +4561,7 @@ function renderTabHA(cls, sem) {
                             ${has.map(h => {
                                 const val = getSData(sem, s.id).hausaufgaben?.[h.id] ?? '';
                                 return `<td class="td-ha text-center">
-                                    <select class="ha-select" data-sid="${s.id}" data-hid="${h.id}" ${locked?'disabled':''}>
+                                    <select class="ha-select" data-sid="${s.id}" data-hid="${h.id}" ${locked||h.locked?'disabled':''}>
                                         <option value="">—</option>
                                         <option value="k"     ${val==='k' ?'selected':''}>k</option>
                                         <option value="0"     ${val===0||val==='0'?'selected':''}>0</option>
@@ -2763,6 +4786,7 @@ function renderTabGesamt(cls, sem) {
                                         : `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}">—</span></td>`;
                                 }
                                 const n = saData ? calcNote(calcGesamt(saData, sa.fehlerProPunkt ?? 3, s.legasthenie)) : null;
+                                if (saData?.abwesend) return `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}" title="abwesend">abw.</span></td>`;
                                 return n
                                     ? `<td class="td-sa1 text-center"><span class="note-badge note-${n.note}" id="${saId2}">${fmtNoteModifier(n.decimal)}</span></td>`
                                     : `<td class="td-sa1 text-center"><span class="note-badge note-empty" id="${saId2}">—</span></td>`;
@@ -2773,7 +4797,7 @@ function renderTabGesamt(cls, sem) {
                             ${!isSpanisch ? `<td class="td-ha text-center">${ha !== null ? `<span class="note-badge note-${ha}" id="gsha-${s.id}">${fmtNote2(ha)}</span>` : `<span class="note-badge note-empty" id="gsha-${s.id}">—</span>`}</td>` : ''}
                             <td class="td-praes text-center">${mm !== null ? `<span class="note-badge note-${mm}" id="gsmm-${s.id}">${mm}</span>` : `<span class="note-badge note-empty" id="gsmm-${s.id}">—</span>`}</td>
                             <td class="td-zp text-center">
-                                <select class="zp-select" data-sid="${s.id}"${zpAdj !== null ? ' style="border-color:#9c27b0;background:#f3e5f5;"' : ''}>
+                                <select class="zp-select" data-sid="${s.id}"${locked ? ' disabled' : ''}${zpAdj !== null ? ' style="border-color:#9c27b0;background:#f3e5f5;"' : ''}>
                                     <option value=""${zpAdj === null ? ' selected' : ''}></option>
                                     <option value="-0.5"${zpAdj === -0.5 ? ' selected' : ''}>verbessert (−0,5)</option>
                                     <option value="0"${zpAdj !== null && zpAdj === 0 ? ' selected' : ''}>gleich (±0)</option>
@@ -2863,7 +4887,7 @@ function jahrWeightInput(key, label, val) {
         <label class="form-label form-label-sm mb-0 text-center" style="font-size:.8rem">${label}</label>
         <div class="input-group input-group-sm" style="width:90px">
             <input type="number" class="form-control jahr-weight-input" min="0" max="100" step="5"
-                   value="${val||0}" data-key="${key}" id="jw-${key}">
+                   value="${val||0}" data-key="${key}" id="jw-${key}" ${isArchivedView()?'disabled':''}>
             <span class="input-group-text" style="font-size:.8rem">%</span>
         </div>
     </div>`;
@@ -2909,6 +4933,417 @@ function updateJahrColumns(cls) {
             ? `<span class="cell-ro" style="font-weight:600">${fmtNote(jahr)}</span>`
             : '<span class="text-muted small">—</span>';
     });
+}
+
+// ================================================================
+// MATURA – SRDP-Beurteilungsraster Deutsch (8. Klasse Oberstufe)
+// ================================================================
+// Pro Schüler:in zwei Raster (Text 1 / Text 2), gespeichert in
+// cls.matura = { pruefer, students: { [sid]: { knr, locked, t: [ {m, c}, {m, c} ] } } }
+//   m: markierte Zellen  { '<zeile>:<spalte>': 1 }       (Spalte 0 = nicht erfüllt … 4 = weit über …)
+//   c: angekreuzte Boxen { inh|struk|k|stil|norm|k3: <spalte> }
+// Teilnoten: K1 = Gesamtzeile Raster 1 von Text 1, K2 = dieselbe von Text 2,
+// K3 = Ø aus K3/1 und K3/2 (Gesamtzeile Raster 2). Spalte 0 → Note 5 … Spalte 4 → Note 1.
+
+const MR_PRUEFER_DEFAULT = 'Prüferin: Mag.a Désirée Schretter';
+const MR_LEVELS = ['nicht erfüllt', 'das Wesentliche überwiegend erfüllt', 'das Wesentliche zur Gänze erfüllt',
+    'über das Wesentliche hinausgehend erfüllt', 'weit über das Wesentliche hinausgehend erfüllt'];
+// side: Zeilen der linken Beschriftung, [Text, unterstrichen]
+const MR_RASTER = [
+    [   {cb: 'inh', label: 'Inhalt',
+         side: [['Aufgaben-'], ['erfüllung aus'], ['inhaltlicher', 1], ['Sicht']],
+         rows: [
+            ['sh', 'SH', ['Schreibhandlung(en) im Sinne der geforderten Textsorte überwiegend realisiert', 'Schreibhandlung(en) im Sinne der geforderten Textsorte weitgehend realisiert', 'Schreibhandlung(en) im Sinne der geforderten Textsorte durchgehend realisiert', 'Schreibhandlung(en) im Sinne der geforderten Textsorte umfassend realisiert']],
+            ['aa', '¥A', ['Arbeitsaufträge überwiegend erfüllt', 'Arbeitsaufträge weitgehend erfüllt', 'alle Arbeitsaufträge erfüllt', 'alle Arbeitsaufträge umfassend erfüllt']],
+            ['tb', 'TB', ['Textbeilage(n) im Sinne der Arbeitsaufträge überwiegend erfasst', 'Textbeilage(n) im Sinne der Arbeitsaufträge weitgehend erfasst', 'Textbeilage(n) im Sinne der Arbeitsaufträge vollständig erfasst', 'Textbeilage(n) im Sinne der Arbeitsaufträge vollständig erfasst']],
+            ['i', 'i', ['sachlich überwiegend richtig', 'sachlich weitgehend richtig', 'sachlich richtig', 'sachlich durchgehend richtig']],
+            ['ia', 'iA', ['Qualität der inhaltlichen Auseinandersetzung: oberflächlich/wenig treffsicher/reproduzierend', 'Qualität der inhaltlichen Auseinandersetzung: ansatzweise komplex/weitgehend treffsicher/Ansätze zur Eigenständigkeit', 'Qualität der inhaltlichen Auseinandersetzung: komplex/treffsicher/merklich eigenständig', 'Qualität der inhaltlichen Auseinandersetzung: in hohem Maße komplex/treffsicher/eigenständig; gegebenenfalls ideenreich']],
+         ]},
+        {cb: 'struk', label: 'Textstruktur',
+         side: [['Aufgaben-'], ['erfüllung aus'], ['text-', 1], ['struktureller', 1], ['Sicht']],
+         rows: [
+            ['ko', 'KO', ['Kohärenz: Text gedanklich und formal überwiegend der Textsorte angemessen strukturiert', 'Kohärenz: Text gedanklich und formal weitgehend der Textsorte angemessen strukturiert', 'Kohärenz: Text gedanklich und formal durchgehend der Textsorte angemessen und klar strukturiert', 'Kohärenz: Text gedanklich und formal durchgehend der Textsorte angemessen, klar, zielgerichtet und gegebenenfalls eigenständig strukturiert']],
+            ['vtb', 'VTB', ['Bezugnahme auf die Textbeilage(n) im Sinne der geforderten Textsorte überwiegend erkennbar', 'Bezugnahme auf die Textbeilage(n) im Sinne der geforderten Textsorte realisiert', 'gelungene Verknüpfung mit der/den Textbeilage(n) im Sinne der geforderten Textsorte', 'besonders gelungene Verknüpfung mit der/den Textbeilage(n) im Sinne der geforderten Textsorte']],
+            ['km', 'KM', ['Einsatz passender Kohäsionsmittel überwiegend erkennbar', 'Einsatz passender Kohäsionsmittel weitgehend erkennbar', 'nahezu durchgehender Einsatz passender Kohäsionsmittel', 'durchgehender Einsatz passender Kohäsionsmittel']],
+         ]},
+    ],
+    [   {cb: 'stil', label: 'Stil/Ausdruck',
+         side: [['Aufgaben-'], ['erfüllung in'], ['Bezug auf ', 0, 'Stil'], ['und Ausdruck', 1]],
+         rows: [
+            ['sv', 'SV', ['überwiegend schreibhandlungs- und situationsadäquate Sprachverwendung', 'weitgehend schreibhandlungs- und situationsadäquate Sprachverwendung', 'nahezu durchgehend schreibhandlungs- und situationsadäquate Sprachverwendung', 'durchgehend schreibhandlungs- und situationsadäquate Sprachverwendung']],
+            ['a', 'A', ['überwiegend angemessene und semantisch korrekte Ausdrucksweise sowie geringe Varianz in der Wortwahl', 'weitgehend angemessene und semantisch korrekte Ausdrucksweise sowie variantenreiche Wortwahl', 'durchgehend angemessene und semantisch korrekte Ausdrucksweise sowie präzise und variantenreiche Wortwahl', 'durchgehend angemessene und semantisch korrekte Ausdrucksweise sowie besonders präzise, differenzierte und variantenreiche Wortwahl']],
+            ['str', 'STR', ['überwiegend gut verständliche bzw. nur wenig variierende Satzstrukturen', 'weitgehend gut verständliche und variantenreiche Satzstrukturen', 'durchgehend variantenreiche und komplexe bzw. der Textsorte angemessene Satzstrukturen', 'besonders variantenreiche und komplexe bzw. der Textsorte angemessene Satzstrukturen']],
+            ['f', 'F', ['viele an die Textbeilage(n) angelehnte oder wörtlich übernommene Formulierungen', 'weitgehend eigenständige Formulierungen', 'nahezu durchgehend eigenständige Formulierungen', 'durchgehend eigenständige Formulierungen']],
+         ]},
+        {cb: 'norm', label: 'Sprachnormen',
+         side: [['Aufgaben-'], ['erfüllung in'], ['Bezug auf'], ['normative', 1], ['Sprach-', 1], ['richtigkeit', 1]],
+         rows: [
+            ['r', 'R', ['überwiegend richtige Anwendung der Regeln der Orthografie', 'weitgehend richtige Anwendung der Regeln der Orthografie', 'richtige Anwendung der Regeln der Orthografie; wenige Fehler', 'orthografisch (nahezu) fehlerfrei']],
+            ['z', 'Z', ['überwiegend richtige Anwendung der Regeln der Zeichensetzung', 'weitgehend richtige Anwendung der Regeln der Zeichensetzung', 'richtige Anwendung der Regeln der Zeichensetzung; wenige Fehler', 'Zeichensetzung (nahezu) fehlerfrei']],
+            ['g', 'G', ['überwiegend richtige Anwendung der Regeln der Grammatik', 'weitgehend richtige Anwendung der Regeln der Grammatik', 'richtige Anwendung der Regeln der Grammatik; wenige Fehler', 'grammatikalisch (nahezu) fehlerfrei']],
+         ]},
+    ],
+];
+
+const MR_HATCH = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 0L6 6M6 0L0 6' stroke='%23777' stroke-width='.5'/%3E%3C/svg%3E")`;
+// Gemeinsame Styles für Bildschirm und Druck (der Druck läuft in einem eigenen iframe)
+const MR_CSS = `
+    .mr-sheet { font-family: 'Century Gothic', 'URW Gothic', 'URW Gothic L', 'Avant Garde', sans-serif; color: #000; line-height: 1.2; }
+    .mr-tbl { width: 100%; table-layout: fixed; border-collapse: collapse; background: #fff; }
+    .mr-tbl td { border: .5pt solid #000; padding: 0 .75em; vertical-align: middle; overflow-wrap: break-word; }
+    .mr-gap { height: 3.6mm; }
+    .mr-title { text-align: center; font-weight: 700; font-size: 1.54em; }
+    .mr-hatch { background-color: #f2f2f2; background-image: ${MR_HATCH}; background-size: .7mm .7mm; }
+    .mr-gray { background: #e7e6e6; }
+    .mr-lvl { text-align: center; font-style: italic; }
+    .mr-c { text-align: center; }
+    .mr-b { text-align: center; font-weight: 700; }
+    .mr-side { text-align: center; }
+    .mr-kz { text-align: center; font-weight: 700; font-size: 1.08em; }
+    .mr-tbl td.mr-dbl { border-left: 2.25pt double #000; }
+    .mr-cbrow td { height: 1.55em; }
+    .mr-cb { display: inline-block; width: 1.12em; height: 1.12em; vertical-align: middle; box-sizing: border-box;
+             border: .5pt solid #000; background-color: #fff; }
+    .mr-cb.on { background-image: linear-gradient(45deg, transparent 42%, #000 42%, #000 58%, transparent 58%),
+                                  linear-gradient(-45deg, transparent 42%, #000 42%, #000 58%, transparent 58%); }
+    .mr-d.mr-mark { background: #fff176; }
+    .mr-sheet, .mr-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+`;
+const MR_PRINT_CSS = `
+    @page { size: A4 landscape; margin: 0; }
+    html, body { margin: 0; padding: 0; background: #fff; }
+    .mr-page { position: relative; width: 297mm; height: 210mm; overflow: hidden; break-after: page; page-break-after: always; }
+    .mr-page:last-child { break-after: auto; page-break-after: auto; }
+    .mr-page .mr-sheet { font-size: 6.5pt; }
+    .mr-phead { position: absolute; top: 12.5mm; left: 20mm; }
+    .mr-pbody { position: absolute; top: 23mm; left: 20mm; width: 259.3mm; }
+    .mr-pfoot { position: absolute; bottom: 12.5mm; left: 20mm; width: 252mm; }
+    .mr-hf { border-collapse: collapse; table-layout: fixed; font-size: 8pt; line-height: 1.2; }
+    .mr-hf td { border: .5pt solid #000; padding: 0 1.9mm; box-sizing: border-box; }
+    .mr-hf.mr-ft td { background: #e7e6e6; }
+    .mr-pnum { text-align: right; font-size: 8pt; line-height: 1.2; }
+`;
+// Bildschirm-Darstellung des Rasters + Bedienelemente des Tabs
+const MR_SCREEN_CSS = `
+    .mr-screen { overflow-x: auto; background: #fff; border: 1px solid var(--paper-line); border-radius: var(--r-md); padding: 14px; margin-bottom: 1rem; }
+    .mr-screen .mr-sheet { font-size: 11.5px; min-width: 1100px; }
+    .mr-screen .mr-tbl td { border-width: 1px; padding: 1px 5px; }
+    .mr-screen .mr-tbl td.mr-dbl { border-left-width: 3px; }
+    .mr-screen .mr-hatch { background-size: 4px 4px; }
+    .mr-screen .mr-gap { height: 12px; }
+    .mr-ia .mr-d { cursor: pointer; transition: background .1s; }
+    .mr-ia .mr-d:not(.mr-mark):hover { background: #fffbe0; }
+    .mr-ia .mr-cb { cursor: pointer; }
+    .mr-ia .mr-cb:hover { box-shadow: 0 0 0 2px #fbbf24; }
+    .mr-text-h { font-family: var(--font-serif); font-size: 1rem; margin: 1.25rem 0 .5rem; color: var(--ink-soft); }
+    .mr-ov tbody tr { cursor: pointer; }
+    .mr-ov tbody tr:hover td { background: var(--sun-200); }
+    .mr-ov td.sticky-col, .mr-ov th.sticky-col { box-shadow: inset 0 -1px 0 var(--paper-line), inset -1px 0 0 var(--paper-line), 3px 0 8px rgba(42,42,54,.06); }
+    .mr-ov select { display: inline-block; min-width: 70px; }
+    .mr-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 1.25rem 0 .75rem; }
+    .mr-bar h5 { margin: 0 6px 0 0; font-family: var(--font-serif); }
+    .mr-noten { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem; }
+    .mr-noten > div { background: var(--paper-soft); border: 1px solid var(--paper-line); border-radius: var(--r-md); padding: 8px 14px; min-width: 120px; }
+    .mr-noten .mr-nl { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-mute); }
+    .mr-noten .mr-nv { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: .8rem; color: var(--ink-mute); }
+    .mr-noten .mr-ges { background: #fff; border: 2px solid var(--sun-500); }
+    .mr-hint { font-size: .8rem; color: var(--ink-mute); margin-bottom: .5rem; }
+`;
+document.head.insertAdjacentHTML('beforeend', `<style id="mr-style">${MR_CSS}${MR_SCREEN_CSS}</style>`);
+
+function isClassTab(tab) { return tab === 'jahr' || tab === 'matura' || tab === 'schueler'; }
+// Matura-Tab nur für Oberstufenklassen im Maturajahrgang (Klassenname beginnt mit 8)
+function hasMatura(cls) { return cls?.type === 'oberstufe' && /^\s*8/.test(cls.name || ''); }
+
+function mrStudent(cls, sid, create = false) {
+    if (!cls.matura) {
+        if (!create) return null;
+        cls.matura = {pruefer: MR_PRUEFER_DEFAULT, students: {}};
+    }
+    let ms = cls.matura.students[sid];
+    if (!ms && create) ms = cls.matura.students[sid] = {knr: '', locked: false, t: [{m: {}, c: {}}, {m: {}, c: {}}]};
+    return ms || null;
+}
+function mrLocked(ms) { return ms?.locked === true || isArchivedView(); }
+
+// Spalte der angekreuzten Box → Note (Spalte 0 = nicht erfüllt = 5 … Spalte 4 = 1)
+function mrNoten(ms) {
+    const n = (ti, key) => { const v = ms?.t?.[ti]?.c?.[key]; return v === undefined || v === null ? null : 5 - v; };
+    const k1 = n(0, 'k'), k2 = n(1, 'k'), k31 = n(0, 'k3'), k32 = n(1, 'k3');
+    const k3 = k31 !== null && k32 !== null ? (k31 + k32) / 2 : null;
+    // Ist eine Teilnote negativ (K3 als Ø ab 4,5), ist die Gesamtnote automatisch 5
+    const neg = [['K1', k1], ['K2', k2], ['K3', k3]].filter(([, v]) => v !== null && noteInt(v) === 5).map(([l]) => l);
+    const ges = neg.length ? 5 : k1 !== null && k2 !== null && k3 !== null ? (k1 + k2 + k3) / 3 : null;
+    return {k1, k2, k31, k32, k3, ges, neg};
+}
+
+function mrBadge(v, dec = false) {
+    if (v === null) return '<span class="note-badge note-empty">—</span>';
+    const i = noteInt(v);
+    return `<span class="note-badge note-${i}">${i}</span>${dec && v % 1 !== 0 ? `<span class="text-muted" style="font-size:.75rem">${fmtNote2(v)}</span>` : ''}`;
+}
+
+// ── Raster-HTML (Bildschirm und Druck) ──────────────────────────
+function mrSheetHtml(ti, st, ia) {
+    const m = st?.m || {}, c = st?.c || {};
+    const cb = (key, col) => `<span class="mr-cb ${c[key] === col ? 'on' : ''}"${ia ? ` onclick="mrCheck(${ti},'${key}',${col})" title="Ankreuzen"` : ''}></span>`;
+    const cols = [1129, 709, 2867, 3015, 3015, 3015, 952].map(w => `<col style="width:${(w / 147.02).toFixed(3)}%">`).join('');
+    const cbCells = (key, cls = '') => [0, 1, 2, 3, 4].map(col => `<td class="mr-c ${cls}">${cb(key, col)}</td>`).join('');
+    const table = part => {
+        const secs = MR_RASTER[part];
+        let h = `<table class="mr-tbl"><colgroup>${cols}</colgroup>`;
+        if (part === 0) h += `<tr><td colspan="7" class="mr-title mr-hatch">SRDP/BRP Deutsch, Kroatisch, Slowenisch, Ungarisch – Beurteilungsraster für Text ${ti + 1}</td></tr>`;
+        h += `<tr><td class="mr-b mr-hatch">${part === 0 ? `K${ti + 1}` : `K3/${ti + 1}`}</td>${MR_LEVELS.map(l => `<td class="mr-lvl">${l}</td>`).join('')}<td class="mr-c mr-dbl">Korrektur-<br>zeichen</td></tr>`;
+        for (const sec of secs) {
+            h += `<tr class="mr-cbrow mr-gray"><td class="mr-b">${sec.label}</td>${cbCells(sec.cb)}<td class="mr-kz mr-dbl"></td></tr>`;
+            sec.rows.forEach(([rid, kz, texts], ri) => {
+                const side = ri === 0
+                    ? `<td class="mr-side" rowspan="${sec.rows.length}">${sec.side.map(([t, u, rest]) => u ? `<u>${t}</u>` : rest ? `${t}<u>${rest}</u>` : t).join('<br>')}</td>` : '';
+                const cells = ['', ...texts].map((t, col) => {
+                    const on = m[`${rid}:${col}`] ? ' mr-mark' : '';
+                    return `<td class="mr-d${on}"${ia ? ` onclick="mrMark(${ti},'${rid}',${col})"` : ''}>${t}</td>`;
+                }).join('');
+                h += `<tr>${side}${cells}<td class="mr-kz mr-dbl">${kz}</td></tr>`;
+            });
+        }
+        h += `<tr class="mr-cbrow mr-hatch"><td></td>${cbCells(part === 0 ? 'k' : 'k3')}<td class="mr-kz mr-dbl"></td></tr></table>`;
+        return h;
+    };
+    return `<div class="mr-sheet ${ia ? 'mr-ia' : ''}">${table(0)}<div class="mr-gap"></div>${table(1)}</div>`;
+}
+
+// ── Tab ─────────────────────────────────────────────────────────
+const MR_NOTE_WORT = {1: 'Sehr gut', 2: 'Gut', 3: 'Befriedigend', 4: 'Genügend', 5: 'Nicht genügend'};
+
+// Endgültige Gesamtnote: automatische 5, gerundeter Ø oder – bei Grenzfall (x,50) – die händisch gewählte Note.
+// Die Entscheidung gilt nur, solange sich der Ø nicht ändert.
+function mrEndnote(ms) {
+    const nt = mrNoten(ms);
+    const grenz = !nt.neg.length && nt.ges !== null && Math.abs(nt.ges % 1 - .5) < 1e-9;
+    const wahl = grenz && ms?.grenz?.ges === nt.ges ? ms.grenz.note : null;
+    const note = nt.ges === null ? null : nt.neg.length ? 5 : grenz ? wahl : Math.round(nt.ges);
+    return {nt, grenz, note, pending: grenz && wahl === null};
+}
+
+// Was fehlt noch, bevor die Raster abgeschlossen werden können? (leer = vollständig)
+const MR_CB_ROWS = [['inh', 'Inhalt'], ['struk', 'Textstruktur'], ['k', null], ['stil', 'Stil/Ausdruck'], ['norm', 'Sprachnormen'], ['k3', null]];
+function mrMissing(ms) {
+    const fehlt = [];
+    [0, 1].forEach(ti => {
+        const c = ms?.t?.[ti]?.c || {};
+        const rows = MR_CB_ROWS.filter(([k]) => c[k] === undefined)
+            .map(([k, l]) => l || (k === 'k' ? `K${ti + 1}` : `K3/${ti + 1}`));
+        if (rows.length) fehlt.push(`Text ${ti + 1}: ${rows.join(', ')}`);
+    });
+    if (!ms?.tp) fehlt.push('Themenpaket');
+    if (!ms?.knr) fehlt.push('Kandidatennummer');
+    if (mrEndnote(ms).pending) fehlt.push('Grenzfall-Entscheidung');
+    return fehlt;
+}
+
+function mrEndBadge(e) {
+    if (e.pending) return `<span class="note-badge note-borderline" style="white-space:nowrap" title="Grenzfall – Note noch festlegen">${Math.floor(e.nt.ges)}/${Math.ceil(e.nt.ges)} ?</span>`;
+    if (e.note === null) return '<span class="note-badge note-empty">—</span>';
+    if (e.nt.neg.length) return `<span class="note-badge note-5" title="Automatische 5 (${e.nt.neg.join(', ')} negativ)">5 ⚠</span>`;
+    return `<span class="note-badge note-${e.note}">${e.note}</span>`;
+}
+
+function renderTabMatura(cls) {
+    if (!cls.students.length) return emptyStudents();
+    if (!cls.students.some(s => s.id === maturaSid)) maturaSid = cls.students[0].id;
+    const nav = `<ul class="nav class-tabs">
+        <li class="nav-item"><a class="nav-link ${maturaView === 'liste' ? 'active' : ''}" href="#" onclick="mrView('liste');return false;"><i class="bi bi-people me-1"></i>Schüler:innen</a></li>
+        <li class="nav-item"><a class="nav-link ${maturaView === 'raster' ? 'active' : ''}" href="#" onclick="mrView('raster');return false;"><i class="bi bi-grid-3x3 me-1"></i>Raster &amp; Berechnung</a></li>
+    </ul>`;
+    return nav + (maturaView === 'raster' ? mrRasterView(cls) : mrListView(cls));
+}
+
+function mrListView(cls) {
+    const ro = isArchivedView();
+    const pruefer = cls.matura?.pruefer ?? MR_PRUEFER_DEFAULT;
+    const nLocked = cls.students.filter(st => mrStudent(cls, st.id)?.locked).length;
+    const rows = cls.students.map(st => {
+        const ms = mrStudent(cls, st.id);
+        const e = mrEndnote(ms), x = e.nt;
+        return `<tr onclick="mrOpen('${st.id}')" title="Raster öffnen">
+            <td class="sticky-col">${esc(st.name)}</td>
+            <td class="text-center" onclick="event.stopPropagation()">${mrTpSelect(st.id, ms, true)}</td>
+            <td class="text-center">${esc(ms?.knr || '')}</td>
+            <td class="text-center">${mrBadge(x.k1)}</td>
+            <td class="text-center">${mrBadge(x.k2)}</td>
+            <td class="text-center">${mrBadge(x.k31)}</td>
+            <td class="text-center">${mrBadge(x.k32)}</td>
+            <td class="text-center"><div class="d-flex justify-content-center align-items-center gap-1">${mrBadge(x.k3, true)}</div></td>
+            <td class="text-center"><div class="d-flex justify-content-center align-items-center gap-1">${mrEndBadge(e)}${x.ges !== null && x.ges % 1 !== 0 && !x.neg.length ? `<span class="text-muted" style="font-size:.75rem">${fmtNote2(x.ges)}</span>` : ''}</div></td>
+            <td class="text-center">${ms?.locked ? '<i class="bi bi-lock-fill" title="Abgeschlossen"></i>' : ''}</td>
+        </tr>`;
+    }).join('');
+    return `
+        <div class="weight-card d-flex flex-wrap align-items-end gap-3">
+            <div>
+                <label class="form-label form-label-sm mb-1" for="mr-pruefer" style="font-size:.8rem">Kopfzeile Prüfer:in (wird auf jedem Raster gedruckt)</label>
+                <input type="text" class="form-control form-control-sm" id="mr-pruefer" style="width:300px" value="${esc(pruefer)}" ${ro ? 'disabled' : ''} onchange="mrSetPruefer(this.value)">
+            </div>
+            <button class="btn btn-sm btn-outline-secondary ms-auto" ${nLocked ? 'onclick="mrPrint(null)" title="Raster aller abgeschlossenen Schüler:innen drucken"' : 'disabled title="Noch keine Raster abgeschlossen"'}><i class="bi bi-printer me-1"></i>Abgeschlossene Raster drucken (${nLocked})</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="grade-table table table-bordered table-sm mb-0 mr-ov">
+                <thead><tr>
+                    <th class="sticky-col">Name</th>
+                    <th class="text-center">Themenpaket</th>
+                    <th class="text-center">Kandidaten-<br>nummer</th>
+                    <th class="text-center">K1<br><small>Text 1</small></th>
+                    <th class="text-center">K2<br><small>Text 2</small></th>
+                    <th class="text-center">K3/1<br><small>Text 1</small></th>
+                    <th class="text-center">K3/2<br><small>Text 2</small></th>
+                    <th class="text-center">K3<br><small>Ø K3/1, K3/2</small></th>
+                    <th class="text-center" style="background:#1a6651;color:#fff;min-width:90px">Gesamtnote<br><small>Ø K1, K2, K3</small></th>
+                    <th class="text-center" style="width:40px"></th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>`;
+}
+
+function mrRasterView(cls) {
+    const s = cls.students.find(x => x.id === maturaSid);
+    const ms = mrStudent(cls, s.id);
+    const locked = mrLocked(ms);
+    const e = mrEndnote(ms), nt = e.nt;
+    const idx = cls.students.indexOf(s);
+    const prev = cls.students[idx - 1], next = cls.students[idx + 1];
+
+    const fehlt = mrMissing(ms);
+    const ready = !fehlt.length;
+    const lockBar = isArchivedView() ? '' : locked
+        ? `<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 14px;margin-bottom:12px;font-size:.88rem;color:#854d0e;display:flex;align-items:center;gap:8px;"><i class="bi bi-lock-fill"></i> <span>Die Raster von <strong>${esc(s.name)}</strong> sind abgeschlossen — keine Änderungen möglich. <button onclick="mrToggleLock()" style="background:none;border:none;color:#92400e;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit">Wieder öffnen</button></span></div>`
+        : `<div class="sa-close-bar ${ready ? 'ready' : ''}">
+            <i class="bi ${ready ? 'bi-check-circle-fill' : 'bi-hourglass-split'}" style="font-size:1.1rem"></i>
+            <span>${ready ? '<strong>Alles ausgefüllt.</strong> Die Raster können abgeschlossen und danach gedruckt werden.'
+                : `<strong>Noch offen:</strong> ${fehlt.map(esc).join(' · ')}`}</span>
+            <button class="btn-close-sa" ${ready ? 'onclick="mrToggleLock()"' : 'disabled style="opacity:.5;cursor:not-allowed" title="Erst alles ausfüllen"'}><i class="bi bi-lock-fill me-1"></i>Raster abschließen</button>
+        </div>`;
+    const noteBox = (label, v, sub = '') => `<div><div class="mr-nl">${label}</div><div class="mr-nv">${mrBadge(v)}${v !== null && v % 1 !== 0 ? fmtNote2(v) : ''}${sub}</div></div>`;
+    let gesInfo;
+    if (nt.ges === null) gesInfo = '<span>noch nicht alle Teilnoten gesetzt</span>';
+    else if (nt.neg.length) gesInfo = `<span>Automatische 5 – ${nt.neg.join(', ')} negativ</span>`;
+    else if (e.grenz) {
+        const lo = Math.floor(nt.ges), hi = Math.ceil(nt.ges);
+        const btn = n => `<button class="btn btn-sm ${e.note === n ? 'btn-primary' : 'btn-outline-secondary'}" ${locked ? 'disabled' : `onclick="mrSetGrenz(${n})"`}>${n} · ${MR_NOTE_WORT[n]}</button>`;
+        gesInfo = `<strong style="color:var(--ink)">${fmtNote2(nt.ges)}</strong><span class="ms-1">Grenzfall – Note festlegen:</span>${btn(lo)}${btn(hi)}`;
+    } else gesInfo = `<strong style="color:var(--ink)">${fmtNote2(nt.ges)}</strong><span>${MR_NOTE_WORT[e.note]}</span>`;
+
+    return `
+        <div class="mr-bar">
+            <button class="btn btn-sm btn-outline-secondary" ${prev ? `onclick="mrSelect('${prev.id}')"` : 'disabled'} title="Vorherige:r"><i class="bi bi-chevron-left"></i></button>
+            <select class="form-select form-select-sm" style="width:auto;font-family:var(--font-serif);font-size:1rem" onchange="mrSelect(this.value)">
+                ${cls.students.map(st => `<option value="${st.id}" ${st.id === s.id ? 'selected' : ''}>${esc(st.name)}</option>`).join('')}
+            </select>
+            <button class="btn btn-sm btn-outline-secondary" ${next ? `onclick="mrSelect('${next.id}')"` : 'disabled'} title="Nächste:r"><i class="bi bi-chevron-right"></i></button>
+            <label class="ms-3 mb-0 small text-muted" for="mr-knr">Kandidatennummer</label>
+            <input type="text" class="form-control form-control-sm" id="mr-knr" style="width:110px" value="${esc(ms?.knr || '')}" ${locked ? 'disabled' : ''} onchange="mrSetKnr(this.value)">
+            ${mrTpSelect(s.id, ms)}
+            <button class="btn btn-sm btn-outline-secondary ms-auto" ${ms?.locked ? `onclick="mrPrint(['${s.id}'])"` : 'disabled title="Drucken erst nach dem Abschließen möglich"'}><i class="bi bi-printer me-1"></i>Raster drucken</button>
+        </div>
+        ${lockBar}
+        <div class="mr-noten">
+            ${noteBox('K1 · Text 1', nt.k1)}
+            ${noteBox('K2 · Text 2', nt.k2)}
+            ${noteBox('K3 · Ø K3/1, K3/2', nt.k3, `<span class="ms-1">(${nt.k31 ?? '—'} / ${nt.k32 ?? '—'})</span>`)}
+            <div class="mr-ges"><div class="mr-nl">Gesamtnote · Ø K1, K2, K3</div><div class="mr-nv">${mrEndBadge(e)}${gesInfo}</div></div>
+        </div>
+        ${locked ? '' : '<div class="mr-hint">Klick auf eine Beschreibung markiert sie farbig, ein zweiter Klick hebt die Markierung auf. Die Kästchen werden angekreuzt; die schraffierte Zeile unten bestimmt K1/K2 bzw. K3/1, K3/2.</div>'}
+        <h6 class="mr-text-h">Text 1</h6>
+        <div class="mr-screen">${mrSheetHtml(0, ms?.t?.[0], !locked)}</div>
+        <h6 class="mr-text-h">Text 2</h6>
+        <div class="mr-screen">${mrSheetHtml(1, ms?.t?.[1], !locked)}</div>`;
+}
+
+function mrView(v) { maturaView = v; renderTabContent(); window.scrollTo(0, 0); }
+function mrOpen(sid) { maturaSid = sid; mrView('raster'); }
+function mrSetGrenz(note) { mrEdit(ms => { ms.grenz = {ges: mrNoten(ms).ges, note}; }); }
+
+function mrSelect(sid) { maturaSid = sid; renderTabContent(); }
+
+function mrEdit(fn, sid = maturaSid) {
+    const cls = activeClasses().find(c => c.id === activeClassId); if (!cls || !sid) return;
+    const ms = mrStudent(cls, sid, true);
+    if (mrLocked(ms)) return;
+    snapshotForUndo();
+    fn(ms, cls);
+    saveDataWithUndo();
+    renderTabContent();
+}
+// Jede:r Schüler:in wählt eines von drei Themenpaketen
+function mrTpSelect(sid, ms, kurz = false) {
+    return `<select class="form-select form-select-sm" style="width:auto" ${mrLocked(ms) ? 'disabled' : ''} onchange="mrSetTp('${sid}', this.value)" title="Themenpaket">
+        <option value="" ${ms?.tp ? '' : 'selected'}>${kurz ? '—' : 'Themenpaket …'}</option>
+        ${[1, 2, 3].map(n => `<option value="${n}" ${ms?.tp === n ? 'selected' : ''}>${kurz ? n : `Themenpaket ${n}`}</option>`).join('')}
+    </select>`;
+}
+function mrSetTp(sid, v) { mrEdit(ms => { if (v) ms.tp = +v; else delete ms.tp; }, sid); }
+function mrMark(ti, rid, col) {
+    mrEdit(ms => { const m = ms.t[ti].m, k = `${rid}:${col}`; if (m[k]) delete m[k]; else m[k] = 1; });
+}
+function mrCheck(ti, key, col) {
+    mrEdit(ms => { const c = ms.t[ti].c; if (c[key] === col) delete c[key]; else c[key] = col; });
+}
+function mrSetKnr(v) { mrEdit(ms => { ms.knr = v.trim(); }); }
+function mrSetPruefer(v) {
+    const cls = activeClasses().find(c => c.id === activeClassId); if (!cls || isArchivedView()) return;
+    snapshotForUndo();
+    mrStudent(cls, maturaSid, true);
+    cls.matura.pruefer = v.trim();
+    saveDataWithUndo();
+}
+function mrToggleLock() {
+    const cls = activeClasses().find(c => c.id === activeClassId); if (!cls || isArchivedView()) return;
+    const s = cls.students.find(x => x.id === maturaSid); if (!s) return;
+    const ms = mrStudent(cls, s.id, true);
+    const fehlt = mrMissing(ms);
+    if (!ms.locked && fehlt.length) { alert(`Abschließen noch nicht möglich. Es fehlt:\n${fehlt.map(f => '• ' + f).join('\n')}`); return; }
+    const msg = ms.locked
+        ? `Raster von „${s.name}" wieder öffnen?`
+        : `Raster von „${s.name}" abschließen? Alle Eingaben werden schreibgeschützt.`;
+    if (!confirm(msg)) return;
+    ms.locked = !ms.locked;
+    saveData();
+    renderTabContent();
+}
+
+// ── Druck: je Schüler:in zwei A4-Querseiten wie in der Word-Vorlage ──
+function mrPrint(sids) {
+    const cls = activeClasses().find(c => c.id === activeClassId); if (!cls) return;
+    const studs = cls.students.filter(s => (!sids || sids.includes(s.id)) && mrStudent(cls, s.id)?.locked);
+    if (!studs.length) { alert('Drucken ist erst möglich, wenn die Raster abgeschlossen sind.'); return; }
+    const pruefer = esc(cls.matura?.pruefer ?? MR_PRUEFER_DEFAULT).replace(/\bMag\.a\b/g, 'Mag.<sup style="font-size:.6em">a</sup>');
+    const page = (s, ti) => {
+        const ms = mrStudent(cls, s.id);
+        return `<div class="mr-page">
+            <div class="mr-phead mr-sheet"><table class="mr-hf" style="width:227.4mm"><tr>
+                <td style="width:94.9mm">Kandidat/in: ${esc(s.name)}</td>
+                <td style="width:60mm">Klasse/Jahrgang: ${esc(cls.name)}</td>
+                <td style="width:72.5mm">${pruefer}</td>
+            </tr></table></div>
+            <div class="mr-pbody">${mrSheetHtml(ti, ms?.t?.[ti], false)}</div>
+            <div class="mr-pfoot mr-sheet">
+                ${ti === 1 ? `<table class="mr-hf mr-ft" style="width:154.9mm"><tr><td style="width:79.9mm">Kandidatennummer: ${esc(ms?.knr) || '–'}</td><td style="width:75mm">Gesamtnote: ${(n => n ? MR_NOTE_WORT[n] : '')(mrEndnote(ms).note)}</td></tr></table>` : ''}
+                <div class="mr-pnum">Seite ${ti + 1} von 2</div>
+            </div>
+        </div>`;
+    };
+    const title = studs.length === 1 ? `Beurteilungsraster ${studs[0].name}` : `Beurteilungsraster ${cls.name}`;
+    const html = `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>${esc(title)}</title>
+        <style>${MR_CSS}${MR_PRINT_CSS}</style></head><body>${studs.map(s => page(s, 0) + page(s, 1)).join('')}</body></html>`;
+    document.getElementById('mr-print-frame')?.remove();
+    const fr = document.createElement('iframe');
+    fr.id = 'mr-print-frame';
+    fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+    document.body.appendChild(fr);
+    const doc = fr.contentDocument;
+    doc.open(); doc.write(html); doc.close();
+    const go = () => { fr.contentWindow.focus(); fr.contentWindow.print(); };
+    (doc.fonts?.ready || Promise.resolve()).then(() => setTimeout(go, 50));
 }
 
 function weightInput(key, label, val, locked=false) {
@@ -3156,9 +5591,16 @@ function onEnter(inpId, btnId) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
-    activeClassId = activeClasses()[0]?.id ?? null;
+    activeClassId = null; // ohne Hash → Landing Page
     const hash = location.hash.slice(1);
-    if (hash) {
+    if (hash === 'archiv') {
+        showArchive = data.schuljahre.some(isSjArchived);
+    } else if (hash === 'schueler') {
+        showProfiles = true;
+    } else if (hash.startsWith('profil=')) {
+        const pid = hash.slice(7);
+        if (data.profile[pid]) activeProfileId = pid;
+    } else if (hash) {
         const p = new URLSearchParams(hash);
         const clsId = p.get('class');
         if (clsId && activeClasses().find(c => c.id === clsId)) activeClassId = clsId;
@@ -3167,6 +5609,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (tab) activeTab = tab;
         const saId = p.get('sa');
         if (saId) activeSaId = saId;
+    }
+    // Ohne Klassen-Link nie in einem archivierten Jahr starten
+    if (!activeClassId && isArchivedView()) {
+        const cur = currentSchuljahre();
+        if (cur.length) data.activeSchuljahrId = cur[cur.length - 1].id;
     }
     if (!activeSaId) {
         const _initCls = activeClasses().find(c => c.id === activeClassId);
@@ -3280,6 +5727,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         editSchuljahr(id, n);
     });
     onEnter('inp-edit-sj-name', 'btn-save-edit-sj');
+
+    // Schuljahr abschließen / Klasse übernehmen
+    document.getElementById('inp-close-new-sj').addEventListener('keydown', e => { if (e.key === 'Enter') confirmCloseYear(); });
+    document.getElementById('tr-new-student').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addTransferStudent(); } });
 
     // Menüs schließen bei Klick außerhalb
     document.addEventListener('click', () => closeSjMenus());
