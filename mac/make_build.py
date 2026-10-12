@@ -18,7 +18,7 @@ def main():
     name = f'Notenbuch-v{version}'
     out_dir = os.path.join(ROOT, 'dist-mac', name)
     shutil.rmtree(out_dir, ignore_errors=True)
-    os.makedirs(out_dir)
+    os.makedirs(out_dir, exist_ok=True)  # OneDrive gibt den Ordner manchmal nicht sofort frei
 
     files = {
         'index.html': os.path.join(ROOT, 'index.html'),
