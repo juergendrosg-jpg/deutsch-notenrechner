@@ -1,0 +1,50 @@
+NOTENBUCH v__VERSION__ - Installation auf dem Mac
+================================================
+
+Diese Installation ist nur EINMAL noetig. Danach kommen neue Versionen
+direkt in der App (siehe unten "Updates").
+
+Was du brauchst:
+- Einen Mac mit macOS 12 (Monterey) oder neuer
+- Internetverbindung
+
+0. Sicherheitskopie deiner Daten (wichtig!)
+   Altes Notenbuch oeffnen -> unten links "Exportieren" klicken.
+   Die Datei landet im Ordner "Downloads". Bitte aufheben.
+
+1. ZIP-Datei entpacken (Doppelklick)
+
+2. Terminal oeffnen
+   Spotlight (Cmd+Leertaste) -> "Terminal" eintippen -> Enter
+
+3. Diesen Befehl eintippen (mit Leerzeichen am Ende!):
+   bash
+   ... dann die Datei "build_mac.sh" aus dem Finder ins Terminal ziehen
+   und Enter druecken.
+
+   Das dauert 1-3 Minuten. Am Ende erscheint:
+   "Fertig! Notenbuch ist unter Programme installiert."
+
+4. Finder -> Programme -> Notenbuch -> Doppelklick
+   Beim ersten Start: Rechtsklick -> "Oeffnen" (wegen macOS-Sicherheitswarnung)
+
+5. Kontrolle: Sind alle Klassen und Noten da?
+   Falls nicht: unten links "Importieren" klicken und die
+   Sicherheitskopie aus Schritt 0 auswaehlen.
+
+Updates
+-------
+- Beim Start schaut das Notenbuch nach, ob es eine neue Version gibt.
+  Dann leuchtet die Versionsnummer unten links in der Seitenleiste.
+- Versionsnummer anklicken -> "Jetzt aktualisieren".
+- Vorher werden deine Daten automatisch gesichert.
+- Sollte nach einem Update etwas nicht passen: Versionsnummer anklicken
+  -> "Zurueck zu v..." stellt die vorige Version wieder her.
+
+Hinweise
+--------
+- Die App oeffnet automatisch den Browser (Safari/Chrome).
+- Alle Daten bleiben auf deinem Mac:
+  ~/Library/Application Support/Notenbuch/data.json
+  Automatische Sicherungen vor Updates: .../Notenbuch/backups/
+- Aus dem Internet wird nur das Programm selbst geladen, niemals Noten.

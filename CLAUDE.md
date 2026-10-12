@@ -21,8 +21,17 @@ This is an Austrian school grade management tool ("Deutsch Notenrechner") for a 
 | File | Role |
 |---|---|
 | `index.html` | Entire frontend: HTML structure, CSS (Tailwind CDN v4 + custom), and all JavaScript (~2000 lines) |
-| `server.py` | Minimal Flask server — serves `index.html` and two endpoints: `GET /api/data`, `POST /api/data` |
+| `server.py` | Flask server — serves `index.html`, `GET/POST /api/data`, plus the in-app update endpoints (`/api/app-info`, `/api/update`, `/api/rollback`) |
 | `data.json` | Persistent storage — the entire app state as JSON |
+| `mac/` | Mac-App packaging (PyInstaller): `launcher.py`, `notenbuch.spec`, `build_mac.sh`, `ANLEITUNG.txt`, `make_build.py` |
+
+### Auslieferung an die Mac-App (In-App-Updates)
+
+The app runs on the teacher's MacBook as a PyInstaller bundle; data lives in `~/Library/Application Support/Notenbuch/` and never leaves the Mac. The version is `<meta name="app-version">` in `index.html` (also update `<title>` and `#sidebar-version`).
+
+- **Normal release** (only `index.html` changed): bump the version, commit, push, then `gh release create v<X.Y.Z> --title "Notenbuch v<X.Y.Z>" --notes "<what's new, in German, for the teacher>"`. The app checks `releases/latest` on start, downloads `index.html` from `raw.githubusercontent.com/<repo>/<tag>/index.html` and the server stores it in Application Support (backup of `data.json` in `backups/`, previous version kept for rollback). The repo is public, so it must never contain student data.
+- **New Mac build** (only when `server.py`/`launcher.py`/spec change, or for first install): `python mac/make_build.py` → `dist-mac/Notenbuch-v<X.Y.Z>.zip`, which is sent to the teacher.
+- Local test of the update mode without a Mac: set `NOTENBUCH_APPDIR=<temp dir>` before importing/starting `server.py`.
 
 ### Data model (`data.json`)
 

@@ -34,3 +34,9 @@ preview_design_a.html
 notenrechner-backup-*.json
 index-v*.html
 Notenrechner-v1.1.0-build/
+
+# Mac-Installationspakete (mac/make_build.py)
+dist-mac/
+mac/.venv/
+mac/build/
+mac/dist/
