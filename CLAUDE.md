@@ -33,6 +33,10 @@ The app runs on the teacher's MacBook as a PyInstaller bundle; data lives in `~/
 - **New Mac build** (only when `server.py`/`launcher.py`/spec change, or for first install): `python mac/make_build.py` → `dist-mac/Notenbuch-v<X.Y.Z>.zip`, which is sent to the teacher.
 - Local test of the update mode without a Mac: set `NOTENBUCH_APPDIR=<temp dir>` before importing/starting `server.py`.
 
+### Online-Version (Vercel + Supabase)
+
+The same `index.html` also runs online. `ONLINE = hostname not localhost/127.0.0.1`. Locally nothing changes (`/api/data`). Online: Vercel serves only `index.html` (`vercel.json`, `.vercelignore`); `supabase-js` (pinned, loaded by `sbInit()`) handles login (email + password, sign-ups disabled) and storage. Each user has one row in `notenbuch_data` holding the full JSON in exactly the `data.json` format, so Export/Import moves data between Mac and online 1:1. Saving is debounced (`saveData()` → `sbFlush()`) through the RPC `save_notenbuch(p_data, p_expected)`, which checks the version (conflict → error `P0001`, warning instead of overwriting) and writes a daily backup to `notenbuch_backups` (30 days). Schema + RLS: `supabase/schema.sql`. Startup: `boot()` → login screen or `appStart()`. Code lives in the `sb*` functions. `SB_URL`/`SB_KEY` (public anon key) are in `index.html`; the service_role key must never go into the repo. Push to `master` = deployed online. Setup guide for the user: `docs/ONLINE-EINRICHTUNG.md`.
+
 ### Data model (`data.json`)
 
 ```
