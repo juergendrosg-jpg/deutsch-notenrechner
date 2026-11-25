@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="1.6.0">
-    <title>Notenbuch v1.6.0</title>
+    <meta name="app-version" content="1.6.1">
+    <title>Notenbuch v1.6.1</title>
     <!-- Externe Dateien: exakte Version + integrity (Prüfsumme). Bei einem Update beide anpassen:
          curl -s <URL> | openssl dgst -sha384 -binary | openssl base64 -A -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"
@@ -783,7 +783,6 @@
             #sidebar.sidebar-collapsed .sidebar-group-label,
             #sidebar.sidebar-collapsed .sidebar-group-head button,
             #sidebar.sidebar-collapsed #sidebar-footer,
-            #sidebar.sidebar-collapsed #sidebar-account,
             #sidebar.sidebar-collapsed .class-item-actions,
             #sidebar.sidebar-collapsed .drag-handle,
             #sidebar.sidebar-collapsed .fw-semibold {
@@ -967,7 +966,7 @@
             #content-area > * { animation: fadeIn 0.18s ease; }
 
             /* ── Navbar icon buttons (undo, redo) ─────────── */
-            #avatar-toggle, #btn-undo, #btn-redo {
+            #btn-undo, #btn-redo {
                 background: transparent; border: 1px solid var(--paper-line);
                 border-radius: var(--r-sm); padding: 5px 9px;
                 color: var(--ink-mute); cursor: pointer;
@@ -975,10 +974,53 @@
                 transition: background 0.14s, color 0.14s, border-color 0.14s;
                 display: flex; align-items: center;
             }
-            #avatar-toggle:hover, #btn-undo:hover:not(:disabled), #btn-redo:hover:not(:disabled) {
+            #btn-undo { margin-left: auto; }
+            #btn-undo:hover:not(:disabled), #btn-redo:hover:not(:disabled) {
                 background: var(--paper-soft); color: var(--ink); border-color: var(--ink-faint);
             }
             #app-navbar button:disabled { opacity: 0.3; cursor: default; }
+            /* Avatar-Schalter (nur Mac-App; online steckt er im Kontomenü) – bewusst dezent */
+            #avatar-toggle {
+                background: transparent; border: none; padding: 4px 6px; margin-left: -6px;
+                color: var(--ink-faint); cursor: pointer; font-size: .9rem; line-height: 1;
+                border-radius: var(--r-sm); display: flex; align-items: center;
+            }
+            #avatar-toggle:hover { color: var(--ink-mute); background: var(--paper-soft); }
+
+            /* ── Kontomenü rechts oben (nur online) ───────── */
+            #account-menu { position: relative; margin-left: 4px; }
+            #account-btn {
+                width: 32px; height: 32px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                background: var(--rose-100); color: var(--rose-500);
+                border: 1px solid var(--rose-200); cursor: pointer;
+                font-family: var(--font-sans); font-weight: 600; font-size: .85rem;
+                transition: box-shadow .14s, background .14s;
+            }
+            #account-btn:hover, #account-btn[aria-expanded="true"] { background: var(--rose-200); box-shadow: 0 0 0 3px var(--rose-50); }
+            #account-dropdown {
+                position: absolute; top: calc(100% + 8px); right: 0; z-index: 300;
+                min-width: 230px; max-width: calc(100vw - 24px);
+                background: var(--paper); border: 1px solid var(--paper-line);
+                border-radius: var(--r-md); box-shadow: var(--shadow-lg); overflow: hidden;
+            }
+            #account-dropdown[hidden] { display: none; }
+            .acct-head { padding: 10px 14px 9px; border-bottom: 1px solid var(--paper-line); background: #fff; }
+            .acct-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-mute); }
+            #account-email { font-size: .82rem; color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+            #account-dropdown button {
+                display: flex; align-items: center; gap: 8px; width: 100%;
+                padding: 8px 14px; border: none; background: transparent;
+                color: var(--ink); font-size: .8rem; cursor: pointer; text-align: left;
+            }
+            #account-dropdown button:hover { background: var(--paper-soft); }
+            #account-dropdown button i { color: var(--ink-mute); width: 16px; }
+            #account-dropdown .acct-check { margin-left: auto; color: var(--rose-500); visibility: hidden; }
+            #account-dropdown .acct-check.on { visibility: visible; }
+            #account-dropdown .d-none { display: none; }
+            #account-dropdown .acct-sep { height: 1px; background: var(--paper-line); margin: 3px 0; }
+            #account-dropdown button.acct-danger, #account-dropdown button.acct-danger i { color: var(--rose-500); }
+            #account-dropdown button.acct-danger:hover { background: var(--rose-100); }
 
             /* table-hover (used in Schüler-Tab) */
             .table-hover tbody tr:hover td { background: var(--rose-50); }
@@ -994,14 +1036,13 @@
                 border-top: 1px solid #e5e7eb;
                 margin-top: auto;
             }
-            #sidebar-account { display: flex; gap: 4px; padding: 0 8px 4px 8px; }
-            #sidebar-account.d-none { display: none; }
 
             /* Login (nur online) */
             #login-screen { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; background: var(--paper, #faf8f4); }
             #login-screen.d-none { display: none; }
             .login-card { width: min(340px, calc(100vw - 32px)); padding: 24px; background: #fff; border-radius: var(--r-md, 10px); box-shadow: var(--shadow-lg); }
-            .login-card .btn { width: 100%; justify-content: center; }
+            .login-card .btn { width: 100%; justify-content: center; padding: 9px 12px; }
+            .login-card .d-none { display: none; }   /* sonst gewinnt .form-control { display: block } */
 
             #sidebar-version { cursor: pointer; }
             #sidebar-version:hover { opacity: .8 !important; }
@@ -1028,15 +1069,31 @@
         </svg>
         Desis Notenbuch
     </div>
-    <button id="avatar-toggle" onclick="togglePixelguy()" title="Avatar ein/ausschalten" style="margin-left:auto">
-        <i id="avatar-toggle-icon" class="bi bi-person-fill"></i>
-    </button>
     <button id="btn-undo" onclick="undoData()" title="Rückgängig" disabled>
         <i class="bi bi-arrow-counterclockwise"></i>
     </button>
     <button id="btn-redo" onclick="redoData()" title="Wiederholen" disabled>
         <i class="bi bi-arrow-clockwise"></i>
     </button>
+    <button id="avatar-toggle" onclick="togglePixelguy()" title="Avatar ausschalten">
+        <i id="avatar-toggle-icon" class="bi bi-emoji-smile"></i>
+    </button>
+    <!-- Kontomenü (nur online, eingeblendet von acctInit) -->
+    <div id="account-menu" class="d-none">
+        <button id="account-btn" type="button" onclick="acctToggle(event)" title="Konto" aria-haspopup="menu" aria-expanded="false">
+            <span id="account-initial"></span>
+        </button>
+        <div id="account-dropdown" role="menu" hidden>
+            <div class="acct-head">
+                <div class="acct-label">Angemeldet als</div>
+                <div id="account-email"></div>
+            </div>
+            <button type="button" role="menuitem" onclick="acctClose(); sbChangePassword()"><i class="bi bi-key"></i> Passwort ändern</button>
+            <button type="button" role="menuitem" id="acct-avatar" class="d-none" onclick="togglePixelguy()"><i class="bi bi-emoji-smile"></i> Avatar anzeigen <i class="bi bi-check-lg acct-check on" id="acct-avatar-check"></i></button>
+            <div class="acct-sep"></div>
+            <button type="button" role="menuitem" class="acct-danger" onclick="acctClose(); sbLogout()"><i class="bi bi-box-arrow-right"></i> Abmelden</button>
+        </div>
+    </div>
 </nav>
 
 <!-- ═══ LAYOUT ═══════════════════════════════════════════════ -->
@@ -1083,15 +1140,7 @@
                 <i class="bi bi-upload"></i> Importieren
             </button>
         </div>
-        <div id="sidebar-account" class="d-none">
-            <button type="button" class="btn btn-xs btn-outline-secondary w-50" onclick="sbChangePassword()" title="Passwort ändern">
-                <i class="bi bi-key"></i> Passwort
-            </button>
-            <button type="button" class="btn btn-xs btn-outline-secondary w-50" onclick="sbLogout()" title="Abmelden">
-                <i class="bi bi-box-arrow-right"></i> Abmelden
-            </button>
-        </div>
-        <div id="sidebar-version" onclick="updOpen()" title="Nach Updates suchen" style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;"><span class="version-full">Notenbuch v1.6.0</span><span class="version-short">v1.6.0</span><span class="upd-dot"></span></div>
+        <div id="sidebar-version" onclick="updOpen()" title="Nach Updates suchen" style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;"><span class="version-full">Notenbuch v1.6.1</span><span class="version-short">v1.6.1</span><span class="upd-dot"></span></div>
     </div>
     <!-- Main -->
     <div id="main-content">
@@ -5836,10 +5885,10 @@ async function appStart() {
         return;
     }
     if (ONLINE) {
-        document.getElementById('sidebar-account').classList.remove('d-none');
         const v = document.getElementById('sidebar-version');
         v.onclick = null; v.title = 'Online-Version'; v.style.cursor = 'default';
         const {data: {session}} = await sb.auth.getSession();
+        acctInit(session?.user?.email);
         if (window.pixelguyUnlock) window.pixelguyUnlock(session?.user?.email);
     }
     activeClassId = null; // ohne Hash → Landing Page
@@ -6054,6 +6103,32 @@ async function sbLogin(ev) {
     appStart();
 }
 
+// ── Kontomenü rechts oben ──
+function acctInit(email) {
+    email = email || '';
+    document.getElementById('account-email').textContent = email;
+    document.getElementById('account-initial').textContent = (email.trim()[0] || '?').toUpperCase();
+    document.getElementById('account-btn').title = email ? 'Konto: ' + email : 'Konto';
+    document.getElementById('account-menu').classList.remove('d-none');
+}
+
+function acctToggle(ev) {
+    ev.stopPropagation();
+    const dd = document.getElementById('account-dropdown');
+    if (dd.hidden) {
+        dd.hidden = false;
+        document.getElementById('account-btn').setAttribute('aria-expanded', 'true');
+    } else acctClose();
+}
+
+function acctClose() {
+    document.getElementById('account-dropdown').hidden = true;
+    document.getElementById('account-btn').setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('click', e => { if (!e.target.closest('#account-menu')) acctClose(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') acctClose(); });
+
 async function sbLogout() {
     await sbFlush();
     if (sbDirty || sbSaving) { alert('Es wird noch gespeichert – bitte kurz warten und erneut versuchen.'); return; }
@@ -6166,6 +6241,7 @@ function randomSpruch(context) {
 
 let overlayEl = null;
 let hideTimer = null;
+let fadeTimer = null;
 
 function ensureOverlay() {
   if (overlayEl) return;
@@ -6237,6 +6313,7 @@ const pixelguy = {
   show(context) {
     ensureOverlay();
     if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+    clearTimeout(fadeTimer);   // laufendes Ausblenden abbrechen
 
     const text = randomSpruch(context);
     overlayEl.innerHTML = buildBubble(text) + `
@@ -6274,7 +6351,8 @@ const pixelguy = {
   hide() {
     if (!overlayEl) return;
     overlayEl.style.opacity = '0';
-    setTimeout(() => { if (overlayEl) overlayEl.style.display = 'none'; }, 450);
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => { if (overlayEl) overlayEl.style.display = 'none'; }, 450);
     if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
   },
 };
@@ -6308,7 +6386,8 @@ window.pixelguyUnlock = async function(email) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode((email || '').trim().toLowerCase()));
   const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
   pixelguyAllowed = PIXELGUY_HASHES.includes(hex);
-  document.getElementById('avatar-toggle').style.display = pixelguyAllowed ? '' : 'none';
+  // online sitzt der Schalter im Kontomenü, nicht in der Navbar
+  document.getElementById('acct-avatar').classList.toggle('d-none', !pixelguyAllowed);
   if (pixelguyAllowed) pixelguy.show('pageload');
 };
 
@@ -6318,19 +6397,23 @@ window.pixelguyNoteHint = function(note) {
 
 window.pixelguy = pixelguy;
 
+// Ein/Aus wird pro Browser gemerkt (reine Bequemlichkeit)
 let pixelguyEnabled = true;
+try { pixelguyEnabled = localStorage.getItem('pixelguyOff') !== '1'; } catch (e) {}
+
+function pixelguySyncUi() {
+  document.getElementById('avatar-toggle-icon').className = pixelguyEnabled ? 'bi bi-emoji-smile' : 'bi bi-emoji-neutral';
+  document.getElementById('avatar-toggle').title = pixelguyEnabled ? 'Avatar ausschalten' : 'Avatar einschalten';
+  document.getElementById('acct-avatar-check').classList.toggle('on', pixelguyEnabled);
+}
+pixelguySyncUi();
 
 window.togglePixelguy = function() {
   pixelguyEnabled = !pixelguyEnabled;
-  const icon = document.getElementById('avatar-toggle-icon');
-  if (pixelguyEnabled) {
-    icon.className = 'bi bi-person-fill';
-    document.getElementById('avatar-toggle').title = 'Avatar ausschalten';
-  } else {
-    icon.className = 'bi bi-person-slash';
-    document.getElementById('avatar-toggle').title = 'Avatar einschalten';
-    pixelguy.hide();
-  }
+  try { pixelguyEnabled ? localStorage.removeItem('pixelguyOff') : localStorage.setItem('pixelguyOff', '1'); } catch (e) {}
+  pixelguySyncUi();
+  if (pixelguyEnabled) pixelguy.show('pageload');
+  else pixelguy.hide();
 };
 
 const _origShow = pixelguy.show.bind(pixelguy);
