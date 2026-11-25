@@ -63,3 +63,31 @@ end $$;
 
 revoke execute on function public.save_notenbuch(jsonb, int) from public, anon;
 grant execute on function public.save_notenbuch(jsonb, int) to authenticated;
+
+-- ── Registrierung nur für freigegebene E-Mail-Adressen ─────────────────────
+-- Neue Adresse freigeben (SQL Editor oder Table Editor):
+--     insert into public.notenbuch_invites (email) values ('person@example.at');
+-- Erst wenn dieser Teil ausgeführt ist, darf in Supabase "Allow new users to sign up" eingeschaltet werden.
+create table if not exists public.notenbuch_invites (
+    email      text primary key,
+    created_at timestamptz not null default now()
+);
+alter table public.notenbuch_invites enable row level security;
+-- kein Zugriff aus dem Browser (keine Policy, keine Rechte für anon/authenticated)
+revoke all on public.notenbuch_invites from anon, authenticated;
+
+create or replace function public.notenbuch_check_invite()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+    if not exists (select 1 from notenbuch_invites
+                   where lower(trim(email)) = lower(trim(new.email))) then
+        raise exception 'not_invited' using errcode = 'P0001';
+    end if;
+    return new;
+end $$;
+revoke execute on function public.notenbuch_check_invite() from public, anon, authenticated;
+
+-- gilt für jede neue Person (Registrierung UND "Add user" im Dashboard)
+drop trigger if exists notenbuch_check_invite on auth.users;
+create trigger notenbuch_check_invite before insert on auth.users
+    for each row execute function public.notenbuch_check_invite();

@@ -6,8 +6,11 @@
         {
             "source": "/(.*)",
             "headers": [
+                { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.5/ https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/ https://fonts.googleapis.com; font-src https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/ https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://pfcqrhdwpfolsxmldomp.supabase.co wss://pfcqrhdwpfolsxmldomp.supabase.co; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'" },
                 { "key": "X-Frame-Options", "value": "DENY" },
+                { "key": "X-Content-Type-Options", "value": "nosniff" },
                 { "key": "Referrer-Policy", "value": "no-referrer" },
+                { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
                 { "key": "Cache-Control", "value": "no-cache" }
             ]
         }

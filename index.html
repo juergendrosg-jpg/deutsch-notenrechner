@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="app-version" content="1.5.0">
-    <title>Notenbuch v1.5.0</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <meta name="app-version" content="1.6.0">
+    <title>Notenbuch v1.6.0</title>
+    <!-- Externe Dateien: exakte Version + integrity (Prüfsumme). Bei einem Update beide anpassen:
+         curl -s <URL> | openssl dgst -sha384 -binary | openssl base64 -A -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"
+          integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.5/dist/index.global.min.js"
+            integrity="sha384-7t++RelBZUKYuVklRj4VH35EUtPrDekGESbbngrE48HnxerJNvab7Fb1W+QhFvNa" crossorigin="anonymous"></script>
     <style type="text/tailwindcss">
         @layer base {
             *, *::before, *::after { box-sizing: border-box; }
@@ -1087,7 +1091,7 @@
                 <i class="bi bi-box-arrow-right"></i> Abmelden
             </button>
         </div>
-        <div id="sidebar-version" onclick="updOpen()" title="Nach Updates suchen" style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;"><span class="version-full">Notenbuch v1.5.0</span><span class="version-short">v1.5.0</span><span class="upd-dot"></span></div>
+        <div id="sidebar-version" onclick="updOpen()" title="Nach Updates suchen" style="text-align:center; padding: 6px 0 2px; font-size: 0.7rem; opacity: 0.45; letter-spacing: 0.03em;"><span class="version-full">Notenbuch v1.6.0</span><span class="version-short">v1.6.0</span><span class="upd-dot"></span></div>
     </div>
     <!-- Main -->
     <div id="main-content">
@@ -1098,11 +1102,14 @@
 <!-- ═══ LOGIN (nur online) ═══════════════════════════════════ -->
 <div id="login-screen" class="d-none">
     <form class="login-card" onsubmit="sbLogin(event)">
-        <h5 class="mb-3">Notenbuch</h5>
+        <h5 class="mb-3" id="login-title">Notenbuch</h5>
+        <p class="small mb-2 d-none" id="login-reg-hint" style="color:#6b7280">Nur für eingeladene Personen: Mit der freigegebenen E-Mail-Adresse ein eigenes Passwort wählen.</p>
         <input type="email" id="login-email" class="form-control mb-2" placeholder="E-Mail" required autocomplete="username">
         <input type="password" id="login-pw" class="form-control mb-2" placeholder="Passwort" required autocomplete="current-password">
+        <input type="password" id="login-pw2" class="form-control mb-2 d-none" placeholder="Passwort wiederholen" autocomplete="new-password">
         <div id="login-error" class="small mb-2" style="color:#b91c1c"></div>
         <button type="submit" class="btn btn-primary" id="btn-login">Anmelden</button>
+        <div class="small mt-3" style="text-align:center"><a href="#" id="login-switch" onclick="sbToggleRegister(event)">Eingeladen? Hier registrieren</a></div>
     </form>
 </div>
 
@@ -1464,21 +1471,23 @@ const ONLINE = !['localhost', '127.0.0.1'].includes(location.hostname);
 const SB_URL = 'https://pfcqrhdwpfolsxmldomp.supabase.co';   // Supabase → Project Settings → API
 const SB_KEY = 'sb_publishable_-lcaxAmuCPYEWSrSaO1VxQ_80vBFg63';
 const SB_JS  = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
+const SB_JS_SRI = 'sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug';
 let sb = null;          // Supabase-Client
 let sbVersion = 0;      // geladene Version → Konfliktschutz
 let sbTimer = null;     // Debounce
 let sbSaving = false, sbDirty = false, sbConflict = false;
 
-function loadScript(src) {
+function loadScript(src, integrity) {
     return new Promise((res, rej) => {
         const s = document.createElement('script');
+        if (integrity) { s.integrity = integrity; s.crossOrigin = 'anonymous'; }
         s.src = src; s.onload = res; s.onerror = () => rej(new Error('Laden fehlgeschlagen: ' + src));
         document.head.appendChild(s);
     });
 }
 
 async function sbInit() {
-    await loadScript(SB_JS);
+    await loadScript(SB_JS, SB_JS_SRI);
     // detectSessionInUrl aus, weil die App location.hash fürs Routing nutzt
     sb = supabase.createClient(SB_URL, SB_KEY, {auth: {detectSessionInUrl: false}});
     const {data: {session}} = await sb.auth.getSession();
@@ -5830,6 +5839,8 @@ async function appStart() {
         document.getElementById('sidebar-account').classList.remove('d-none');
         const v = document.getElementById('sidebar-version');
         v.onclick = null; v.title = 'Online-Version'; v.style.cursor = 'default';
+        const {data: {session}} = await sb.auth.getSession();
+        if (window.pixelguyUnlock) window.pixelguyUnlock(session?.user?.email);
     }
     activeClassId = null; // ohne Hash → Landing Page
     const hash = location.hash.slice(1);
@@ -5994,16 +6005,51 @@ async function boot() {
 }
 document.addEventListener('DOMContentLoaded', boot);
 
+let sbRegisterMode = false;
+
+function sbToggleRegister(ev) {
+    ev.preventDefault();
+    sbRegisterMode = !sbRegisterMode;
+    const r = sbRegisterMode, $ = id => document.getElementById(id);
+    $('login-title').textContent = r ? 'Registrieren' : 'Notenbuch';
+    $('login-reg-hint').classList.toggle('d-none', !r);
+    $('login-pw2').classList.toggle('d-none', !r);
+    $('login-pw2').required = r;
+    $('login-pw').autocomplete = r ? 'new-password' : 'current-password';
+    $('login-pw').placeholder = r ? 'Passwort (mindestens 8 Zeichen)' : 'Passwort';
+    $('btn-login').textContent = r ? 'Konto anlegen' : 'Anmelden';
+    $('login-switch').textContent = r ? 'Schon ein Konto? Anmelden' : 'Eingeladen? Hier registrieren';
+    $('login-error').textContent = '';
+}
+
 async function sbLogin(ev) {
     ev.preventDefault();
     const btn = document.getElementById('btn-login'), err = document.getElementById('login-error');
-    btn.disabled = true; err.textContent = '';
-    const {error} = await sb.auth.signInWithPassword({
-        email: document.getElementById('login-email').value.trim(),
-        password: document.getElementById('login-pw').value
-    });
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-pw').value;
+    err.textContent = '';
+    if (sbRegisterMode) {
+        if (password.length < 8) { err.textContent = 'Das Passwort muss mindestens 8 Zeichen haben.'; return; }
+        if (password !== document.getElementById('login-pw2').value) { err.textContent = 'Die Passwörter stimmen nicht überein.'; return; }
+    }
+    btn.disabled = true;
+    let error, session = null;
+    if (sbRegisterMode) {
+        const res = await sb.auth.signUp({email, password});
+        error = res.error; session = res.data && res.data.session;
+    } else {
+        ({error} = await sb.auth.signInWithPassword({email, password}));
+    }
     btn.disabled = false;
-    if (error) { err.textContent = 'Anmeldung fehlgeschlagen – E-Mail oder Passwort falsch.'; return; }
+    if (error) {
+        if (!sbRegisterMode) err.textContent = 'Anmeldung fehlgeschlagen – E-Mail oder Passwort falsch.';
+        else if (/already registered|already exists/i.test(error.message)) err.textContent = 'Für diese E-Mail gibt es schon ein Konto – bitte anmelden.';
+        else if (/database error|not_invited/i.test(error.message)) err.textContent = 'Diese E-Mail-Adresse ist nicht freigegeben.';
+        else if (/signups? not allowed|disabled/i.test(error.message)) err.textContent = 'Die Registrierung ist derzeit geschlossen.';
+        else err.textContent = 'Registrierung fehlgeschlagen: ' + error.message;
+        return;
+    }
+    if (sbRegisterMode && !session) { sbToggleRegister(ev); err.textContent = 'Konto angelegt – bitte jetzt anmelden.'; return; }
     document.getElementById('login-screen').classList.add('d-none');
     appStart();
 }
@@ -6244,8 +6290,27 @@ window.addEventListener('DOMContentLoaded', () => {
       else if (n === 5) pixelguy.maybeShow('note_5');
     };
   }
-  pixelguy.show('pageload');
+  // Online erst nach dem Login (pixelguyUnlock), lokal (Mac-App) sofort
+  if (!ONLINE) pixelguy.show('pageload');
+  else document.getElementById('avatar-toggle').style.display = 'none';
 });
+
+// Online ist der Avatar nur für diese Konten freigeschaltet (rein kosmetisch, kein Sicherheitsmerkmal).
+// SHA-256 der kleingeschriebenen E-Mail – das Repo ist öffentlich, daher keine Adressen im Klartext.
+// Neuen Eintrag erzeugen: printf %s 'adresse@beispiel.at' | sha256sum
+const PIXELGUY_HASHES = [
+  '6898eaa7cc7dd7edcd8604cfab94cee4bf63aca77446e060bab1aeda543d7398',
+  'bd858edd57c312cee44955274a1b91be5d11690d44787033e149b15dd40bde52',
+];
+let pixelguyAllowed = !ONLINE;
+
+window.pixelguyUnlock = async function(email) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode((email || '').trim().toLowerCase()));
+  const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  pixelguyAllowed = PIXELGUY_HASHES.includes(hex);
+  document.getElementById('avatar-toggle').style.display = pixelguyAllowed ? '' : 'none';
+  if (pixelguyAllowed) pixelguy.show('pageload');
+};
 
 window.pixelguyNoteHint = function(note) {
   pixelguy._pendingNote = +note;
@@ -6270,8 +6335,8 @@ window.togglePixelguy = function() {
 
 const _origShow = pixelguy.show.bind(pixelguy);
 const _origMaybeShow = pixelguy.maybeShow.bind(pixelguy);
-pixelguy.show = function(ctx) { if (pixelguyEnabled) _origShow(ctx); };
-pixelguy.maybeShow = function(ctx, p) { if (pixelguyEnabled) _origMaybeShow(ctx, p); };
+pixelguy.show = function(ctx) { if (pixelguyEnabled && pixelguyAllowed) _origShow(ctx); };
+pixelguy.maybeShow = function(ctx, p) { if (pixelguyEnabled && pixelguyAllowed) _origMaybeShow(ctx, p); };
 })();
 </script>
 </body>

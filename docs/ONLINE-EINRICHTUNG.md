@@ -25,7 +25,7 @@ Diese Anleitung führt Schritt für Schritt durch die Einrichtung. Du brauchst n
    - **Schlüssel:** **Project Settings → API Keys** → Reiter **Legacy API Keys** → **anon · public** (beginnt mit `eyJ…`). Falls es den Reiter nicht gibt: den **Publishable key** (`sb_publishable_…`).
    → Beide Werte an Claude geben; Claude trägt sie in `index.html` ein.
    ⚠️ **Niemals** den Schlüssel **service_role** bzw. **secret** weitergeben oder ins Repo stellen.
-6. **Zwei Test-Personen anlegen** für den gemeinsamen Test: **Authentication → Users → Add user → Create new user**, E-Mail + Passwort eingeben, Häkchen **Auto Confirm User** → **Create user**.
+6. **Zwei Test-Personen anlegen** für den gemeinsamen Test: beide E-Mail-Adressen zuerst in die Freigabeliste eintragen (siehe Teil C), dann **Authentication → Users → Add user → Create new user**, E-Mail + Passwort eingeben, Häkchen **Auto Confirm User** → **Create user**.
 7. **Datenschutzvertrag (DPA):** in Supabase unter **Organization → Settings → Legal Documents** (bzw. „DPA“) den Auftragsverarbeitungsvertrag abrufen bzw. abschließen und aufbewahren.
 
 ---
@@ -37,8 +37,9 @@ Erst wenn die neue Version auf GitHub ist (Claude macht den Push nach deiner Fre
 1. **vercel.com** öffnen → **Sign Up** → Plan **Hobby** → **Continue with GitHub**.
 2. **Add New… → Project** → beim Repository `deutsch-notenrechner` auf **Import** klicken. Falls es nicht in der Liste steht: **Adjust GitHub App Permissions** und dem Repo Zugriff geben.
 3. Einstellungen:
-   - Framework Preset: **Other**
-   - alles andere so lassen
+   - **Application Preset**: Vercel schlägt **Flask** vor, weil `server.py` im Repo liegt. Auf **Other** umstellen!
+   - Project Name: bestimmt die Adresse (`<name>.vercel.app`)
+   - Root Directory `./`; Build and Output Settings und Environment Variables nicht ändern
    → **Deploy**.
 4. Nach ca. 30 Sekunden ist die Seite online, z. B. unter `deutsch-notenrechner.vercel.app`. Eine andere Adresse kannst du unter **Settings → Domains** einstellen, z. B. `notenbuch-drosg.vercel.app`.
 
@@ -48,9 +49,21 @@ Ab jetzt geht jede neue Version automatisch online, sobald sie auf GitHub gepush
 
 ## Teil C – Personen einladen
 
-Für jede Person: **Supabase → Authentication → Users → Add user → Create new user** → E-Mail, Startpasswort, **Auto Confirm User** → **Create user**.
+Neue Konten sind nur für E-Mail-Adressen aus der **Freigabeliste** (Tabelle `notenbuch_invites`) möglich. Das gilt für die Selbst-Registrierung genauso wie für **Add user** im Dashboard.
 
-Adresse und Startpasswort persönlich weitergeben. Nach dem ersten Login ändert die Person ihr Passwort in der Sidebar unter **Passwort**.
+**Einmalig einrichten** (ab v1.6.0):
+1. **SQL Editor** → den kompletten Inhalt von `supabase/schema.sql` erneut ausführen. Das ist gefahrlos, bestehende Daten bleiben erhalten.
+2. **Erst danach:** **Authentication → Sign In / Providers** → **Allow new users to sign up**: **ein**. **Confirm email** bleibt **aus**. → Speichern.
+   ⚠️ Nie in umgekehrter Reihenfolge, sonst kann sich kurz jede beliebige Adresse registrieren.
+
+**Person einladen:**
+1. **Table Editor** → Tabelle **notenbuch_invites** → **Insert row** → bei `email` die Adresse eintragen → **Save**.
+   (Oder im **SQL Editor**: `insert into notenbuch_invites (email) values ('person@example.at');`)
+2. Der Person die Adresse der Seite schicken. Sie klickt im Login auf **„Eingeladen? Hier registrieren“**, gibt die freigegebene E-Mail ein und wählt ihr Passwort selbst.
+
+Nicht freigegebene Adressen bekommen „Diese E-Mail-Adresse ist nicht freigegeben“. Eine Freigabe zurückziehen: die Zeile in `notenbuch_invites` löschen. Ein schon angelegtes Konto bleibt davon unberührt.
+
+Alternativ kannst du weiterhin selbst ein Konto anlegen (Adresse zuerst freigeben): **Authentication → Users → Add user → Create new user** → E-Mail, Startpasswort, **Auto Confirm User** → **Create user**. Danach Adresse und Startpasswort persönlich weitergeben. Das Passwort lässt sich in der Sidebar unter **Passwort** ändern.
 
 **Passwort vergessen:** Die Person **nicht löschen**, sonst sind auch ihre Daten weg. Stattdessen im **SQL Editor** ausführen (E-Mail und neues Passwort anpassen):
 
@@ -61,6 +74,24 @@ where email = 'person@example.at';
 ```
 
 Danach das neue Passwort weitergeben; die Person ändert es beim nächsten Login wieder.
+
+---
+
+## Teil D – Sicherheit (einmalig, bevor andere Personen dazukommen)
+
+1. **Mindestlänge fürs Passwort:** Supabase → **Authentication → Providers → Email** (bzw. **Policies / Passwords**) → **Minimum password length** auf **10** → Speichern. Das Notenbuch prüft die Länge zwar auch selbst, aber nur diese Einstellung gilt verbindlich.
+2. **Zwei-Faktor-Anmeldung (2FA)** für die drei Konten, über die man an alle Daten kommt:
+   - **GitHub:** Settings → Password and authentication → Two-factor authentication
+   - **Vercel:** Account Settings → Authentication → Two-Factor Authentication
+   - **Supabase:** Account → Security → Multi-Factor Authentication
+3. **Freigaben aufräumen:** Hat sich eine eingeladene Person registriert, ihre Zeile in `notenbuch_invites` wieder löschen. So kann niemand eine noch offene Freigabe vor ihr nutzen.
+4. **Registrierung testen:** Nach dem Einschalten von „Allow new users to sign up“ einmal mit einer **nicht** freigegebenen Adresse registrieren. Erwartet: „Diese E-Mail-Adresse ist nicht freigegeben“.
+
+**Was die eingeladenen Personen wissen sollten:**
+- Als Admin kannst du im Supabase-Dashboard technisch alle Daten sehen.
+- Wer echte Noten einträgt, ist selbst (bzw. die Schule) für den Datenschutz verantwortlich.
+- An Schul- oder fremden Computern nach der Arbeit immer **Abmelden**.
+- „Passwort vergessen“ geht nicht per Mail, sondern über dich (siehe oben).
 
 ---
 
